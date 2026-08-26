@@ -6,10 +6,10 @@ Cliente
 
 Ótica Viser — Lajeado, RS Especialista em visagismo e lentes multifocais.
 
-Integrantes
+Integrantes :
 Gabriel,
 Carlos,
-Lucca,
+Lucca
 
 Board
 https://github.com/users/gabriel-kuhn20/projects/4/views/1
