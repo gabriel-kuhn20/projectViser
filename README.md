@@ -10,9 +10,9 @@ Integrantes
 Gabriel 
 Carlos
 Lucca
-Board
 
-[LINK_DO_BOARD_AQUI]
+Board
+https://github.com/users/gabriel-kuhn20/projects/4/views/1
 
 Conteúdo do repositório
 docs/perguntas-cliente.md — perguntas ao cliente organizadas por bloco, com as três prioritárias marcadas, a hipótese do problema e a ideia de caminho.
