@@ -2,9 +2,7 @@ Projeto
 
 Sistema para a Ótica Viser, ótica de Lajeado (RS). O objetivo desta fase é levantar o problema real do cliente através de uma conversa estruturada, antes de escrever a v1 do PRD (entrega da aula 6).
 
-Cliente
-
-Ótica Viser — Lajeado, RS Especialista em visagismo e lentes multifocais.
+Cliente: Ótica Viser — Lajeado, RS Especialista em visagismo e lentes multifocais.
 
 Integrantes :
 Gabriel Kuhn,
