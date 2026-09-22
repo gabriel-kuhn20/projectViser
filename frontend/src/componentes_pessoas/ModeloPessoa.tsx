@@ -1,12 +1,12 @@
 export class ModeloPessoa{
 
-  pessoaId: Number;
-  nome: String;
-  email?: String;
-  cpf: String;
+  pessoaId: number;
+  nome: string;
+  email?: string;
+  cpf: string;
   criadoEm: Date;
 
-    constructor(pessoaId: Number, nome: String, email: String, cpf: String, criadoEm: Date){
+    constructor(pessoaId: number, nome: string, email: string, cpf: string, criadoEm: Date){
         this.pessoaId = pessoaId;
         this.nome = nome;
         this.email = email;
