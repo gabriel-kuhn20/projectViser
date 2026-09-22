@@ -3,12 +3,12 @@ import { ModeloCliente } from "../componentes_pessoas/ModeloCliente";
 
 export class ModeloClienteTag {
 
-    criadoEm: Date;
+    vinculadoEm: Date;
     cliente: ModeloCliente;
     tag: ModeloTag;
 
-    constructor(cliente: ModeloCliente, tag: ModeloTag, criadoEm: Date = new Date()) {
-    this.criadoEm = criadoEm;
+    constructor(cliente: ModeloCliente, tag: ModeloTag, vinculadoEm: Date = new Date()) {
+    this.vinculadoEm = vinculadoEm;
     this.cliente = cliente;
     this.tag = tag;
 }

@@ -1,18 +1,18 @@
 import { ModeloUsuario } from "../componentes_pessoas/ModeloUsuario";
 import { ModeloLembrete } from "./ModeloLembrete";
 
-export class ModeloEmAtendimento {
+export class ModeloInteracao {
     interacaoId: number;
-    lembreteId: ModeloLembrete;
-    responsavel: ModeloUsuario;
+    lembrete: ModeloLembrete;
+    autor: ModeloUsuario;
     conteudo: string;
     respostaCliente?: string;
     criadoEm: Date;
 
-    constructor(interacaoId: number, lembreteId: ModeloLembrete, responsavel: ModeloUsuario, conteudo: string, criadoEm: Date, respostaCliente?: string) {
+    constructor(interacaoId: number, lembrete: ModeloLembrete, autor: ModeloUsuario, conteudo: string, criadoEm: Date = new Date(), respostaCliente?: string) {
         this.interacaoId = interacaoId;
-        this.lembreteId = lembreteId;
-        this.responsavel = responsavel;
+        this.lembrete = lembrete;
+        this.autor = autor;
         this.conteudo = conteudo;
         this.criadoEm = criadoEm;
         this.respostaCliente = respostaCliente;

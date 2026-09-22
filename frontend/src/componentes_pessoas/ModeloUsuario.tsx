@@ -5,11 +5,13 @@ export class ModeloUsuario {
     email: string;
     senha: string;
     pessoa: ModeloPessoa;
+    criadoEm: Date;
 
-    constructor(usuarioId: number, email: string, senha: string, pessoa: ModeloPessoa) {
+    constructor(usuarioId: number, email: string, senha: string, pessoa: ModeloPessoa, criadoEm: Date = new Date()) {
         this.usuarioId = usuarioId;
         this.email = email;
         this.senha = senha;
         this.pessoa = pessoa;
+        this.criadoEm = criadoEm;
     }
 }

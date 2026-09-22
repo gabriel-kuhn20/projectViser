@@ -1,20 +1,22 @@
+import { ModeloMarcoAcompanhamento } from "../componentes_entregas/ModeloMarcoAcompanhamento";
+
+export type StatusLembrete = 'pendente' | 'concluido';
+
 export class ModeloLembrete {
 
     lembreteId: number;
-    marcoId: number;
-    status: string;
+    marco: ModeloMarcoAcompanhamento;
+    status: StatusLembrete = 'pendente'
     criadoEm: Date;
     concluidoEm?: Date;
-    
-    //aguardando o Lucca fazer o componentes entregas para se ter o marcoId do import
 
 
-    constructor(lembreteId: number, marcoId: number, status: string, criadoEm: Date, concluidoEm?: Date) {
+
+    constructor(lembreteId: number, marco: ModeloMarcoAcompanhamento, status: StatusLembrete, criadoEm: Date = new Date(), concluidoEm?: Date) {
         this.lembreteId = lembreteId;
-        this.marcoId = marcoId;
+        this.marco = marco;
         this.status = status;
         this.criadoEm = criadoEm;
         this.concluidoEm = concluidoEm;
-
     }
 }
