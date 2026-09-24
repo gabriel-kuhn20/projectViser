@@ -1,4 +1,4 @@
-// As sete entidades correspondem ao glossário da seção 12 do PRD e ao
+// As entidades correspondem ao glossário da seção 12 do PRD e ao
 // diagrama de modelo de dados (documentacao_projeto/diagrama-modelo-dados.png).
 
 generator client {
@@ -10,96 +10,139 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Atendente {
-  id             String          @id @default(uuid())
-  nome           String
-  email          String          @unique
-  senha          String
-  clientes       Cliente[]
-  interacoes     Interacao[]
-  emAtendimentos EmAtendimento[]
-  criadoEm       DateTime        @default(now())
+model Pessoa {
+  id       Int       @id @default(autoincrement())
+  nome     String
+  email    String?
+  cpf      String?
+  usuario  Usuario?
+  clientes Cliente[]
+  criadoEm DateTime  @default(now())
 
-  @@map("atendentes")
+  @@map("pessoa")
+}
+
+model Usuario {
+  id                  Int             @id @default(autoincrement())
+  pessoaId            Int             @unique
+  pessoa              Pessoa          @relation(fields: [pessoaId], references: [id])
+  email               String          @unique
+  senha               String
+  clientesResponsavel Cliente[]       @relation("ClienteResponsavel")
+  interacoes          Interacao[]
+  emAtendimentos      EmAtendimento[]
+  criadoEm            DateTime        @default(now())
+
+  @@map("usuario")
 }
 
 model Cliente {
-  id          String    @id @default(uuid())
-  nome        String
-  contato     String
-  atendenteId String
-  atendente   Atendente @relation(fields: [atendenteId], references: [id])
-  entregas    Entrega[]
-  criadoEm    DateTime  @default(now())
+  id            Int          @id @default(autoincrement())
+  pessoaId      Int
+  pessoa        Pessoa       @relation(fields: [pessoaId], references: [id])
+  contato       String
+  endereco      String?
+  responsavelId Int?
+  responsavel   Usuario?     @relation("ClienteResponsavel", fields: [responsavelId], references: [id])
+  entregas      Entrega[]
+  tags          ClienteTag[]
+  criadoEm      DateTime     @default(now())
 
-  @@map("clientes")
+  @@map("cliente")
+}
+
+model Tag {
+  id       Int          @id @default(autoincrement())
+  nome     String
+  clientes ClienteTag[]
+  criadoEm DateTime     @default(now())
+
+  @@map("tag")
+}
+
+model ClienteTag {
+  clienteId   Int
+  cliente     Cliente  @relation(fields: [clienteId], references: [id])
+  tagId       Int
+  tag         Tag      @relation(fields: [tagId], references: [id])
+  vinculadoEm DateTime @default(now())
+
+  @@id([clienteId, tagId])
+  @@map("cliente_tag")
 }
 
 model Entrega {
-  id          String                @id @default(uuid())
-  clienteId   String
+  id          Int                   @id @default(autoincrement())
+  clienteId   Int
   cliente     Cliente               @relation(fields: [clienteId], references: [id])
   dataEntrega DateTime
   marcos      MarcoAcompanhamento[]
+  criadoEm    DateTime              @default(now())
 
-  @@map("entregas")
+  @@map("entrega")
 }
 
-enum TipoMarco {
-  SETE_DIAS
-  DOIS_MESES
-  UM_ANO
+model TipoMarco {
+  id       Int                   @id @default(autoincrement())
+  nome     String                @unique // '7d', '2m', '1a'
+  marcos   MarcoAcompanhamento[]
+  criadoEm DateTime              @default(now())
+
+  @@map("tipo_marco")
 }
 
 model MarcoAcompanhamento {
-  id        String    @id @default(uuid())
-  entregaId String
-  entrega   Entrega   @relation(fields: [entregaId], references: [id])
-  tipo      TipoMarco
-  dataAlvo  DateTime
-  lembrete  Lembrete?
+  id          Int        @id @default(autoincrement())
+  entregaId   Int
+  entrega     Entrega    @relation(fields: [entregaId], references: [id])
+  tipoMarcoId Int
+  tipoMarco   TipoMarco  @relation(fields: [tipoMarcoId], references: [id])
+  dataAlvo    DateTime
+  lembretes   Lembrete[]
+  criadoEm    DateTime   @default(now())
 
-  @@map("marcos_acompanhamento")
+  @@unique([entregaId, tipoMarcoId]) // até 3 marcos por entrega, sem duplicar
+  @@map("marco_acompanhamento")
 }
 
 enum StatusLembrete {
-  PENDENTE
-  CONCLUIDO
+  pendente
+  concluido
 }
 
 model Lembrete {
-  id            String              @id @default(uuid())
-  marcoId       String              @unique
-  marco         MarcoAcompanhamento @relation(fields: [marcoId], references: [id])
-  status        StatusLembrete      @default(PENDENTE)
-  criadoEm      DateTime            @default(now())
-  concluidoEm   DateTime?
-  emAtendimento EmAtendimento?
-  interacoes    Interacao[]
+  id             Int                 @id @default(autoincrement())
+  marcoId        Int
+  marco          MarcoAcompanhamento @relation(fields: [marcoId], references: [id])
+  status         StatusLembrete      @default(pendente)
+  criadoEm       DateTime            @default(now())
+  concluidoEm    DateTime?
+  emAtendimentos EmAtendimento[]
+  interacoes     Interacao[]
 
-  @@map("lembretes")
+  @@map("lembrete")
 }
 
 model EmAtendimento {
-  id          String    @id @default(uuid())
-  lembreteId  String    @unique
-  lembrete    Lembrete  @relation(fields: [lembreteId], references: [id])
-  atendenteId String
-  atendente   Atendente @relation(fields: [atendenteId], references: [id])
-  iniciadoEm  DateTime  @default(now())
+  id         Int      @id @default(autoincrement())
+  lembreteId Int
+  lembrete   Lembrete @relation(fields: [lembreteId], references: [id])
+  usuarioId  Int
+  usuario    Usuario  @relation(fields: [usuarioId], references: [id])
+  iniciadoEm DateTime @default(now())
 
   @@map("em_atendimento")
 }
 
 model Interacao {
-  id              String    @id @default(uuid())
-  lembreteId      String
-  lembrete        Lembrete  @relation(fields: [lembreteId], references: [id])
-  atendenteId     String
-  atendente       Atendente @relation(fields: [atendenteId], references: [id])
+  id              Int      @id @default(autoincrement())
+  lembreteId      Int
+  lembrete        Lembrete @relation(fields: [lembreteId], references: [id])
+  usuarioId       Int
+  usuario         Usuario  @relation(fields: [usuarioId], references: [id])
   conteudo        String
   respostaCliente String?
-  criadoEm        DateTime  @default(now())
+  criadoEm        DateTime @default(now())
 
-  @@map("interacoes")
+  @@map("interacao")
 }
