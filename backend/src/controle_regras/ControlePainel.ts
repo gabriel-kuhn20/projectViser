@@ -5,7 +5,7 @@ import { clientePrisma } from "../config_servidor/ClientePrisma";
 async function obterResumoPendencias(req: Request, res: Response) {
   const pendenciasPorMarco = await clientePrisma.lembrete.groupBy({
     by: ["marcoId"],
-    where: { status: "PENDENTE" },
+    where: { status: "pendente" },
     _count: true,
   });
 

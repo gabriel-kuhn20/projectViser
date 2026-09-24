@@ -14,7 +14,7 @@ export function middlewareAutenticacao(req: Request, res: Response, next: NextFu
   try {
     const segredo = process.env.JWT_SEGREDO ?? "";
     const dadosToken = jwt.verify(token, segredo);
-    req.atendenteLogado = dadosToken;
+    req.usuarioLogado = dadosToken;
     next();
   } catch {
     return res.status(401).json({ mensagem: "token inválido ou expirado" });

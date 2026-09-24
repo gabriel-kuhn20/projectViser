@@ -1,4 +1,5 @@
 // tipos usados em mais de um lugar do back-end; espelham o schema.prisma
+import { StatusLembrete } from "@prisma/client";
 
-export type TipoMarco = "SETE_DIAS" | "DOIS_MESES" | "UM_ANO";
-export type StatusLembrete = "PENDENTE" | "CONCLUIDO";
+export type { StatusLembrete };
+export type NomeTipoMarco = "7d" | "2m" | "1a";

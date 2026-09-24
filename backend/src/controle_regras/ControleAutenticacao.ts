@@ -8,19 +8,19 @@ import { validadorLogin } from "../validadores_entrada/ValidadorAutenticacao";
 async function efetuarLogin(req: Request, res: Response) {
   const dadosValidados = validadorLogin.parse(req.body);
 
-  const atendente = await clientePrisma.atendente.findUnique({
+  const usuario = await clientePrisma.usuario.findUnique({
     where: { email: dadosValidados.email },
   });
 
   const senhaValida =
-    atendente && (await bcrypt.compare(dadosValidados.senha, atendente.senha));
+    usuario && (await bcrypt.compare(dadosValidados.senha, usuario.senha));
 
-  if (!atendente || !senhaValida) {
+  if (!usuario || !senhaValida) {
     return res.status(401).json({ mensagem: "email ou senha inválidos" });
   }
 
   const segredo = process.env.JWT_SEGREDO ?? "";
-  const token = jwt.sign({ atendenteId: atendente.id }, segredo, { expiresIn: "8h" });
+  const token = jwt.sign({ usuarioId: usuario.id }, segredo, { expiresIn: "8h" });
 
   return res.json({ token });
 }

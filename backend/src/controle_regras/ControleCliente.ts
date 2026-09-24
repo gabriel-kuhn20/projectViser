@@ -8,11 +8,13 @@ async function cadastrarCliente(req: Request, res: Response) {
 
   const novoCliente = await clientePrisma.cliente.create({
     data: {
-      nome: dadosValidados.nome,
       contato: dadosValidados.contato,
-      atendenteId: dadosValidados.atendenteId,
+      endereco: dadosValidados.endereco,
+      responsavelId: dadosValidados.responsavelId,
+      pessoa: { create: { nome: dadosValidados.nome } },
       entregas: { create: { dataEntrega: dadosValidados.dataEntrega } },
     },
+    include: { pessoa: true },
   });
 
   return res.status(201).json(novoCliente);
@@ -20,12 +22,20 @@ async function cadastrarCliente(req: Request, res: Response) {
 
 // UC03 · Editar cliente (RF09)
 async function editarCliente(req: Request, res: Response) {
-  const { clienteId } = req.params;
-  const dadosValidados = validadorEdicaoCliente.parse(req.body);
+  const clienteId = Number(req.params.clienteId);
+  if (Number.isNaN(clienteId)) {
+    return res.status(400).json({ mensagem: "clienteId inválido" });
+  }
+
+  const { nome, ...dadosCliente } = validadorEdicaoCliente.parse(req.body);
 
   const clienteAtualizado = await clientePrisma.cliente.update({
     where: { id: clienteId },
-    data: dadosValidados,
+    data: {
+      ...dadosCliente,
+      pessoa: nome ? { update: { nome } } : undefined,
+    },
+    include: { pessoa: true },
   });
 
   return res.json(clienteAtualizado);
