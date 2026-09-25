@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { clientePrisma } from "../config_servidor/ClientePrisma";
 import { validadorCadastroCliente, validadorEdicaoCliente } from "../validadores_entrada/ValidadorCliente";
+import { validadorParametroId } from "../validadores_entrada/ValidadorParametros";
 
 // UC02 · Cadastrar cliente (RF02)
 async function cadastrarCliente(req: Request, res: Response) {
@@ -22,11 +23,7 @@ async function cadastrarCliente(req: Request, res: Response) {
 
 // UC03 · Editar cliente (RF09)
 async function editarCliente(req: Request, res: Response) {
-  const clienteId = Number(req.params.clienteId);
-  if (Number.isNaN(clienteId)) {
-    return res.status(400).json({ mensagem: "clienteId inválido" });
-  }
-
+  const { id: clienteId } = validadorParametroId.parse({ id: req.params.clienteId });
   const { nome, ...dadosCliente } = validadorEdicaoCliente.parse(req.body);
 
   const clienteAtualizado = await clientePrisma.cliente.update({
@@ -41,4 +38,4 @@ async function editarCliente(req: Request, res: Response) {
   return res.json(clienteAtualizado);
 }
 
-export const controleCliente = { cadastrarCliente, editarCliente };
+export const controleCliente = { cadastrarCliente, editarCliente }; 
