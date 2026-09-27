@@ -1,6 +1,3 @@
-// As entidades correspondem ao glossário da seção 12 do PRD e ao
-// diagrama de modelo de dados (documentacao_projeto/diagrama-modelo-dados.png).
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -15,9 +12,9 @@ model Pessoa {
   nome     String
   email    String?
   cpf      String?
-  usuario  Usuario?
-  clientes Cliente[]
   criadoEm DateTime  @default(now())
+  clientes Cliente[]
+  usuario  Usuario?
 
   @@map("pessoa")
 }
@@ -25,13 +22,13 @@ model Pessoa {
 model Usuario {
   id                  Int             @id @default(autoincrement())
   pessoaId            Int             @unique
-  pessoa              Pessoa          @relation(fields: [pessoaId], references: [id])
   email               String          @unique
   senha               String
-  clientesResponsavel Cliente[]       @relation("ClienteResponsavel")
-  interacoes          Interacao[]
-  emAtendimentos      EmAtendimento[]
   criadoEm            DateTime        @default(now())
+  clientesResponsavel Cliente[]       @relation("ClienteResponsavel")
+  emAtendimentos      EmAtendimento[]
+  interacoes          Interacao[]
+  pessoa              Pessoa          @relation(fields: [pessoaId], references: [id])
 
   @@map("usuario")
 }
@@ -39,14 +36,14 @@ model Usuario {
 model Cliente {
   id            Int          @id @default(autoincrement())
   pessoaId      Int
-  pessoa        Pessoa       @relation(fields: [pessoaId], references: [id])
   contato       String
   endereco      String?
   responsavelId Int?
-  responsavel   Usuario?     @relation("ClienteResponsavel", fields: [responsavelId], references: [id])
-  entregas      Entrega[]
-  tags          ClienteTag[]
   criadoEm      DateTime     @default(now())
+  pessoa        Pessoa       @relation(fields: [pessoaId], references: [id])
+  responsavel   Usuario?     @relation("ClienteResponsavel", fields: [responsavelId], references: [id])
+  tags          ClienteTag[]
+  entregas      Entrega[]
 
   @@map("cliente")
 }
@@ -54,18 +51,18 @@ model Cliente {
 model Tag {
   id       Int          @id @default(autoincrement())
   nome     String
-  clientes ClienteTag[]
   criadoEm DateTime     @default(now())
+  clientes ClienteTag[]
 
   @@map("tag")
 }
 
 model ClienteTag {
   clienteId   Int
-  cliente     Cliente  @relation(fields: [clienteId], references: [id])
   tagId       Int
-  tag         Tag      @relation(fields: [tagId], references: [id])
   vinculadoEm DateTime @default(now())
+  cliente     Cliente  @relation(fields: [clienteId], references: [id])
+  tag         Tag      @relation(fields: [tagId], references: [id])
 
   @@id([clienteId, tagId])
   @@map("cliente_tag")
@@ -74,19 +71,19 @@ model ClienteTag {
 model Entrega {
   id          Int                   @id @default(autoincrement())
   clienteId   Int
-  cliente     Cliente               @relation(fields: [clienteId], references: [id])
   dataEntrega DateTime
-  marcos      MarcoAcompanhamento[]
   criadoEm    DateTime              @default(now())
+  cliente     Cliente               @relation(fields: [clienteId], references: [id])
+  marcos      MarcoAcompanhamento[]
 
   @@map("entrega")
 }
 
 model TipoMarco {
   id       Int                   @id @default(autoincrement())
-  nome     String                @unique // '7d', '2m', '1a'
-  marcos   MarcoAcompanhamento[]
+  nome     String                @unique
   criadoEm DateTime              @default(now())
+  marcos   MarcoAcompanhamento[]
 
   @@map("tipo_marco")
 }
@@ -94,42 +91,37 @@ model TipoMarco {
 model MarcoAcompanhamento {
   id          Int        @id @default(autoincrement())
   entregaId   Int
-  entrega     Entrega    @relation(fields: [entregaId], references: [id])
   tipoMarcoId Int
-  tipoMarco   TipoMarco  @relation(fields: [tipoMarcoId], references: [id])
   dataAlvo    DateTime
-  lembretes   Lembrete[]
   criadoEm    DateTime   @default(now())
+  lembretes   Lembrete[]
+  entrega     Entrega    @relation(fields: [entregaId], references: [id])
+  tipoMarco   TipoMarco  @relation(fields: [tipoMarcoId], references: [id])
 
-  @@unique([entregaId, tipoMarcoId]) // até 3 marcos por entrega, sem duplicar
+  @@unique([entregaId, tipoMarcoId])
   @@map("marco_acompanhamento")
-}
-
-enum StatusLembrete {
-  pendente
-  concluido
 }
 
 model Lembrete {
   id             Int                 @id @default(autoincrement())
   marcoId        Int
-  marco          MarcoAcompanhamento @relation(fields: [marcoId], references: [id])
   status         StatusLembrete      @default(pendente)
   criadoEm       DateTime            @default(now())
   concluidoEm    DateTime?
-  emAtendimentos EmAtendimento[]
+  emAtendimentos EmAtendimento?
   interacoes     Interacao[]
+  marco          MarcoAcompanhamento @relation(fields: [marcoId], references: [id])
 
   @@map("lembrete")
 }
 
 model EmAtendimento {
   id         Int      @id @default(autoincrement())
-  lembreteId Int      @unique // só um atendente por vez tratando um lembrete (RF08/UC09 A1)
-  lembrete   Lembrete @relation(fields: [lembreteId], references: [id])
+  lembreteId Int      @unique
   usuarioId  Int
-  usuario    Usuario  @relation(fields: [usuarioId], references: [id])
   iniciadoEm DateTime @default(now())
+  lembrete   Lembrete @relation(fields: [lembreteId], references: [id])
+  usuario    Usuario  @relation(fields: [usuarioId], references: [id])
 
   @@map("em_atendimento")
 }
@@ -137,12 +129,17 @@ model EmAtendimento {
 model Interacao {
   id              Int      @id @default(autoincrement())
   lembreteId      Int
-  lembrete        Lembrete @relation(fields: [lembreteId], references: [id])
   usuarioId       Int
-  usuario         Usuario  @relation(fields: [usuarioId], references: [id])
   conteudo        String
   respostaCliente String?
   criadoEm        DateTime @default(now())
+  lembrete        Lembrete @relation(fields: [lembreteId], references: [id])
+  usuario         Usuario  @relation(fields: [usuarioId], references: [id])
 
   @@map("interacao")
+}
+
+enum StatusLembrete {
+  pendente
+  concluido
 }
