@@ -1,6 +1,6 @@
 // UC02 · Cadastrar cliente / UC03 · Editar cliente
-import { TabelaClientes } from "../componentes_pessoas/TabelaPessoa";
-import { FormularioCliente } from "../componentes_pessoas/TabelaUsuario";
+import { TabelaClientes } from "../componentes_pessoas/TabelaClientes";
+import { FormularioCliente } from "../componentes_pessoas/FormularioCliente";
 
 export function PaginaClientes() {
   return (

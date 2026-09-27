@@ -1,4 +1,4 @@
-import { NomeTipoMarco } from "../utilitarios_datas/TiposDominio";
+import { NomeTipoMarco } from "../tipos_compartilhados/TiposDominio";
 
 const SETE_DIAS_EM_MS = 7 * 24 * 60 * 60 * 1000;
 const DOIS_MESES_EM_MS = 60 * 24 * 60 * 60 * 1000;

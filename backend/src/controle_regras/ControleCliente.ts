@@ -11,7 +11,9 @@ async function cadastrarCliente(req: Request, res: Response) {
     data: {
       contato: dadosValidados.contato,
       endereco: dadosValidados.endereco,
-      responsavelId: dadosValidados.responsavelId,
+      responsavel: dadosValidados.responsavelId
+        ? { connect: { id: dadosValidados.responsavelId } }
+        : undefined,
       pessoa: { create: { nome: dadosValidados.nome } },
       entregas: { create: { dataEntrega: dadosValidados.dataEntrega } },
     },
