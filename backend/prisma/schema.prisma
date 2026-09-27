@@ -125,7 +125,7 @@ model Lembrete {
 
 model EmAtendimento {
   id         Int      @id @default(autoincrement())
-  lembreteId Int
+  lembreteId Int      @unique // só um atendente por vez tratando um lembrete (RF08/UC09 A1)
   lembrete   Lembrete @relation(fields: [lembreteId], references: [id])
   usuarioId  Int
   usuario    Usuario  @relation(fields: [usuarioId], references: [id])
