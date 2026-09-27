@@ -6,6 +6,7 @@ import { rotaLembrete } from "./RotaLembrete";
 import { rotaInteracao } from "./RotaInteracao";
 import { rotaPainel } from "./RotaPainel";
 import { rotaTag } from "./RotaTag";
+import { rotaPessoa } from "./RotaPessoa";
 
 export const rotaPrincipal = Router();
 
@@ -16,3 +17,4 @@ rotaPrincipal.use("/lembretes", rotaLembrete);         // UC05, UC08, UC09
 rotaPrincipal.use("/interacoes", rotaInteracao);       // UC06, UC07
 rotaPrincipal.use("/painel", rotaPainel);              // UC11
 rotaPrincipal.use("/tags", rotaTag);
+rotaPrincipal.use("/pessoas", rotaPessoa);
