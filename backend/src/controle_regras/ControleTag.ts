@@ -71,5 +71,17 @@ async function excluirTag(req: Request, res: Response) {
         : "tag excluída",
   });
 }
+  
+// Buscar tag por id
+async function buscarTagPorId(req: Request, res: Response) {
+  const { id: tagId } = validadorParametroId.parse({ id: req.params.tagId });
 
-export const controleTag = { cadastrarTag, listarTags, editarTag, excluirTag };
+  const tag = await clientePrisma.tag.findUnique({ where: { id: tagId } });
+  if (!tag) {
+    throw new ErroHttp(404, "tag não encontrada");
+  }
+
+  return res.json(tag);
+}
+
+export const controleTag = { cadastrarTag, listarTags, buscarTagPorId, editarTag, excluirTag };

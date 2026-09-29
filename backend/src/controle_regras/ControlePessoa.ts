@@ -120,4 +120,33 @@ async function excluirPessoa(req: Request, res: Response) {
   return res.json({ mensagem: "pessoa excluída, junto com todos os dados vinculados a ela" });
 }
 
-export const controlePessoa = { cadastrarPessoa, listarPessoas, editarPessoa, excluirPessoa };
+// Buscar pessoa por id
+async function buscarPessoaPorId(req: Request, res: Response) {
+  const { id: pessoaId } = validadorParametroId.parse({ id: req.params.pessoaId });
+
+  const pessoa = await clientePrisma.pessoa.findUnique({
+    where: { id: pessoaId },
+    select: {
+      id: true,
+      nome: true,
+      email: true,
+      cpf: true,
+      criadoEm: true,
+      usuario: {
+        select: {
+          id: true,
+          email: true,
+          // senha propositalmente de fora — nunca deve sair pela API
+        },
+      },
+      clientes: true,
+    },
+  });
+  if (!pessoa) {
+    throw new ErroHttp(404, "pessoa não encontrada");
+  }
+
+  return res.json(pessoa);
+}
+
+export const controlePessoa = { cadastrarPessoa, listarPessoas, buscarPessoaPorId, editarPessoa, excluirPessoa };

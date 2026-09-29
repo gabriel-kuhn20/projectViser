@@ -8,5 +8,6 @@ rotaPessoa.use(middlewareAutenticacao);
 
 rotaPessoa.post("/", controlePessoa.cadastrarPessoa);
 rotaPessoa.get("/", controlePessoa.listarPessoas);
+rotaPessoa.get("/:pessoaId", controlePessoa.buscarPessoaPorId);
 rotaPessoa.put("/:pessoaId", controlePessoa.editarPessoa);
 rotaPessoa.delete("/:pessoaId", controlePessoa.excluirPessoa);

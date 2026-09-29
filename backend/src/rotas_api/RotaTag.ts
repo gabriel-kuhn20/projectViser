@@ -8,5 +8,6 @@ rotaTag.use(middlewareAutenticacao);
 
 rotaTag.post("/", controleTag.cadastrarTag);
 rotaTag.get("/", controleTag.listarTags);
+rotaTag.get("/:tagId", controleTag.buscarTagPorId);
 rotaTag.put("/:tagId", controleTag.editarTag);
 rotaTag.delete("/:tagId", controleTag.excluirTag);
