@@ -3,6 +3,7 @@ import { NavLink } from "react-router-dom";
 const itensMenu = [
   { rotulo: "Lembretes", rota: "/" },
   { rotulo: "Clientes", rota: "/clientes" },
+  { rotulo: "Tags", rota: "/tags" },
   { rotulo: "Painel", rota: "/painel" },
   { rotulo: "Atendentes", rota: "/atendentes" },
 ];

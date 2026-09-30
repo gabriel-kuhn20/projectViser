@@ -88,4 +88,56 @@
   .cartao {
     @apply bg-white rounded-lg border border-viser-creme2 p-6;
   }
+
+  /* Botão secundário: ações menos destacadas (sair, cancelar) */
+  .botao-secundario {
+    @apply inline-flex justify-center items-center rounded-md border border-viser-creme2 px-4 py-2 text-sm font-medium text-viser-900 hover:bg-viser-creme2 transition-colors disabled:opacity-60 disabled:cursor-not-allowed;
+  }
+
+  /* Botão de perigo: ações destrutivas (excluir) */
+  .botao-perigo {
+    @apply inline-flex justify-center items-center rounded-md border border-red-200 px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed;
+  }
+
+  .botao-link {
+    @apply inline-flex justify-center items-center rounded-md px-3 py-1.5 text-sm font-medium text-viser-800 hover:bg-viser-creme2 transition-colors disabled:opacity-60 disabled:cursor-not-allowed;
+  }
+
+  /* Formulários de cadastro/edição */
+  .formulario-campo-linha {
+    @apply grid grid-cols-1 sm:grid-cols-2 gap-4;
+  }
+
+  .formulario-acoes {
+    @apply flex items-center gap-3 mt-2;
+  }
+
+  .mensagem-vazia {
+    @apply text-sm text-viser-900/50 italic;
+  }
+
+  /* Tabelas de listagem */
+  .tabela-wrapper {
+    @apply overflow-x-auto;
+  }
+
+  .tabela {
+    @apply w-full text-sm text-left border-collapse;
+  }
+
+  .tabela thead {
+    @apply border-b border-viser-creme2 text-xs uppercase tracking-wide text-viser-900/60;
+  }
+
+  .tabela th {
+    @apply py-2 pr-4 font-medium;
+  }
+
+  .tabela td {
+    @apply py-3 pr-4 border-b border-viser-creme2/70 align-top;
+  }
+
+  .tabela tbody tr:hover {
+    @apply bg-viser-creme/60;
+  }
 }

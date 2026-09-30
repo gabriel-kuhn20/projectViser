@@ -7,6 +7,7 @@ import { PaginaClientes } from "./paginas_app/PaginaClientes";
 import { PaginaHistorico } from "./paginas_app/PaginaHistorico";
 import { PaginaPainel } from "./paginas_app/PaginaPainel";
 import { PaginaAtendentes } from "./paginas_app/PaginaAtendentes";
+import { PaginaTags } from "./paginas_app/PaginaTags";
 
 export function App() {
   return (
@@ -16,6 +17,7 @@ export function App() {
           <Route path="/login" element={<PaginaLogin />} />
           <Route path="/" element={<RotaProtegida><PaginaLembretes /></RotaProtegida>} />
           <Route path="/clientes" element={<RotaProtegida><PaginaClientes /></RotaProtegida>} />
+          <Route path="/tags" element={<RotaProtegida><PaginaTags /></RotaProtegida>} />
           <Route path="/historico/:clienteId" element={<RotaProtegida><PaginaHistorico /></RotaProtegida>} />
           <Route path="/painel" element={<RotaProtegida><PaginaPainel /></RotaProtegida>} />
           <Route path="/atendentes" element={<RotaProtegida><PaginaAtendentes /></RotaProtegida>} />
