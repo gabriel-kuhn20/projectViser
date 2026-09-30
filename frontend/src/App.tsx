@@ -5,26 +5,29 @@ import { LayoutPrincipal } from "./componentes_layout/LayoutPrincipal";
 import { PaginaLogin } from "./paginas_app/PaginaLogin";
 import { PaginaLembretes } from "./paginas_app/PaginaLembretes";
 import { PaginaClientes } from "./paginas_app/PaginaClientes";
+import { PaginaPessoas } from "./paginas_app/PaginaPessoas";
 import { PaginaHistorico } from "./paginas_app/PaginaHistorico";
 import { PaginaPainel } from "./paginas_app/PaginaPainel";
 import { PaginaAtendentes } from "./paginas_app/PaginaAtendentes";
-
+import { PaginaTags } from "./paginas_app/PaginaTags";
 
 export function App() {
-  return (
-      <ContextoAutenticacao>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/login" element={<PaginaLogin />} />
-            <Route element={<RotaProtegida><LayoutPrincipal /></RotaProtegida>}>
-              <Route path="/" element={<PaginaLembretes />} />
-              <Route path="/clientes" element={<PaginaClientes />} />
-              <Route path="/historico/:clienteId" element={<PaginaHistorico />} />
-              <Route path="/painel" element={<PaginaPainel />} />
-              <Route path="/atendentes" element={<PaginaAtendentes />} />
-            </Route>
-          </Routes>
-        </BrowserRouter>
-      </ContextoAutenticacao>
-  );
+    return (
+        <ContextoAutenticacao>
+            <BrowserRouter>
+                <Routes>
+                    <Route path="/login" element={<PaginaLogin/>}/>
+                    <Route element={<RotaProtegida><LayoutPrincipal/></RotaProtegida>}>
+                        <Route path="/" element={<PaginaLembretes/>}/>
+                        <Route path="/clientes" element={<PaginaClientes/>}/>
+                        <Route path="/pessoas" element={<PaginaPessoas/>}/>
+                        <Route path="/tags" element={<PaginaTags/>}/>
+                        <Route path="/historico/:clienteId" element={<PaginaHistorico/>}/>
+                        <Route path="/painel" element={<PaginaPainel/>}/>
+                        <Route path="/atendentes" element={<PaginaAtendentes/>}/>
+                    </Route>
+                </Routes>
+            </BrowserRouter>
+        </ContextoAutenticacao>
+    );
 }
