@@ -16,15 +16,15 @@ export function App() {
         <ContextoAutenticacao>
             <BrowserRouter>
                 <Routes>
-                    <Route path="/login" element={<PaginaLogin />} />
-                    <Route element={<RotaProtegida><LayoutPrincipal /></RotaProtegida>}>
-                        <Route path="/" element={<PaginaLembretes />} />
-                        <Route path="/clientes" element={<PaginaClientes />} />
-                        <Route path="/pessoas" element={<PaginaPessoas />} />
-                        <Route path="/tags" element={<PaginaTags />} />
-                        <Route path="/historico/:clienteId" element={<PaginaHistorico />} />
-                        <Route path="/painel" element={<PaginaPainel />} />
-                        <Route path="/atendentes" element={<PaginaAtendentes />} />
+                    <Route path="/login" element={<PaginaLogin/>}/>
+                    <Route element={<RotaProtegida><LayoutPrincipal/></RotaProtegida>}>
+                        <Route path="/" element={<PaginaLembretes/>}/>
+                        <Route path="/clientes" element={<PaginaClientes/>}/>
+                        <Route path="/pessoas" element={<PaginaPessoas/>}/>
+                        <Route path="/tags" element={<PaginaTags/>}/>
+                        <Route path="/historico/:clienteId" element={<PaginaHistorico/>}/>
+                        <Route path="/painel" element={<PaginaPainel/>}/>
+                        <Route path="/atendentes" element={<PaginaAtendentes/>}/>
                     </Route>
                 </Routes>
             </BrowserRouter>
