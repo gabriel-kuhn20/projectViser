@@ -1,18 +1,31 @@
 import { NavLink } from "react-router-dom";
 
-function obterClasseLink({ isActive }: { isActive: boolean }) {
-    return isActive ? "nav-link active" : "nav-link";
-}
+const itensMenu = [
+    { rotulo: "Lembretes", rota: "/" },
+    { rotulo: "Clientes", rota: "/clientes" },
+    { rotulo: "Tags", rota: "/tags" },
+    { rotulo: "Painel", rota: "/painel" },
+    { rotulo: "Atendentes", rota: "/atendentes" },
+];
 
 export function MenuLateral() {
     return (
-        <nav className="nav nav-pills flex-column p-3">
-            <NavLink to="/" end className={obterClasseLink}>lembretes</NavLink>
-            <NavLink to="/clientes" className={obterClasseLink}>clientes</NavLink>
-            <NavLink to="/pessoas" className={obterClasseLink}>pessoas</NavLink>
-            <NavLink to="/tags" className={obterClasseLink}>tags</NavLink>
-            <NavLink to="/painel" className={obterClasseLink}>painel</NavLink>
-            <NavLink to="/atendentes" className={obterClasseLink}>atendentes</NavLink>
-        </nav>
+        <aside className="app-sidebar">
+            <div className="app-sidebar-logo">Viser</div>
+            <nav className="app-sidebar-nav">
+                {itensMenu.map((item) => (
+                    <NavLink
+                        key={item.rota}
+                        to={item.rota}
+                        end={item.rota === "/"}
+                        className={({ isActive }) =>
+                            `app-sidebar-link ${isActive ? "ativo" : ""}`
+                        }
+                    >
+                        {item.rotulo}
+                    </NavLink>
+                ))}
+            </nav>
+        </aside>
     );
 }

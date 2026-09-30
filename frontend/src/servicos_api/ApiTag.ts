@@ -1,27 +1,22 @@
 import { clienteHttp } from "./ClienteHttp";
 
-export type DadosTag = {
+export type TagApi = {
     id: number;
     nome: string;
     criadoEm: string;
 };
 
-export async function listarTags(): Promise<DadosTag[]> {
+export async function listarTags(): Promise<TagApi[]> {
     const resposta = await clienteHttp.get("/tags");
-    return resposta.data;
+    return Array.isArray(resposta.data) ? resposta.data : [];
 }
 
-export async function buscarTagPorId(tagId: number): Promise<DadosTag> {
-    const resposta = await clienteHttp.get(`/tags/${tagId}`);
-    return resposta.data;
-}
-
-export async function cadastrarTag(nome: string): Promise<DadosTag> {
+export async function cadastrarTag(nome: string): Promise<TagApi> {
     const resposta = await clienteHttp.post("/tags", { nome });
     return resposta.data;
 }
 
-export async function editarTag(tagId: number, nome: string): Promise<DadosTag> {
+export async function editarTag(tagId: number, nome: string): Promise<TagApi> {
     const resposta = await clienteHttp.put(`/tags/${tagId}`, { nome });
     return resposta.data;
 }

@@ -1,19 +1,15 @@
-import { Outlet } from "react-router-dom";
-import { CabecalhoPrincipal } from "./CabecalhoPrincipal";
+import { ReactNode } from "react";
 import { MenuLateral } from "./MenuLateral";
+import { CabecalhoPrincipal } from "./CabecalhoPrincipal";
 
-// moldura das telas autenticadas: cabeçalho + menu + conteúdo da rota
-export function LayoutPrincipal() {
+// Estrutura visual das telas autenticadas: menu lateral + cabeçalho + conteúdo
+export function LayoutPrincipal({ children }: { children: ReactNode }) {
     return (
-        <div className="d-flex flex-column min-vh-100">
-            <CabecalhoPrincipal />
-            <div className="d-flex flex-grow-1">
-                <aside className="bg-light border-end flex-shrink-0" style={{ width: 220 }}>
-                    <MenuLateral />
-                </aside>
-                <main className="flex-grow-1 p-4">
-                    <Outlet />
-                </main>
+        <div className="app-shell">
+            <MenuLateral />
+            <div className="app-content">
+                <CabecalhoPrincipal />
+                <main className="app-main">{children}</main>
             </div>
         </div>
     );
