@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { clientePrisma } from "../config_servidor/ClientePrisma";
+import { obterSegredoJwt } from "../config_servidor/ConfiguracaoAmbiente";
 import { validadorLogin } from "../validadores_entrada/ValidadorAutenticacao";
 
 // UC01 · Entrar no sistema (RF01)
@@ -13,14 +14,13 @@ async function efetuarLogin(req: Request, res: Response) {
   });
 
   const senhaValida =
-    usuario && (await bcrypt.compare(dadosValidados.senha, usuario.senha));
+      usuario && (await bcrypt.compare(dadosValidados.senha, usuario.senha));
 
   if (!usuario || !senhaValida) {
     return res.status(401).json({ mensagem: "email ou senha inválidos" });
   }
 
-  const segredo = process.env.JWT_SEGREDO ?? "";
-  const token = jwt.sign({ usuarioId: usuario.id }, segredo, { expiresIn: "8h" });
+  const token = jwt.sign({ usuarioId: usuario.id }, obterSegredoJwt(), { expiresIn: "8h" });
 
   return res.json({ token });
 }

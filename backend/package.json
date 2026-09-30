@@ -10,7 +10,6 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "testar:conexao": "ts-node src/testes/testeConexaoBanco.ts"
-    
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
@@ -21,6 +20,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "express-async-errors": "^3.1.1",
     "jsonwebtoken": "^9.0.2",
     "node-cron": "^3.0.3",
     "zod": "^3.23.8"

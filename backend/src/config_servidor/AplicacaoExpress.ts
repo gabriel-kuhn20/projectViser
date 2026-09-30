@@ -1,3 +1,6 @@
+// precisa ser o primeiro import: no Express 4, erros em handlers async
+// só chegam ao middleware de erros com este patch
+import "express-async-errors";
 import express, { Express } from "express";
 import cors from "cors";
 import { rotaPrincipal } from "../rotas_api/RotaPrincipal";
