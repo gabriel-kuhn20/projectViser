@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-viser-creme text-viser-950 font-sans antialiased;
+  }
+
+  h1, h2, h3 {
+    @apply font-display;
+  }
+}
+
+@layer components {
+  /* Estrutura geral do app: sidebar escura + conteúdo claro */
+  .app-shell {
+    @apply flex min-h-screen;
+  }
+
+  .app-sidebar {
+    @apply w-60 shrink-0 bg-viser-950 text-viser-creme flex flex-col;
+  }
+
+  .app-sidebar-logo {
+    @apply font-display italic text-2xl px-6 py-6 border-b border-viser-800;
+  }
+
+  .app-sidebar-nav {
+    @apply flex flex-col gap-1 p-3;
+  }
+
+  .app-sidebar-link {
+    @apply px-3 py-2 rounded-md text-sm tracking-wide uppercase text-viser-creme2/80 hover:bg-viser-800 hover:text-viser-creme transition-colors;
+  }
+
+  .app-sidebar-link.ativo {
+    @apply bg-viser-800 text-viser-creme;
+  }
+
+  .app-content {
+    @apply flex-1 flex flex-col;
+  }
+
+  .app-header {
+    @apply px-8 py-5 border-b border-viser-creme2 bg-white;
+  }
+
+  .app-main {
+    @apply flex-1 p-8;
+  }
+
+  /* Página de login */
+  .login-shell {
+    @apply min-h-screen flex items-center justify-center bg-viser-950 px-4;
+  }
+
+  .login-card {
+    @apply w-full max-w-sm bg-viser-creme rounded-lg shadow-xl p-8;
+  }
+
+  .login-titulo {
+    @apply font-display italic text-3xl text-viser-950 mb-6 text-center;
+  }
+
+  /* Campo de texto compartilhado */
+  .campo-texto-rotulo {
+    @apply block text-sm font-medium text-viser-900 mb-4;
+  }
+
+  .campo-texto-input {
+    @apply mt-1 w-full rounded-md border border-viser-creme2 bg-white px-3 py-2 text-sm text-viser-950 focus:outline-none focus:ring-2 focus:ring-viser-700 focus:border-transparent;
+  }
+
+  /* Botão primário compartilhado */
+  .botao-primario {
+    @apply w-full inline-flex justify-center items-center rounded-md bg-viser-950 px-4 py-2 text-sm font-medium text-viser-creme hover:bg-viser-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed;
+  }
+
+  .mensagem-erro {
+    @apply text-sm text-red-700 bg-red-50 border border-red-200 rounded-md px-3 py-2 mb-4;
+  }
+
+  .pagina-titulo {
+    @apply font-display text-2xl text-viser-950 mb-6;
+  }
+
+  .cartao {
+    @apply bg-white rounded-lg border border-viser-creme2 p-6;
+  }
+}

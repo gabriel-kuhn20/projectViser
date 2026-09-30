@@ -1,3 +1,7 @@
 export function CabecalhoPrincipal() {
-  return <header>Sistema de Pós Venda da Ótica</header>;
+  return (
+    <header className="app-header">
+      <h1 className="text-lg font-medium text-viser-950">Sistema de Pós Venda da Ótica</h1>
+    </header>
+  );
 }

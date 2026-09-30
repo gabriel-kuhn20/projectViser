@@ -1,12 +1,30 @@
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
+
+const itensMenu = [
+  { rotulo: "Lembretes", rota: "/" },
+  { rotulo: "Clientes", rota: "/clientes" },
+  { rotulo: "Painel", rota: "/painel" },
+  { rotulo: "Atendentes", rota: "/atendentes" },
+];
 
 export function MenuLateral() {
   return (
-    <nav>
-      <Link to="/">lembretes</Link>
-      <Link to="/clientes">clientes</Link>
-      <Link to="/painel">painel</Link>
-      <Link to="/atendentes">atendentes</Link>
-    </nav>
+    <aside className="app-sidebar">
+      <div className="app-sidebar-logo">Viser</div>
+      <nav className="app-sidebar-nav">
+        {itensMenu.map((item) => (
+          <NavLink
+            key={item.rota}
+            to={item.rota}
+            end={item.rota === "/"}
+            className={({ isActive }) =>
+              `app-sidebar-link ${isActive ? "ativo" : ""}`
+            }
+          >
+            {item.rotulo}
+          </NavLink>
+        ))}
+      </nav>
+    </aside>
   );
 }

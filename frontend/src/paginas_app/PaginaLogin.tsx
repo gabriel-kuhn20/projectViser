@@ -32,12 +32,18 @@ export function PaginaLogin() {
   }
 
   return (
-      <form onSubmit={enviarFormulario}>
-        <h1>Entrar</h1>
+    <div className="login-shell">
+      <form onSubmit={enviarFormulario} className="login-card">
+        <h1 className="login-titulo">Viser</h1>
         <CampoTexto rotulo="Email" valor={email} aoAlterar={definirEmail} />
         <CampoTexto rotulo="Senha" valor={senha} tipo="password" aoAlterar={definirSenha} />
-        {mensagemErro && <p role="alert">{mensagemErro}</p>}
-        <BotaoPrimario texto={estaEnviando ? "Entrando..." : "Entrar"} aoClicar={() => {}} />
+        {mensagemErro && <p role="alert" className="mensagem-erro">{mensagemErro}</p>}
+        <BotaoPrimario
+          texto={estaEnviando ? "Entrando..." : "Entrar"}
+          aoClicar={() => {}}
+          desabilitado={estaEnviando}
+        />
       </form>
+    </div>
   );
 }

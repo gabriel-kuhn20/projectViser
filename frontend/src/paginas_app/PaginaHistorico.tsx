@@ -5,8 +5,11 @@ import { FormularioInteracao } from "../componentes_interacoes/FormularioInterac
 export function PaginaHistorico() {
   return (
     <div>
-      <HistoricoInteracoes />
-      <FormularioInteracao />
+      <h2 className="pagina-titulo">Histórico do cliente</h2>
+      <div className="flex flex-col gap-4">
+        <HistoricoInteracoes />
+        <FormularioInteracao />
+      </div>
     </div>
   );
 }

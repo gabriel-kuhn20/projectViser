@@ -7,9 +7,14 @@ type PropriedadesCampoTexto = {
 
 export function CampoTexto({ rotulo, valor, aoAlterar, tipo = "text" }: PropriedadesCampoTexto) {
   return (
-      <label>
-        {rotulo}
-        <input type={tipo} value={valor} onChange={(evento) => aoAlterar(evento.target.value)} />
-      </label>
+    <label className="campo-texto-rotulo">
+      {rotulo}
+      <input
+        type={tipo}
+        value={valor}
+        onChange={(evento) => aoAlterar(evento.target.value)}
+        className="campo-texto-input"
+      />
+    </label>
   );
 }

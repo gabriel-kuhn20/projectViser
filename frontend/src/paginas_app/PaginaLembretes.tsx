@@ -2,5 +2,10 @@
 import { ListaLembretes } from "../componentes_lembretes/ListaLembretes";
 
 export function PaginaLembretes() {
-  return <ListaLembretes />;
+  return (
+    <div>
+      <h2 className="pagina-titulo">Lembretes</h2>
+      <ListaLembretes />
+    </div>
+  );
 }
