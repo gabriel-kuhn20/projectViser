@@ -1,4 +1,11 @@
 // UC10 · Cadastrar conta de atendente
+import { FormularioAtendente } from "../componentes_pessoas/FormularioAtendente";
+
 export function PaginaAtendentes() {
-  return <div>formulário de cadastro de novas atendentes</div>;
+  return (
+      <div>
+        <h1 className="h3 mb-4">Atendentes</h1>
+        <FormularioAtendente />
+      </div>
+  );
 }

@@ -1,12 +1,18 @@
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
+
+function obterClasseLink({ isActive }: { isActive: boolean }) {
+    return isActive ? "nav-link active" : "nav-link";
+}
 
 export function MenuLateral() {
-  return (
-    <nav>
-      <Link to="/">lembretes</Link>
-      <Link to="/clientes">clientes</Link>
-      <Link to="/painel">painel</Link>
-      <Link to="/atendentes">atendentes</Link>
-    </nav>
-  );
+    return (
+        <nav className="nav nav-pills flex-column p-3">
+            <NavLink to="/" end className={obterClasseLink}>lembretes</NavLink>
+            <NavLink to="/clientes" className={obterClasseLink}>clientes</NavLink>
+            <NavLink to="/pessoas" className={obterClasseLink}>pessoas</NavLink>
+            <NavLink to="/tags" className={obterClasseLink}>tags</NavLink>
+            <NavLink to="/painel" className={obterClasseLink}>painel</NavLink>
+            <NavLink to="/atendentes" className={obterClasseLink}>atendentes</NavLink>
+        </nav>
+    );
 }
