@@ -1,24 +1,24 @@
 import { useEffect, useState } from "react";
 import { CampoTexto } from "../componentes_compartilhados/CampoTexto";
 import { BotaoPrimario } from "../componentes_compartilhados/BotaoPrimario";
-import { cadastrarTag, editarTag, DadosTag } from "../servicos_api/ApiTag";
-import { formatarMensagemErro } from "../utilitarios_formatacao/FormatarErro";
+import { cadastrarTag, editarTag, type TagApi } from "../servicos_api/ApiTag";
 
 type PropriedadesFormularioTag = {
-    tagEmEdicao: DadosTag | null;
-    aoSalvar: () => void;
-    aoCancelar: () => void;
+    tagEmEdicao: TagApi | null;
+    aoSalvar: (tag: TagApi) => void;
+    aoCancelarEdicao: () => void;
 };
 
-// Cadastrar tag / Editar tag
-export function FormularioTag({ tagEmEdicao, aoSalvar, aoCancelar }: PropriedadesFormularioTag) {
-    const [nomeTag, definirNomeTag] = useState("");
+// Cadastro/edição de tags
+export function FormularioTag({ tagEmEdicao, aoSalvar, aoCancelarEdicao }: PropriedadesFormularioTag) {
+    const [nome, definirNome] = useState("");
     const [mensagemErro, definirMensagemErro] = useState<string | null>(null);
     const [estaEnviando, definirEstaEnviando] = useState(false);
 
-    // preenche o campo ao entrar em modo de edição e limpa ao sair
+    const estaEditando = tagEmEdicao !== null;
+
     useEffect(() => {
-        definirNomeTag(tagEmEdicao?.nome ?? "");
+        definirNome(tagEmEdicao?.nome ?? "");
         definirMensagemErro(null);
     }, [tagEmEdicao]);
 
@@ -28,32 +28,36 @@ export function FormularioTag({ tagEmEdicao, aoSalvar, aoCancelar }: Propriedade
         definirEstaEnviando(true);
 
         try {
-            if (tagEmEdicao) {
-                await editarTag(tagEmEdicao.id, nomeTag);
-            } else {
-                await cadastrarTag(nomeTag);
-            }
-            definirNomeTag("");
-            aoSalvar();
-        } catch (erro) {
-            definirMensagemErro(formatarMensagemErro(erro, "não foi possível salvar a tag"));
+            const tagSalva = tagEmEdicao
+                ? await editarTag(tagEmEdicao.id, nome)
+                : await cadastrarTag(nome);
+            aoSalvar(tagSalva);
+            if (!tagEmEdicao) definirNome("");
+        } catch (erro: any) {
+            definirMensagemErro(erro?.response?.data?.mensagem ?? "não foi possível salvar a tag. tente novamente.");
         } finally {
             definirEstaEnviando(false);
         }
     }
 
     return (
-        <form onSubmit={enviarFormulario} className="card card-body mb-4" style={{ maxWidth: 480 }}>
-            <h2 className="h5 mb-3">{tagEmEdicao ? "Editar tag" : "Nova tag"}</h2>
-            <CampoTexto rotulo="Nome da tag" valor={nomeTag} aoAlterar={definirNomeTag} obrigatorio />
-            {mensagemErro && <div className="alert alert-danger" role="alert">{mensagemErro}</div>}
-            <div className="d-flex gap-2">
+        <form onSubmit={enviarFormulario} className="cartao flex flex-col gap-4 max-w-sm">
+            <h3 className="font-display text-lg text-viser-950">{estaEditando ? "Editar tag" : "Nova tag"}</h3>
+
+            {mensagemErro && <p role="alert" className="mensagem-erro">{mensagemErro}</p>}
+
+            <CampoTexto rotulo="Nome" valor={nome} aoAlterar={definirNome} obrigatorio />
+
+            <div className="formulario-acoes">
                 <BotaoPrimario
-                    tipo="submit"
-                    texto={estaEnviando ? "Salvando..." : tagEmEdicao ? "Salvar alterações" : "Cadastrar"}
+                    texto={estaEnviando ? "Salvando..." : estaEditando ? "Salvar alterações" : "Cadastrar tag"}
                     desabilitado={estaEnviando}
                 />
-                {tagEmEdicao && <BotaoPrimario texto="Cancelar" variante="secondary" aoClicar={aoCancelar} />}
+                {estaEditando && (
+                    <button type="button" className="botao-secundario" onClick={aoCancelarEdicao} disabled={estaEnviando}>
+                        Cancelar
+                    </button>
+                )}
             </div>
         </form>
     );
