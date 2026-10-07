@@ -35,8 +35,12 @@ export function TabelaPessoas({ pessoasCadastradas, aoEditar, aoExcluir }: Propr
                         <td>{formatarDataBr(pessoa.criadoEm)}</td>
                         <td className="text-end">
                             <div className="d-inline-flex gap-2">
-                                <BotaoPrimario texto="Editar" variante="outline-primary" aoClicar={() => aoEditar(pessoa)} />
-                                <BotaoPrimario texto="Excluir" variante="outline-danger" aoClicar={() => aoExcluir(pessoa)} />
+                                <button type="button" className="botao-link" onClick={() => aoEditar(pessoa)}>
+                                    Editar
+                                </button>
+                                <button type="button" className="botao-perigo" onClick={() => aoExcluir(pessoa)}>
+                                    Excluir
+                                </button>
                             </div>
                         </td>
                     </tr>

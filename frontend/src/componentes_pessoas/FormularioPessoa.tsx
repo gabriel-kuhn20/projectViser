@@ -64,7 +64,11 @@ export function FormularioPessoa({ pessoaEmEdicao, aoSalvar, aoCancelar }: Propr
                     texto={estaEnviando ? "Salvando..." : pessoaEmEdicao ? "Salvar alterações" : "Cadastrar"}
                     desabilitado={estaEnviando}
                 />
-                {pessoaEmEdicao && <BotaoPrimario texto="Cancelar" variante="secondary" aoClicar={aoCancelar} />}
+                {pessoaEmEdicao && (
+                    <button type="button" className="botao-secundario" onClick={aoCancelar} disabled={estaEnviando}>
+                        Cancelar
+                    </button>
+                )}
             </div>
         </form>
     );
