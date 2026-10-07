@@ -32,7 +32,7 @@ export function PaginaClientes() {
 
         definirMensagemErro(null);
         try {
-            await excluirCliente(cliente.pessoaId);
+            await excluirCliente(cliente.id);
             definirClientes((atuais) => atuais.filter((c) => c.id !== cliente.id));
             if (clienteEmEdicao?.id === cliente.id) definirClienteEmEdicao(null);
         } catch (erro: any) {
