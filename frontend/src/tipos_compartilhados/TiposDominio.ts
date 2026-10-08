@@ -1,4 +1,11 @@
-// espelham os enums do backend/prisma/schema.prisma
+// espelham os enums do backend/prisma/schema.prisma e os nomes da tabela tipo_marco (seed.ts)
 
-export type TipoMarco = "SETE_DIAS" | "DOIS_MESES" | "UM_ANO";
-export type StatusLembrete = "PENDENTE" | "CONCLUIDO";
+export type TipoMarco = "7d" | "2m" | "1a";
+export type StatusLembrete = "pendente" | "concluido";
+
+// nome do marco do jeito que a atendente fala, para exibir na tela
+export const rotulosTipoMarco: Record<TipoMarco, string> = {
+    "7d": "7 dias",
+    "2m": "2 meses",
+    "1a": "1 ano",
+};
