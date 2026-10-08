@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import { PapelAcesso } from "@prisma/client";
 import { obterSegredoJwt } from "../config_servidor/ConfiguracaoAmbiente";
 
 // RNF03: usuário não autenticado não acessa dados de cliente
@@ -19,7 +20,7 @@ export function middlewareAutenticacao(req: Request, res: Response, next: NextFu
   const segredoJwt = obterSegredoJwt();
 
   try {
-    req.usuarioLogado = jwt.verify(token, segredoJwt) as { usuarioId: number };
+    req.usuarioLogado = jwt.verify(token, segredoJwt) as { usuarioId: number; papelAcesso: PapelAcesso };
     next();
   } catch {
     return res.status(401).json({ mensagem: "token inválido ou expirado" });

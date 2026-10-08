@@ -2,9 +2,12 @@ import { useEffect, useState } from "react";
 import { TabelaClientes } from "../componentes_pessoas/TabelaClientes";
 import { FormularioCliente } from "../componentes_pessoas/FormularioCliente";
 import { excluirCliente, listarClientes, type ClienteApi } from "../servicos_api/ApiCliente";
+import { usarAutenticacao } from "../hooks_dados/useAutenticacao";
 
 // UC02 · Cadastrar cliente / UC03 · Editar cliente
 export function PaginaClientes() {
+
+    const { papelAcesso } = usarAutenticacao();
     const [clientes, definirClientes] = useState<ClienteApi[]>([]);
     const [carregando, definirCarregando] = useState(true);
     const [clienteEmEdicao, definirClienteEmEdicao] = useState<ClienteApi | null>(null);
@@ -54,6 +57,7 @@ export function PaginaClientes() {
                 carregando={carregando}
                 aoEditar={definirClienteEmEdicao}
                 aoExcluir={aoExcluirCliente}
+                exclusaoPermitida={papelAcesso === "admin"}
             />
         </div>
     );

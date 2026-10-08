@@ -24,6 +24,7 @@ model Usuario {
   pessoaId            Int             @unique
   email               String          @unique
   senha               String
+  papelAcesso         PapelAcesso     @default(atendente)
   criadoEm            DateTime        @default(now())
   clientesResponsavel Cliente[]       @relation("ClienteResponsavel")
   emAtendimentos      EmAtendimento[]
@@ -142,4 +143,9 @@ model Interacao {
 enum StatusLembrete {
   pendente
   concluido
+}
+
+enum PapelAcesso {
+  admin
+  atendente
 }

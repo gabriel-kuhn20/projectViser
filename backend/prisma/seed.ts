@@ -33,7 +33,11 @@ async function seedAtendentePadrao() {
   });
 
   if (usuarioExistente) {
-    console.log("Atendente padrão já existe, seed pulado.");
+    await prisma.usuario.update({
+      where: { id: usuarioExistente.id },
+      data: { papelAcesso: "admin" },
+    });
+    console.log("Atendente padrão já existe, papelAcesso garantido como admin.");
     return;
   }
 
@@ -43,6 +47,7 @@ async function seedAtendentePadrao() {
     data: {
       email: EMAIL_ATENDENTE_PADRAO,
       senha: senhaComHash,
+      papelAcesso: "admin",
       pessoa: { create: { nome: "Administrador" } },
     },
   });

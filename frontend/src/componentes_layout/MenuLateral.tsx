@@ -1,19 +1,23 @@
 import { NavLink } from "react-router-dom";
+import { usarAutenticacao } from "../hooks_dados/useAutenticacao";
 
 const itensMenu = [
-    { rotulo: "Lembretes", rota: "/" },
-    { rotulo: "Clientes", rota: "/clientes" },
-    { rotulo: "Tags", rota: "/tags" },
-    { rotulo: "Painel", rota: "/painel" },
-    { rotulo: "Atendentes", rota: "/atendentes" },
+    { rotulo: "Lembretes", rota: "/", restritoAdmin: false },
+    { rotulo: "Clientes", rota: "/clientes", restritoAdmin: false },
+    { rotulo: "Tags", rota: "/tags", restritoAdmin: false },
+    { rotulo: "Painel", rota: "/painel", restritoAdmin: false },
+    { rotulo: "Atendentes", rota: "/atendentes", restritoAdmin: true },
 ];
 
 export function MenuLateral() {
+    const { papelAcesso } = usarAutenticacao();
+    const itensPermitidos = itensMenu.filter((item) => !item.restritoAdmin || papelAcesso === "admin");
+
     return (
         <aside className="app-sidebar">
             <div className="app-sidebar-logo">Viser</div>
             <nav className="app-sidebar-nav">
-                {itensMenu.map((item) => (
+                {itensPermitidos.map((item) => (
                     <NavLink
                         key={item.rota}
                         to={item.rota}
