@@ -1,13 +1,21 @@
 import { Request, Response } from "express";
 import { clientePrisma } from "../config_servidor/ClientePrisma";
+import { validadorParametroTipoMarco } from "../validadores_entrada/ValidadorLembrete";
 
 // UC05 · Ver lista de lembretes por marco (RF04)
 async function listarPorMarco(req: Request, res: Response) {
-  const { tipoMarco } = req.params;
+  const { tipoMarco } = validadorParametroTipoMarco.parse(req.params);
 
   const lembretesPendentes = await clientePrisma.lembrete.findMany({
     where: { status: "pendente", marco: { tipoMarco: { nome: tipoMarco } } },
-    include: { marco: { include: { entrega: { include: { cliente: true } } } }, emAtendimentos: true },
+    include: {
+      marco: { include: { entrega: { include: { cliente: { include: { pessoa: true } } } } } },
+      // quem está atendendo aparece na tela para outro atendente não ligar para o mesmo
+      // cliente — só o nome sai, email e senha do usuário ficam de fora
+      emAtendimentos: { include: { usuario: { select: { id: true, pessoa: { select: { nome: true } } } } } },
+    },
+    // o marco atingido há mais tempo vem primeiro: é o cliente que espera contato há mais tempo
+    orderBy: { marco: { dataAlvo: "asc" } },
   });
 
   return res.json(lembretesPendentes);

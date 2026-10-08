@@ -42,6 +42,11 @@ export async function editarCliente(clienteId: number, dadosCliente: DadosEdicao
   return resposta.data;
 }
 
+export async function buscarClientePorId(clienteId: number): Promise<ClienteApi> {
+  const respostaBusca = await clienteHttp.get(`/clientes/${clienteId}`);
+  return respostaBusca.data;
+}
+
 export async function listarClientes(): Promise<ClienteApi[]> {
   const respostaListagem = await clienteHttp.get("/clientes");
   return respostaListagem.data;

@@ -11,6 +11,11 @@ async function listarHistoricoCliente(req: Request, res: Response) {
 
   const interacoes = await clientePrisma.interacao.findMany({
     where: { lembrete: { marco: { entrega: { clienteId } } } },
+    // nome de quem registrou e marco do contato aparecem no histórico; dados de login do usuário ficam de fora
+    include: {
+      usuario: { select: { id: true, pessoa: { select: { nome: true } } } },
+      lembrete: { select: { id: true, marco: { select: { tipoMarco: { select: { nome: true } } } } } },
+    },
     orderBy: { criadoEm: "desc" },
   });
 
