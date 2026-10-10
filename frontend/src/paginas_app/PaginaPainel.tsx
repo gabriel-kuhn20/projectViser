@@ -37,7 +37,7 @@ export function PaginaPainel() {
                     className="cartao block transition-colors hover:border-viser-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-viser-700"
                 >
                   <span className="text-sm font-medium text-viser-900/70">{rotulosTipoMarco[tipoMarcoCartao]}</span>
-                  <span className="mt-2 block font-display text-5xl text-viser-950">
+                    <span className="mt-2 block font-display text-5xl lining-nums tabular-nums text-viser-950">
                     {resumoPendencias ? totalPendentes : "–"}
                   </span>
                   <span className="mt-1 block text-sm text-viser-900/70">
