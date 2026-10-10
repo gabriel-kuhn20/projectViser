@@ -2,6 +2,7 @@
 
 export type TipoMarco = "7d" | "2m" | "1a";
 export type StatusLembrete = "pendente" | "concluido";
+export type PapelAcesso = "admin" | "atendente";
 
 // nome do marco do jeito que a atendente fala, para exibir na tela
 export const rotulosTipoMarco: Record<TipoMarco, string> = {

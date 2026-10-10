@@ -6,6 +6,7 @@ type PropriedadesTabelaClientes = {
   carregando: boolean;
   aoEditar: (cliente: ClienteApi) => void;
   aoExcluir: (cliente: ClienteApi) => void;
+  exclusaoPermitida: boolean;
 };
 
 function formatarData(data: string) {
@@ -13,7 +14,7 @@ function formatarData(data: string) {
 }
 
 // UC02/UC03 · lista de clientes cadastrados
-export function TabelaClientes({ clientes, carregando, aoEditar, aoExcluir }: PropriedadesTabelaClientes) {
+export function TabelaClientes({ clientes, carregando, aoEditar, aoExcluir, exclusaoPermitida }: PropriedadesTabelaClientes) {
   if (carregando) {
     return <div className="cartao mt-4 mensagem-vazia">carregando clientes...</div>;
   }
@@ -49,9 +50,11 @@ export function TabelaClientes({ clientes, carregando, aoEditar, aoExcluir }: Pr
                     <button type="button" className="botao-link" onClick={() => aoEditar(cliente)}>
                       Editar
                     </button>
-                    <button type="button" className="botao-perigo" onClick={() => aoExcluir(cliente)}>
-                      Excluir
-                    </button>
+                      {exclusaoPermitida && (
+                      <button type="button" className="botao-perigo" onClick={() => aoExcluir(cliente)}>
+                        Excluir
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>

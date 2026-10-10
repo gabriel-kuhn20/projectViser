@@ -20,7 +20,7 @@ export function App() {
                     <Route path="/tags" element={<RotaProtegida><PaginaTags /></RotaProtegida>} />
                     <Route path="/historico/:clienteId" element={<RotaProtegida><PaginaHistorico /></RotaProtegida>} />
                     <Route path="/painel" element={<RotaProtegida><PaginaPainel /></RotaProtegida>} />
-                    <Route path="/atendentes" element={<RotaProtegida><PaginaAtendentes /></RotaProtegida>} />
+                    <Route path="/atendentes" element={<RotaProtegida papeisPermitidos={["admin"]}><PaginaAtendentes /></RotaProtegida>} />
                 </Routes>
             </BrowserRouter>
         </ContextoAutenticacao>

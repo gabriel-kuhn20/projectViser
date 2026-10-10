@@ -20,7 +20,11 @@ async function efetuarLogin(req: Request, res: Response) {
     return res.status(401).json({ mensagem: "email ou senha inválidos" });
   }
 
-  const token = jwt.sign({ usuarioId: usuario.id }, obterSegredoJwt(), { expiresIn: "8h" });
+ const token = jwt.sign(
+  { usuarioId: usuario.id, papelAcesso: usuario.papelAcesso },
+  obterSegredoJwt(),
+  { expiresIn: "8h" }
+);
 
   return res.json({ token });
 }
