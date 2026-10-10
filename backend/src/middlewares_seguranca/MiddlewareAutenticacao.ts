@@ -20,7 +20,11 @@ export function middlewareAutenticacao(req: Request, res: Response, next: NextFu
   const segredoJwt = obterSegredoJwt();
 
   try {
-    req.usuarioLogado = jwt.verify(token, segredoJwt) as { usuarioId: number; papelAcesso: PapelAcesso };
+    // algorithms fixo: impede que um token assinado com outro algoritmo seja aceito
+    req.usuarioLogado = jwt.verify(token, segredoJwt, { algorithms: ["HS256"] }) as {
+      usuarioId: number;
+      papelAcesso: PapelAcesso;
+    };
     next();
   } catch {
     return res.status(401).json({ mensagem: "token inválido ou expirado" });
