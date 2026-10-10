@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { type ClienteApi } from "../servicos_api/ApiCliente";
 
 type PropriedadesTabelaClientes = {
@@ -43,6 +44,9 @@ export function TabelaClientes({ clientes, carregando, aoEditar, aoExcluir, excl
                 <td>{formatarData(cliente.criadoEm)}</td>
                 <td>
                   <div className="flex gap-2">
+                    <Link to={`/historico/${cliente.id}`} className="botao-link">
+                      Histórico
+                    </Link>
                     <button type="button" className="botao-link" onClick={() => aoEditar(cliente)}>
                       Editar
                     </button>
