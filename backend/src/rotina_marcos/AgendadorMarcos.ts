@@ -1,6 +1,6 @@
 import cron from "node-cron";
 import { clientePrisma } from "../config_servidor/ClientePrisma";
-import { calcularMarcosAtingidos } from "../utilitarios_datas/CalculoMarcos";
+import { calcularDataAlvoMarco, calcularMarcosAtingidos } from "../utilitarios_datas/CalculoMarcos";
 
 // UC04 · Calcular marcos de acompanhamento (RF03)
 // Decisão de implementação (seção 9 do PRD): roda como rotina agendada,
@@ -34,7 +34,7 @@ async function verificarClientesEGerarLembretes() {
         data: {
           entregaId: entrega.id,
           tipoMarcoId,
-          dataAlvo: new Date(),
+          dataAlvo: calcularDataAlvoMarco(entrega.dataEntrega, nomeTipoMarco),
           lembretes: { create: {} },
         },
       });
