@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { ListaLembretes } from "../componentes_lembretes/ListaLembretes";
 import { usarMarcosPendentes } from "../hooks_dados/useMarcosPendentes";
 import {
@@ -7,15 +8,18 @@ import {
   marcarEmAtendimento,
   type LembreteApi,
 } from "../servicos_api/ApiLembrete";
-import { rotulosTipoMarco, type TipoMarco } from "../tipos_compartilhados/TiposDominio";
+import { rotulosTipoMarco, tiposMarcoDisponiveis, type TipoMarco } from "../tipos_compartilhados/TiposDominio";
 import { formatarMensagemErro } from "../utilitarios_formatacao/FormatarErro";
-
-const tiposMarcoDisponiveis: TipoMarco[] = ["7d", "2m", "1a"];
 
 // UC05 · Ver lista de lembretes por marco (tela do dia a dia da atendente)
 // UC08 · Concluir lembrete de contato (RF07) / UC09 · Marcar lembrete como em atendimento (RF08)
 export function PaginaLembretes() {
-  const [marcoSelecionado, definirMarcoSelecionado] = useState<TipoMarco>("7d");
+  // o marco vem da URL (?marco=2m) para o cartão do painel abrir direto na aba certa;
+  // valor ausente ou inválido cai no primeiro marco
+  const [parametrosBusca, definirParametrosBusca] = useSearchParams();
+  const marcoUrl = parametrosBusca.get("marco") as TipoMarco | null;
+  const marcoSelecionado: TipoMarco =
+      marcoUrl && tiposMarcoDisponiveis.includes(marcoUrl) ? marcoUrl : tiposMarcoDisponiveis[0];
   const [lembreteEmAcao, definirLembreteEmAcao] = useState<number | null>(null);
   const [mensagemAcao, definirMensagemAcao] = useState<string | null>(null);
   const { lembretesPendentes, estaCarregando, mensagemErro, recarregarLembretes } =
@@ -57,7 +61,7 @@ export function PaginaLembretes() {
 
   function aoSelecionarMarco(tipoMarcoEscolhido: TipoMarco) {
     definirMensagemAcao(null);
-    definirMarcoSelecionado(tipoMarcoEscolhido);
+    definirParametrosBusca({ marco: tipoMarcoEscolhido });
   }
 
   return (
