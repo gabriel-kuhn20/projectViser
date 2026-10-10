@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { Prisma } from "@prisma/client";
 import { clientePrisma } from "../config_servidor/ClientePrisma";
+import { executarVerificacaoMarcos } from "../rotina_marcos/AgendadorMarcos";
 import { ErroHttp } from "../middlewares_seguranca/ErroHttp";
 import { validadorCadastroEntrega, validadorEdicaoEntrega } from "../validadores_entrada/ValidadorEntrega";
 import { validadorParametroId } from "../validadores_entrada/ValidadorParametros";
@@ -46,6 +47,8 @@ async function cadastrarEntrega(req: Request, res: Response) {
         include: dadosIncluidosResposta,
     });
 
+    // gera na hora os lembretes dos marcos que a data de entrega já ultrapassou
+    await executarVerificacaoMarcos();
     return res.status(201).json(novaEntrega);
 }
 
@@ -119,7 +122,7 @@ async function editarEntrega(req: Request, res: Response) {
 
     const entregaAtualizada = await clientePrisma.$transaction(async (transacaoBanco) => {
         // RF03 (UC04): sem os marcos antigos, o AgendadorMarcos recalcula tudo
-        // a partir da nova data na próxima execução
+        // a partir da nova data logo abaixo
         if (dataAlterada) {
             await excluirMarcosEntregas(transacaoBanco, [entregaId]);
         }
@@ -131,6 +134,9 @@ async function editarEntrega(req: Request, res: Response) {
         });
     });
 
+    if (dataAlterada) {
+        await executarVerificacaoMarcos();
+    }
     return res.json(entregaAtualizada);
 }
 

@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { clientePrisma } from "../config_servidor/ClientePrisma";
+import { executarVerificacaoMarcos } from "../rotina_marcos/AgendadorMarcos";
 import { ErroHttp } from "../middlewares_seguranca/ErroHttp";
 import { validadorCadastroCliente, validadorEdicaoCliente } from "../validadores_entrada/ValidadorCliente";
 import { validadorParametroId } from "../validadores_entrada/ValidadorParametros";
@@ -49,6 +50,7 @@ async function cadastrarCliente(req: Request, res: Response) {
     include: dadosIncluidosResposta,
   });
 
+  await executarVerificacaoMarcos();
   return res.status(201).json(novoCliente);
 }
 

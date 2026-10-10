@@ -1,6 +1,22 @@
 import { Request, Response } from "express";
 import { clientePrisma } from "../config_servidor/ClientePrisma";
+import { ErroHttp } from "../middlewares_seguranca/ErroHttp";
 import { validadorParametroTipoMarco } from "../validadores_entrada/ValidadorLembrete";
+
+// Buscar lembrete que ainda aceita atendimento
+// assumir, registrar interação e concluir só valem para lembrete pendente; a checagem
+// de existência vem ANTES de gravar — senão um id inexistente cai no P2003 (chave
+// estrangeira) e o middleware responde 409 "existem registros vinculados" em vez de 404
+export async function buscarLembretePendente(lembreteId: number) {
+  const lembreteEncontrado = await clientePrisma.lembrete.findUnique({ where: { id: lembreteId } });
+  if (!lembreteEncontrado) {
+    throw new ErroHttp(404, "lembrete não encontrado");
+  }
+  if (lembreteEncontrado.status !== "pendente") {
+    throw new ErroHttp(409, "lembrete já foi concluído");
+  }
+  return lembreteEncontrado;
+}
 
 // UC05 · Ver lista de lembretes por marco (RF04)
 async function listarPorMarco(req: Request, res: Response) {
@@ -29,6 +45,8 @@ async function concluirLembrete(req: Request, res: Response) {
     return res.status(400).json({ mensagem: "lembreteId inválido" });
   }
 
+  await buscarLembretePendente(lembreteId);
+
   const totalInteracoes = await clientePrisma.interacao.count({ where: { lembreteId } });
   if (totalInteracoes === 0) {
     return res.status(400).json({ mensagem: "registre uma interação antes de concluir o lembrete" });
@@ -53,6 +71,7 @@ async function marcarEmAtendimento(req: Request, res: Response) {
     return res.status(400).json({ mensagem: "lembreteId inválido" });
   }
   const usuarioId = (req as any).usuarioLogado.usuarioId;
+  await buscarLembretePendente(lembreteId);
 
   const jaEmAtendimento = await clientePrisma.emAtendimento.findUnique({ where: { lembreteId } });
   if (jaEmAtendimento) {
