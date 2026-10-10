@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { clientePrisma } from "../config_servidor/ClientePrisma";
 import { validadorRegistroInteracao } from "../validadores_entrada/ValidadorInteracao";
+import { buscarLembretePendente } from "./ControleLembrete";
 
 // UC06 · Consultar histórico do cliente (RF06)
 async function listarHistoricoCliente(req: Request, res: Response) {
@@ -26,6 +27,8 @@ async function listarHistoricoCliente(req: Request, res: Response) {
 async function registrarInteracao(req: Request, res: Response) {
   const dadosValidados = validadorRegistroInteracao.parse(req.body);
   const usuarioId = (req as any).usuarioLogado.usuarioId;
+  // interação em lembrete concluído ficaria fora do contato que já foi encerrado
+  await buscarLembretePendente(dadosValidados.lembreteId);
 
   const novaInteracao = await clientePrisma.interacao.create({
     data: { ...dadosValidados, usuarioId },
