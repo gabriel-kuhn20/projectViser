@@ -21,6 +21,7 @@ export function App() {
                     <Route path="/historico/:clienteId" element={<RotaProtegida><PaginaHistorico /></RotaProtegida>} />
                     <Route path="/painel" element={<RotaProtegida><PaginaPainel /></RotaProtegida>} />
                     <Route path="/atendentes" element={<RotaProtegida papeisPermitidos={["admin"]}><PaginaAtendentes /></RotaProtegida>} />
+                    <Route path="/tags" element={<RotaProtegida papeisPermitidos={["admin"]}><PaginaTags /></RotaProtegida>} />
                 </Routes>
             </BrowserRouter>
         </ContextoAutenticacao>
