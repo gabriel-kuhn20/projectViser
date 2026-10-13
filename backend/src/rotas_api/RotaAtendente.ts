@@ -5,5 +5,14 @@ import { exigirPapel } from "../middlewares_seguranca/MiddlewarePapel";
 
 export const rotaAtendente = Router();
 
-// RF10: cadastrar novas contas de atendente (UC10), somente admin
-rotaAtendente.post("/", middlewareAutenticacao, exigirPapel("admin"), controleAtendente.cadastrarAtendente);
+rotaAtendente.use(middlewareAutenticacao);
+
+// leitura liberada a qualquer usuário logado — o cadastro de cliente precisa escolher o atendente responsável (RF02)
+rotaAtendente.get("/", controleAtendente.listarAtendentes);
+rotaAtendente.get("/:usuarioId", controleAtendente.buscarAtendentePorId);
+
+// RF09 (UC10)
+rotaAtendente.post("/", exigirPapel("admin"), controleAtendente.cadastrarAtendente);
+// RNF06: editar e excluir contas é só do administrador, conferido no servidor
+rotaAtendente.put("/:usuarioId", exigirPapel("admin"), controleAtendente.editarAtendente);
+rotaAtendente.delete("/:usuarioId", exigirPapel("admin"), controleAtendente.excluirAtendente);
