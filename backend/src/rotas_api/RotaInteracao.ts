@@ -10,3 +10,9 @@ rotaInteracao.use(middlewareAutenticacao);
 rotaInteracao.get("/cliente/:clienteId", controleInteracao.listarHistoricoCliente);
 // RF05 (UC07): registrar uma interação com o cliente
 rotaInteracao.post("/", controleInteracao.registrarInteracao);
+// RF06 (UC06)
+rotaInteracao.get("/:interacaoId", controleInteracao.buscarInteracaoPorId);
+// RF05 (UC07)
+rotaInteracao.patch("/:interacaoId/resposta", controleInteracao.registrarRespostaCliente);
+// Excluir interação
+rotaInteracao.delete("/:interacaoId", controleInteracao.excluirInteracao);
