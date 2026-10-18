@@ -2,7 +2,7 @@ import { NavLink } from "react-router-dom";
 import { usarAutenticacao } from "../hooks_dados/useAutenticacao";
 
 const itensMenu = [
-    { rotulo: "Lembretes", rota: "/", restritoAdmin: false },
+    { rotulo: "Lembretes", rota: "/lembretes", restritoAdmin: false },
     { rotulo: "Clientes", rota: "/clientes", restritoAdmin: false },
     { rotulo: "Tags", rota: "/tags", restritoAdmin: true },
     { rotulo: "Painel", rota: "/painel", restritoAdmin: false },
