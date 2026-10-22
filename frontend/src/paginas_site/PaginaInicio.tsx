@@ -47,14 +47,12 @@ export function PaginaInicio() {
         <LayoutSite titulo="Ótica e Visagismo" cabecalho="sobreposto" mostrarLogo={false}>
             {/* Topo com foto */}
             <section className="relative h-[620px] overflow-hidden bg-site-hero md:h-[806px]">
-                <FotoSite chave="heroInicio" tom="escuro" className="absolute inset-0 h-full w-full" />
-                <div className="absolute inset-0 bg-black/10" aria-hidden="true" />
+                <FotoSite chave="heroInicio" tom="escuro" prioritaria className="absolute inset-0 h-full w-full object-[71%_0%] md:object-[50%_0%]" />
+                <div className="absolute inset-0 bg-black/30" aria-hidden="true" />
 
                 {/* logo grande na vertical, lido de baixo para cima */}
-                <div className="pointer-events-none absolute left-[-8px] top-[104px] hidden md:block" aria-hidden="true">
-                    <div className="[writing-mode:vertical-rl] rotate-180">
-                        <LogoViser className="text-[290px] leading-[0.8] text-[#b3adab]/90" />
-                    </div>
+                <div className="pointer-events-none absolute bottom-[26px] left-[14px] top-[104px] hidden md:block" aria-hidden="true">
+                    <LogoViser vertical className="h-full w-auto text-[#b9b2ae]/85" />
                 </div>
 
                 <div className="site-container relative h-full">

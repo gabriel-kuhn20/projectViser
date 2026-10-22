@@ -95,7 +95,7 @@ export const cuidados = [
     "Não os deixe na cabeça, além de afrouxar e estragar as hastes, pode cair e quebrá-lo.",
 ];
 
-// depoimentos exatamente como estão no Figma
+// depoimentos reais de clientes (Google e WhatsApp), na ordem do Figma
 export const depoimentos = [
     {
         nome: "Beatriz Rodrigues",
@@ -109,47 +109,35 @@ export const depoimentos = [
         nome: "Francielle Delavedova",
         texto: "Loja fora da curva! Além da consultoria de cores, as gurias entregam muitas opções e muito estilo em cada peça. Dá para ver a dedicação que elas têm em ajudar a gente a encontrar algo que realmente fique bom, combine com nossa personalidade e seja usado no dia a dia. Amo, indico e uso.",
     },
+    {
+        nome: "Bárbara Scherer",
+        texto: "A ótica com mais qualidade de atendimento que já conheci! Não querem só vender óculos e atrair clientes, elas são especialistas no que fazem e com excelência. Já a Bruna e a Dani são extremamente amadas e atenciosas, fazendo não só clientes mas muitas amizades ali naquele espaço lindo!",
+    },
 ];
 
 export const marcas = ["GUESS", "Calvin Klein", "MORENA ROSA", "SANTA LOLLA", "Lança perfume"];
 
-export type Tendencia = { nome: string; resumo: string; combina: string; imagem: string };
+export type Tendencia = { nome: string; texto: string; imagem: string };
 
 export const tendencias: Tendencia[] = [
     {
+        nome: "Geométricos",
+        texto: "Linhas marcantes e formatos diferenciados que trazem modernidade e personalidade ao visual.",
+        imagem: "tendenciaGeometricos",
+    },
+    {
         nome: "Oversized",
-        resumo: "Armações maiores, que ganham presença no rosto e viram o centro do visual.",
-        combina: "Combina com: quem gosta de ousar e quer óculos como acessório principal.",
+        texto: "Modelos maiores que valorizam o rosto e criam um visual contemporâneo e cheio de presença.",
         imagem: "tendenciaOversized",
     },
     {
-        nome: "Transparentes",
-        resumo: "Acetatos cristal e tons translúcidos, leves e fáceis de usar todos os dias.",
-        combina: "Combina com: estilos moderno e casual, que pedem leveza.",
-        imagem: "tendenciaTransparente",
+        nome: "Lentes cosméticas",
+        texto: "Lentes levemente coloridas, que deixam os olhos visíveis e que, além de conforto, trazem um toque de estilo para o visual.",
+        imagem: "tendenciaCosmeticas",
     },
     {
-        nome: "Gatinho",
-        resumo: "O cat eye volta com cantos mais marcados e linhas alongadas.",
-        combina: "Combina com: quem busca elegância com um toque retrô.",
-        imagem: "tendenciaGatinho",
-    },
-    {
-        nome: "Tartaruga",
-        resumo: "O clássico mesclado ganha novas cores, do mel ao tartaruga escuro.",
-        combina: "Combina com: estilos clássico e elegante, em qualquer formato.",
-        imagem: "tendenciaTartaruga",
-    },
-    {
-        nome: "Metal fino",
-        resumo: "Hastes delicadas e aros finos em dourado ou prata, discretos e sofisticados.",
-        combina: "Combina com: quem prefere um visual minimalista.",
-        imagem: "tendenciaMetal",
-    },
-    {
-        nome: "Geométricos",
-        resumo: "Hexágonos, octógonos e recortes angulares para quem quer se destacar.",
-        combina: "Combina com: o estilo criativo e personalidades marcantes.",
-        imagem: "tendenciaGeometrico",
+        nome: "Metálicos",
+        texto: "Estruturas finas, delicadas e extremamente elegantes para quem prefere discrição com sofisticação.",
+        imagem: "tendenciaMetalicos",
     },
 ];

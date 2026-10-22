@@ -57,7 +57,7 @@ export function CabecalhoSite({ variante, mostrarLogo = true }: PropriedadesCabe
         <header className={`site-cabecalho ${variante === "escuro" ? "site-cabecalho-escuro" : "site-cabecalho-claro"}`}>
             <div className="site-container flex h-[84px] items-center justify-between">
                 <Link to="/" className={`shrink-0 ${mostrarLogo ? "" : "md:invisible"}`} aria-label="Viser, página inicial">
-                    <LogoViser className="text-[56px]" />
+                    <LogoViser className="h-[44px] w-auto md:h-[48px]" />
                 </Link>
 
                 <nav className="hidden md:flex items-center gap-8 lg:gap-[55px] md:ml-auto md:mr-10 lg:mr-[83px]">

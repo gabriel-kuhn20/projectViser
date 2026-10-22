@@ -15,7 +15,7 @@ export function PaginaVisagismo() {
         <LayoutSite titulo="Visagismo" cabecalho="sobreposto">
             {/* Topo com foto */}
             <section className="relative min-h-[640px] overflow-hidden bg-site-hero md:h-[734px]">
-                <FotoSite chave="heroVisagismo" tom="escuro" className="absolute inset-0 h-full w-full" />
+                <FotoSite chave="heroVisagismo" tom="escuro" prioritaria className="absolute inset-0 h-full w-full object-[72%_0%] md:object-[50%_0%]" />
                 <div className="site-container relative pb-16 pt-[180px] text-white md:pt-[243px]">
                     <h1 className="text-[28px] font-bold md:text-[32px]">VISAGISMO</h1>
                     <p className="mt-[50px] font-comfortaa text-[28px] leading-[1.22] md:text-[32px]">

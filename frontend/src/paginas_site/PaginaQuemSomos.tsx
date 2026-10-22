@@ -14,6 +14,12 @@ const marcasCuradoria = [
 
 const fotosLojas: ChaveImagem[] = ["lojaCentro", "lojaSaoCristovao"];
 
+const marcosHistoria = [
+    { ano: "2022", texto: "Início dos atendimentos personalizados e domiciliares." },
+    { ano: "2023", texto: "Inauguração do primeiro espaço físico da Viser." },
+    { ano: "2024", texto: "Expansão para duas unidades e rebranding da marca." },
+];
+
 export function PaginaQuemSomos() {
     return (
         <LayoutSite titulo="Quem somos" cabecalho="claro">
@@ -75,16 +81,17 @@ export function PaginaQuemSomos() {
                 <h2 className="site-container text-[30px] font-bold md:text-[35px]">3 anos de Viser</h2>
                 <div className="relative mt-[36px]">
                     <span className="absolute inset-x-0 top-0 h-[2px] bg-black" aria-hidden="true" />
-                    <ol className="site-container">
-                        <li className="relative w-fit pt-[24px] text-center md:ml-[37px]">
-                            <span className="absolute left-1/2 top-[-5px] h-[12px] w-[12px] -translate-x-1/2 rounded-full bg-black" aria-hidden="true" />
-                            <strong className="block text-[25px] font-bold leading-none">2022</strong>
-                            <p className="mt-[14px] text-[17px] leading-[1.3]">
-                                Início dos atendimentos
-                                <br />
-                                personalizados e domiciliares.
-                            </p>
-                        </li>
+                    <ol className="site-container flex flex-col gap-10 md:flex-row md:gap-[10px]">
+                        {marcosHistoria.map((marco) => (
+                            <li key={marco.ano} className="relative pt-[24px] text-center md:w-[300px] md:first:ml-[92px]">
+                                <span
+                                    className="absolute left-1/2 top-[-5px] hidden h-[12px] w-[12px] -translate-x-1/2 rounded-full bg-black md:block"
+                                    aria-hidden="true"
+                                />
+                                <strong className="block text-[25px] font-bold leading-none">{marco.ano}</strong>
+                                <p className="mx-auto mt-[14px] max-w-[270px] text-[16px] leading-[1.3]">{marco.texto}</p>
+                            </li>
+                        ))}
                     </ol>
                 </div>
             </section>

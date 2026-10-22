@@ -66,7 +66,7 @@ export function RodapeSite() {
 
                 <div className="mt-[56px] grid gap-12 lg:grid-cols-[minmax(0,1fr)_311px] lg:gap-10">
                     <div>
-                        <LogoViser className="text-[62px] text-[#f1ebe3]" />
+                        <LogoViser className="h-[52px] w-auto text-[#e4e1da]" />
                         <p className="mt-3 text-[19px] leading-[1.35] max-w-[520px]">
                             Mais do que uma ótica, somos uma experiência de visagismo, identidade e sofisticação.
                         </p>
