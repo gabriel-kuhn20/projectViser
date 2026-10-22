@@ -14,7 +14,7 @@ export function RotaProtegida({ children, papeisPermitidos }: PropriedadesRotaPr
   const { estaAutenticado, papelAcesso } = usarAutenticacao();
   if (!estaAutenticado) return <Navigate to="/login" replace />;
   if (papeisPermitidos && (!papelAcesso || !papeisPermitidos.includes(papelAcesso))) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/lembretes" replace />;
   }
   return <LayoutPrincipal>{children}</LayoutPrincipal>;
 }

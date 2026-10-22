@@ -43,7 +43,7 @@ export function PaginaHistorico() {
 
     return (
         <div>
-            <Link to="/" className="botao-link -ml-3 mb-2">
+            <Link to="/lembretes" className="botao-link -ml-3 mb-2">
                 Voltar para lembretes
             </Link>
 

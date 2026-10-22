@@ -1,0 +1,143 @@
+// Conteúdo fixo do site institucional (textos do Figma)
+// Contatos e endereços ficam aqui para serem trocados num lugar só
+
+export const contatoViser = {
+    telefone: "(51) 99964-5154",
+    email: "viseroculos@gmail.com",
+    // WhatsApp usa o mesmo número do telefone
+    whatsapp: "https://wa.me/5551999645154",
+    // TODO: confirmar o perfil oficial da Viser no Instagram
+    instagram: "https://www.instagram.com/",
+};
+
+export const linkAgendamento = contatoViser.whatsapp;
+
+export type Loja = {
+    nome: string;
+    cidade: string;
+    endereco: string;
+    observacao: string;
+    mapa: string;
+};
+
+function linkMapa(endereco: string) {
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(endereco)}`;
+}
+
+export const lojas: Loja[] = [
+    {
+        nome: "Centro",
+        cidade: "Centro - Lajeado / RS",
+        endereco: "Av. Benjamin Constant, 1126 sala 408, Centro, Lajeado/RS",
+        observacao: "Showroom aberto ao público.",
+        mapa: linkMapa("Av. Benjamin Constant, 1126, Centro, Lajeado, RS"),
+    },
+    {
+        nome: "São Cristóvão",
+        cidade: "São Cristovão - Lajeado /RS",
+        endereco: "Av. Piraí, 300, Bairro São Cristóvão, Lajeado/RS",
+        observacao: "Somente com horário agendado",
+        mapa: linkMapa("Av. Piraí, 300, São Cristóvão, Lajeado, RS"),
+    },
+];
+
+export type DiaFuncionamento = { dia: string; horario: string[]; claro: boolean };
+
+// a grade alterna claro/escuro como no Figma
+export const horarios: DiaFuncionamento[] = [
+    { dia: "Segunda", horario: ["08h30 às 18h"], claro: true },
+    { dia: "Terça", horario: ["08h30 às 12h e", "das 13h30 às 18h"], claro: false },
+    { dia: "Quarta", horario: ["08h30 às 18h"], claro: true },
+    { dia: "Quinta", horario: ["08h30 às 12h e", "das 13h30 às 18h"], claro: false },
+    { dia: "Sexta", horario: ["08h30 às 12h e", "das 13h30 às 18h"], claro: true },
+    { dia: "Sábado", horario: ["Conforme", "agenda", "do mês"], claro: false },
+];
+
+export type Estilo = { nome: string; descricao: string; oculos: string; imagem: string };
+
+export const estilos: Estilo[] = [
+    {
+        nome: "Clássico",
+        descricao: "Elegante, atemporal e sofisticado. Peças que transmitem confiança através da discrição.",
+        oculos: "Óculos ideais: retangulares, quadrados suaves e cores neutras.",
+        imagem: "estiloClassico",
+    },
+    {
+        nome: "Elegante",
+        descricao: "Busca refinamento, credibilidade e uma imagem mais sofisticada.",
+        oculos: "Óculos ideais: linhas bem definidas, acabamentos premium e tons sóbrios.",
+        imagem: "estiloElegante",
+    },
+    {
+        nome: "Criativo",
+        descricao: "Gosta de originalidade, autenticidade e personalidade.",
+        oculos: "Óculos ideais: formatos geométricos, cores diferenciadas e design marcante.",
+        imagem: "estiloCriativo",
+    },
+    {
+        nome: "Casual",
+        descricao: "Valoriza praticidade, movimento e conforto no dia a dia.",
+        oculos: "Óculos ideais: modelos leves, resistentes e funcionais.",
+        imagem: "estiloCasual",
+    },
+    {
+        nome: "Moderno",
+        descricao: "Está sempre atento às tendências e gosta de transmitir atualização e inovação.",
+        oculos: "Óculos ideais: formatos contemporâneos, oversized, transparentes ou geométricos.",
+        imagem: "estiloModerno",
+    },
+];
+
+export const cuidados = [
+    "Nunca esfregue a sua lente à seco, em camisetas, por exemplo, pois o tecido pode arranhar a lente. Priorize sempre limpá-lo com água e sabão líquido neutro;",
+    "Utilize lenços microfibra para limpar a lente sem danificá-la;",
+    "Pegue os óculos pelas duas hastes, pois segurando apenas por uma pode entortar e afrouxar um dos lados;",
+    "Não os deixe na cabeça, além de afrouxar e estragar as hastes, pode cair e quebrá-lo.",
+];
+
+// depoimentos reais de clientes (Google e WhatsApp), na ordem do Figma
+export const depoimentos = [
+    {
+        nome: "Beatriz Rodrigues",
+        texto: "Amei o atendimento de vocês. São muito diferenciadas. Fazem a gente se sentir segura e confiante na escolha. Obrigada pelas dicas.",
+    },
+    {
+        nome: "Fernanda Moura",
+        texto: "O atendimento é maravilhoso, me senti super à vontade, as gurias são super atenciosas. Fiquei encantada com a minha escolha, resolvi até usar mais óculos do que lente de contato.",
+    },
+    {
+        nome: "Francielle Delavedova",
+        texto: "Loja fora da curva! Além da consultoria de cores, as gurias entregam muitas opções e muito estilo em cada peça. Dá para ver a dedicação que elas têm em ajudar a gente a encontrar algo que realmente fique bom, combine com nossa personalidade e seja usado no dia a dia. Amo, indico e uso.",
+    },
+    {
+        nome: "Bárbara Scherer",
+        texto: "A ótica com mais qualidade de atendimento que já conheci! Não querem só vender óculos e atrair clientes, elas são especialistas no que fazem e com excelência. Já a Bruna e a Dani são extremamente amadas e atenciosas, fazendo não só clientes mas muitas amizades ali naquele espaço lindo!",
+    },
+];
+
+export const marcas = ["GUESS", "Calvin Klein", "MORENA ROSA", "SANTA LOLLA", "Lança perfume"];
+
+export type Tendencia = { nome: string; texto: string; imagem: string };
+
+export const tendencias: Tendencia[] = [
+    {
+        nome: "Geométricos",
+        texto: "Linhas marcantes e formatos diferenciados que trazem modernidade e personalidade ao visual.",
+        imagem: "tendenciaGeometricos",
+    },
+    {
+        nome: "Oversized",
+        texto: "Modelos maiores que valorizam o rosto e criam um visual contemporâneo e cheio de presença.",
+        imagem: "tendenciaOversized",
+    },
+    {
+        nome: "Lentes cosméticas",
+        texto: "Lentes levemente coloridas, que deixam os olhos visíveis e que, além de conforto, trazem um toque de estilo para o visual.",
+        imagem: "tendenciaCosmeticas",
+    },
+    {
+        nome: "Metálicos",
+        texto: "Estruturas finas, delicadas e extremamente elegantes para quem prefere discrição com sofisticação.",
+        imagem: "tendenciaMetalicos",
+    },
+];

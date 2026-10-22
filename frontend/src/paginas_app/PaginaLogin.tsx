@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { CampoTexto } from "../componentes_compartilhados/CampoTexto";
 import { BotaoPrimario } from "../componentes_compartilhados/BotaoPrimario";
 import { usarAutenticacao } from "../hooks_dados/useAutenticacao";
@@ -17,7 +17,7 @@ export function PaginaLogin() {
 
   // sessão ainda válida — mostrar o login de novo só faria a atendente entrar duas vezes;
   // fica depois de todos os hooks porque um retorno antes deles quebra a regra dos hooks do React
-  if (estaAutenticado) return <Navigate to="/" replace />;
+  if (estaAutenticado) return <Navigate to="/lembretes" replace />;
 
   async function enviarFormulario(evento: React.FormEvent) {
     evento.preventDefault();
@@ -28,7 +28,7 @@ export function PaginaLogin() {
       const { token } = await efetuarLogin(email, senha);
       entrar(token);
       // replace: o botão voltar do navegador não deve levar de volta ao formulário de login
-      navegar("/", { replace: true });
+      navegar("/lembretes", { replace: true });
     } catch (erro: any) {
       definirMensagemErro(erro?.response?.data?.mensagem ?? "não foi possível entrar. tente novamente.");
     } finally {
@@ -47,6 +47,9 @@ export function PaginaLogin() {
               texto={estaEnviando ? "Entrando..." : "Entrar"}
               desabilitado={estaEnviando}
           />
+          <Link to="/" className="mt-4 block text-center text-sm text-viser-900/60 hover:text-viser-950">
+            Voltar ao site
+          </Link>
         </form>
       </div>
   );
