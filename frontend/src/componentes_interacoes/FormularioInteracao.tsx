@@ -39,8 +39,8 @@ export function FormularioInteracao({ lembreteId, aoRegistrar }: PropriedadesFor
   }
 
   return (
-      <form onSubmit={enviarFormulario} className="cartao flex flex-col gap-2 mb-6">
-        <h3 className="font-display text-lg text-viser-950">Registrar contato</h3>
+      <form onSubmit={enviarFormulario} className="cartao mb-8 flex flex-col gap-5">
+        <h3 className="secao-titulo">Registrar contato</h3>
 
         {mensagemErro && <p role="alert" className="mensagem-erro">{mensagemErro}</p>}
 
@@ -53,7 +53,7 @@ export function FormularioInteracao({ lembreteId, aoRegistrar }: PropriedadesFor
               onChange={(eventoCampo) =>
                   definirCamposFormulario((camposAtuais) => ({ ...camposAtuais, conteudo: eventoCampo.target.value }))
               }
-              className="campo-texto-input resize-y"
+              className="campo-texto-input resize-y leading-relaxed"
           />
         </label>
 
@@ -67,7 +67,7 @@ export function FormularioInteracao({ lembreteId, aoRegistrar }: PropriedadesFor
 
         <div className="formulario-acoes">
           <BotaoPrimario texto={estaEnviando ? "Registrando..." : "Registrar contato"} desabilitado={estaEnviando} />
-          <span className="text-sm text-viser-900/60">
+          <span className="text-[13px] text-black/55">
           Depois de registrar, volte aos lembretes para concluir o contato.
         </span>
         </div>

@@ -4,145 +4,203 @@
 
 @layer base {
     body {
-        @apply bg-viser-creme text-viser-950 font-sans antialiased;
+        @apply bg-white text-black font-montserrat antialiased;
     }
 
     h1, h2, h3 {
-        @apply font-display;
+        @apply font-montserrat;
     }
 }
 
+/* ===================== Sistema de pós-venda (equipe) =====================
+   Mesma linguagem visual do site: preto e branco, Montserrat nos textos,
+   Comfortaa nos subtítulos, barra preta sob os títulos e botões em pílula */
 @layer components {
-    /* Estrutura geral do app: sidebar escura + conteúdo claro */
+    /* Estrutura: menu lateral preto + área de conteúdo clara */
     .app-shell {
-        @apply flex min-h-screen;
+        @apply flex min-h-screen bg-app-fundo;
     }
 
     .app-sidebar {
-        @apply w-60 shrink-0 bg-viser-950 text-viser-creme flex flex-col;
+        @apply sticky top-0 hidden h-screen w-[248px] shrink-0 flex-col bg-black text-white md:flex;
     }
 
     .app-sidebar-logo {
-        @apply font-display italic text-2xl px-6 py-6 border-b border-viser-800;
+        @apply block px-8 pb-8 pt-9 text-[#e4e1da];
     }
 
     .app-sidebar-nav {
-        @apply flex flex-col gap-1 p-3;
+        @apply flex flex-col gap-1 px-4;
     }
 
     .app-sidebar-link {
-        @apply px-3 py-2 rounded-md text-sm tracking-wide uppercase text-viser-creme2/80 hover:bg-viser-800 hover:text-viser-creme transition-colors;
+        @apply flex items-center gap-3 rounded-full px-4 py-[10px] font-sans text-[14px] font-medium uppercase tracking-[0.02em] text-white/70 transition-colors hover:bg-white/10 hover:text-white;
     }
 
     .app-sidebar-link.ativo {
-        @apply bg-viser-800 text-viser-creme;
+        @apply bg-white text-black hover:bg-white hover:text-black;
+    }
+
+    .app-sidebar-rodape {
+        @apply mt-auto border-t border-white/15 px-8 py-6 text-[12px] text-white/50;
     }
 
     .app-content {
-        @apply flex-1 flex flex-col;
+        @apply flex min-w-0 flex-1 flex-col;
     }
 
     .app-header {
-        @apply px-8 py-5 border-b border-viser-creme2 bg-white;
+        @apply sticky top-0 z-20 flex h-[72px] items-center justify-between gap-4 border-b border-black/10 bg-white px-5 md:px-10;
     }
 
     .app-main {
-        @apply flex-1 p-8;
+        @apply mx-auto w-full max-w-[1200px] flex-1 px-5 py-8 md:px-10 md:py-12;
     }
 
-    /* Página de login */
+    /* Títulos de página: Montserrat bold + subtítulo Comfortaa + barra preta, como no site */
+    .pagina-titulo {
+        @apply text-[28px] font-bold leading-tight text-black md:text-[32px];
+    }
+
+    .pagina-subtitulo {
+        @apply mt-3 max-w-[640px] font-comfortaa text-[16px] leading-[1.45] text-black/70;
+    }
+
+    .pagina-barra {
+        @apply mb-8 mt-5 block h-[5px] w-[88px] bg-black;
+    }
+
+    .secao-titulo {
+        @apply text-[18px] font-bold text-black;
+    }
+
+    /* Cartão branco com borda preta fina e cantos arredondados (cards de depoimento do site) */
+    .cartao {
+        @apply rounded-[14px] border border-black/80 bg-white p-6;
+    }
+
+    .cartao-escuro {
+        @apply rounded-[15px] bg-black p-6 text-white;
+    }
+
+    /* Login */
     .login-shell {
-        @apply min-h-screen flex items-center justify-center bg-viser-950 px-4;
+        @apply grid min-h-screen bg-white lg:grid-cols-[minmax(0,1fr)_minmax(0,560px)];
     }
 
     .login-card {
-        @apply w-full max-w-sm bg-viser-creme rounded-lg shadow-xl p-8;
+        @apply mx-auto flex w-full max-w-[400px] flex-col;
     }
 
     .login-titulo {
-        @apply font-display italic text-3xl text-viser-950 mb-6 text-center;
+        @apply text-[28px] font-bold text-black;
     }
 
-    /* Campo de texto compartilhado */
+    /* Campos */
     .campo-texto-rotulo {
-        @apply block text-sm font-medium text-viser-900 mb-4;
+        @apply block text-[13px] font-semibold uppercase tracking-[0.04em] text-black/80;
     }
 
     .campo-texto-input {
-        @apply mt-1 w-full rounded-md border border-viser-creme2 bg-white px-3 py-2 text-sm text-viser-950 focus:outline-none focus:ring-2 focus:ring-viser-700 focus:border-transparent;
+        @apply mt-2 w-full rounded-[10px] border border-black/25 bg-white px-4 py-[11px] text-[15px] font-normal normal-case tracking-normal text-black placeholder:text-black/35 transition-colors focus:border-black focus:outline-none focus:ring-1 focus:ring-black;
     }
 
-    /* Botão primário compartilhado */
+    /* Botões em pílula, como "Agende sua consultoria" e "Ver localização" */
     .botao-primario {
-        @apply w-full inline-flex justify-center items-center rounded-md bg-viser-950 px-4 py-2 text-sm font-medium text-viser-creme hover:bg-viser-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed;
+        @apply inline-flex h-[48px] w-full items-center justify-center gap-3 rounded-full bg-black px-7 font-sans text-[14px] font-semibold uppercase tracking-[0.02em] text-white transition-colors hover:bg-site-botao disabled:cursor-not-allowed disabled:opacity-50;
     }
 
-    .mensagem-erro {
-        @apply text-sm text-red-700 bg-red-50 border border-red-200 rounded-md px-3 py-2 mb-4;
-    }
-
-    .pagina-titulo {
-        @apply font-display text-2xl text-viser-950 mb-6;
-    }
-
-    .cartao {
-        @apply bg-white rounded-lg border border-viser-creme2 p-6;
-    }
-
-    /* Botão secundário: ações menos destacadas (sair, cancelar) */
     .botao-secundario {
-        @apply inline-flex justify-center items-center rounded-md border border-viser-creme2 px-4 py-2 text-sm font-medium text-viser-900 hover:bg-viser-creme2 transition-colors disabled:opacity-60 disabled:cursor-not-allowed;
+        @apply inline-flex h-[44px] items-center justify-center rounded-full border border-black px-6 font-sans text-[13px] font-semibold uppercase tracking-[0.02em] text-black transition-colors hover:bg-black hover:text-white disabled:cursor-not-allowed disabled:opacity-50;
     }
 
-    /* Botão de perigo: ações destrutivas (excluir) */
     .botao-perigo {
-        @apply inline-flex justify-center items-center rounded-md border border-red-200 px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed;
+        @apply inline-flex h-[34px] items-center justify-center whitespace-nowrap rounded-full border border-red-700/60 px-4 text-[12px] font-semibold uppercase tracking-[0.02em] text-red-700 transition-colors hover:bg-red-700 hover:text-white disabled:cursor-not-allowed disabled:opacity-50;
     }
 
     .botao-link {
-        @apply inline-flex justify-center items-center rounded-md px-3 py-1.5 text-sm font-medium text-viser-800 hover:bg-viser-creme2 transition-colors disabled:opacity-60 disabled:cursor-not-allowed;
+        @apply inline-flex h-[34px] items-center justify-center whitespace-nowrap rounded-full border border-black/20 px-4 text-[12px] font-semibold uppercase tracking-[0.02em] text-black transition-colors hover:border-black hover:bg-black hover:text-white disabled:cursor-not-allowed disabled:opacity-50;
     }
 
-    /* Formulários de cadastro/edição */
+    .link-voltar {
+        @apply mb-6 inline-flex items-center gap-2 text-[13px] font-semibold uppercase tracking-[0.02em] text-black/60 transition-colors hover:text-black;
+    }
+
+    /* Mensagens */
+    .mensagem-erro {
+        @apply mb-4 rounded-[10px] border border-red-200 bg-red-50 px-4 py-3 text-[14px] text-red-800;
+    }
+
+    .mensagem-sucesso {
+        @apply mb-4 rounded-[10px] border border-black/15 bg-[#e4e1da] px-4 py-3 text-[14px] text-black;
+    }
+
+    .mensagem-vazia {
+        @apply text-[14px] text-black/50;
+    }
+
+    /* Formulários */
     .formulario-campo-linha {
-        @apply grid grid-cols-1 sm:grid-cols-2 gap-4;
+        @apply grid grid-cols-1 gap-5 sm:grid-cols-2;
     }
 
     .formulario-acoes {
-        @apply flex items-center gap-3 mt-2;
+        @apply mt-2 flex flex-wrap items-center gap-3;
     }
 
     .formulario-acoes .botao-primario {
         @apply w-auto;
     }
 
-    .mensagem-vazia {
-        @apply text-sm text-viser-900/50 italic;
+    /* Etiquetas de situação */
+    .etiqueta {
+        @apply inline-flex items-center whitespace-nowrap rounded-full bg-site-cabecalho px-3 py-1 text-[12px] font-semibold text-black/70;
+    }
+
+    .etiqueta-escura {
+        @apply bg-black text-white;
+    }
+
+    /* Abas em pílula (marcos 7 dias, 2 meses, 1 ano) */
+    .abas {
+        @apply inline-flex rounded-full border border-black p-1;
+    }
+
+    .aba {
+        @apply rounded-full px-5 py-2 font-sans text-[13px] font-semibold uppercase tracking-[0.02em] text-black transition-colors hover:bg-black/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-black;
+    }
+
+    .aba.ativa {
+        @apply bg-black text-white hover:bg-black;
     }
 
     /* Tabelas de listagem */
     .tabela-wrapper {
-        @apply overflow-x-auto;
+        @apply overflow-x-auto p-0;
     }
 
     .tabela {
-        @apply w-full text-sm text-left border-collapse;
+        @apply w-full border-collapse text-left text-[14px];
     }
 
     .tabela thead {
-        @apply border-b border-viser-creme2 text-xs uppercase tracking-wide text-viser-900/60;
+        @apply border-b border-black;
     }
 
     .tabela th {
-        @apply py-2 pr-4 font-medium;
+        @apply whitespace-nowrap px-4 py-4 font-sans text-[12px] font-semibold uppercase tracking-[0.04em] text-black/60;
     }
 
     .tabela td {
-        @apply py-3 pr-4 border-b border-viser-creme2/70 align-top;
+        @apply whitespace-nowrap border-b border-black/10 px-4 py-4 align-middle;
+    }
+
+    .tabela tbody tr:last-child td {
+        @apply border-b-0;
     }
 
     .tabela tbody tr:hover {
-        @apply bg-viser-creme/60;
+        @apply bg-app-fundo;
     }
 }
 

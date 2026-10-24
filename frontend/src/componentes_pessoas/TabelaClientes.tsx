@@ -16,34 +16,37 @@ function formatarData(data: string) {
 // UC02/UC03 · lista de clientes cadastrados
 export function TabelaClientes({ clientes, carregando, aoEditar, aoExcluir, exclusaoPermitida }: PropriedadesTabelaClientes) {
   if (carregando) {
-    return <div className="cartao mt-4 mensagem-vazia">carregando clientes...</div>;
+    return <div className="cartao mt-6 mensagem-vazia">carregando clientes...</div>;
   }
 
   if (clientes.length === 0) {
-    return <div className="cartao mt-4 mensagem-vazia">nenhum cliente cadastrado ainda.</div>;
+    return <div className="cartao mt-6 mensagem-vazia">nenhum cliente cadastrado ainda.</div>;
   }
 
   return (
-      <div className="cartao mt-4 tabela-wrapper">
+      <div className="cartao mt-6 tabela-wrapper">
         <table className="tabela">
           <thead>
           <tr>
             <th>Nome</th>
             <th>Contato</th>
             <th>Endereço</th>
-            <th>Cadastrado em</th>
-            <th>Ações</th>
+            <th className="text-right">Ações</th>
           </tr>
           </thead>
           <tbody>
           {clientes.map((cliente) => (
               <tr key={cliente.id}>
-                <td>{cliente.pessoa.nome}</td>
-                <td>{cliente.contato}</td>
-                <td>{cliente.endereco || "—"}</td>
-                <td>{formatarData(cliente.criadoEm)}</td>
                 <td>
-                  <div className="flex gap-2">
+                  <span className="block font-semibold">{cliente.pessoa.nome}</span>
+                  <span className="mt-0.5 block text-[12px] text-black/50">desde {formatarData(cliente.criadoEm)}</span>
+                </td>
+                <td>{cliente.contato}</td>
+                <td className="whitespace-normal">
+                  <span className="block min-w-[160px] max-w-[260px]">{cliente.endereco || "—"}</span>
+                </td>
+                <td>
+                  <div className="flex justify-end gap-2">
                     <Link to={`/historico/${cliente.id}`} className="botao-link">
                       Histórico
                     </Link>

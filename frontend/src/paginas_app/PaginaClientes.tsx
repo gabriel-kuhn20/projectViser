@@ -3,6 +3,7 @@ import { TabelaClientes } from "../componentes_pessoas/TabelaClientes";
 import { FormularioCliente } from "../componentes_pessoas/FormularioCliente";
 import { excluirCliente, listarClientes, type ClienteApi } from "../servicos_api/ApiCliente";
 import { usarAutenticacao } from "../hooks_dados/useAutenticacao";
+import { TituloPagina } from "../componentes_layout/TituloPagina";
 
 // UC02 · Cadastrar cliente / UC03 · Editar cliente
 export function PaginaClientes() {
@@ -45,7 +46,7 @@ export function PaginaClientes() {
 
     return (
         <div>
-            <h2 className="pagina-titulo">Clientes</h2>
+            <TituloPagina titulo="Clientes" subtitulo="Cadastre a cliente junto com a data de entrega dos óculos. Os lembretes de 7 dias, 2 meses e 1 ano são criados a partir dela." />
             {mensagemErro && <p role="alert" className="mensagem-erro">{mensagemErro}</p>}
             <FormularioCliente
                 clienteEmEdicao={clienteEmEdicao}

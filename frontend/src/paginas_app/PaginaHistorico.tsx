@@ -5,6 +5,8 @@ import { HistoricoInteracoes } from "../componentes_interacoes/HistoricoInteraco
 import { buscarClientePorId, type ClienteApi } from "../servicos_api/ApiCliente";
 import { listarHistoricoCliente, type InteracaoApi } from "../servicos_api/ApiInteracao";
 import { formatarMensagemErro } from "../utilitarios_formatacao/FormatarErro";
+import { IconeVoltar } from "../componentes_layout/IconesMenu";
+import { TituloPagina } from "../componentes_layout/TituloPagina";
 
 // UC06 · Consultar histórico do cliente (RF06) / UC07 · Registrar interação (RF05)
 export function PaginaHistorico() {
@@ -43,16 +45,15 @@ export function PaginaHistorico() {
 
     return (
         <div>
-            <Link to="/lembretes" className="botao-link -ml-3 mb-2">
+            <Link to="/lembretes" className="link-voltar">
+                <IconeVoltar className="h-4 w-4" />
                 Voltar para lembretes
             </Link>
 
-            <h2 className="pagina-titulo mb-1">
-                {clienteSelecionado ? clienteSelecionado.pessoa.nome : "Histórico do cliente"}
-            </h2>
-            {clienteSelecionado && (
-                <p className="text-sm text-viser-900/70 mb-6">Contato: {clienteSelecionado.contato}</p>
-            )}
+            <TituloPagina
+                titulo={clienteSelecionado ? clienteSelecionado.pessoa.nome : "Histórico do cliente"}
+                subtitulo={clienteSelecionado ? `Contato: ${clienteSelecionado.contato}` : undefined}
+            />
 
             {mensagemErro && <p role="alert" className="mensagem-erro">{mensagemErro}</p>}
 

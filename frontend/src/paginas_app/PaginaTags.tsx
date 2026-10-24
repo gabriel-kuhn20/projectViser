@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { FormularioTag } from "../componentes_tags/FormularioTag";
 import { TabelaTags } from "../componentes_tags/TabelaTags";
 import { excluirTag, listarTags, type TagApi } from "../servicos_api/ApiTag";
+import { TituloPagina } from "../componentes_layout/TituloPagina";
 
 // CRUD de tags usadas para classificar clientes
 export function PaginaTags() {
@@ -42,14 +43,16 @@ export function PaginaTags() {
 
     return (
         <div>
-            <h2 className="pagina-titulo">Tags</h2>
-            {mensagemErro && <p role="alert" className="mensagem-erro max-w-sm">{mensagemErro}</p>}
-            <FormularioTag
-                tagEmEdicao={tagEmEdicao}
-                aoSalvar={aoSalvarTag}
-                aoCancelarEdicao={() => definirTagEmEdicao(null)}
-            />
-            <TabelaTags tags={tags} carregando={carregando} aoEditar={definirTagEmEdicao} aoExcluir={aoExcluirTag} />
+            <TituloPagina titulo="Tags" subtitulo="Etiquetas para classificar as clientes." />
+            {mensagemErro && <p role="alert" className="mensagem-erro">{mensagemErro}</p>}
+            <div className="grid items-start gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
+                <FormularioTag
+                    tagEmEdicao={tagEmEdicao}
+                    aoSalvar={aoSalvarTag}
+                    aoCancelarEdicao={() => definirTagEmEdicao(null)}
+                />
+                <TabelaTags tags={tags} carregando={carregando} aoEditar={definirTagEmEdicao} aoExcluir={aoExcluirTag} />
+            </div>
         </div>
     );
 }
