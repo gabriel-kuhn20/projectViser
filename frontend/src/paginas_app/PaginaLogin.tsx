@@ -4,6 +4,9 @@ import { CampoTexto } from "../componentes_compartilhados/CampoTexto";
 import { BotaoPrimario } from "../componentes_compartilhados/BotaoPrimario";
 import { usarAutenticacao } from "../hooks_dados/useAutenticacao";
 import { efetuarLogin } from "../servicos_api/ApiAutenticacao";
+import { LogoViser } from "../componentes_site/LogoViser";
+import { FotoSite } from "../componentes_site/FotoSite";
+import { IconeVoltar } from "../componentes_layout/IconesMenu";
 
 // UC01 · Entrar no sistema (RF01)
 export function PaginaLogin() {
@@ -38,19 +41,51 @@ export function PaginaLogin() {
 
   return (
       <div className="login-shell">
-        <form onSubmit={enviarFormulario} className="login-card">
-          <h1 className="login-titulo">Viser</h1>
-          <CampoTexto rotulo="Email" tipo="email" valor={email} aoAlterar={definirEmail} obrigatorio />
-          <CampoTexto rotulo="Senha" valor={senha} tipo="password" aoAlterar={definirSenha} obrigatorio />
-          {mensagemErro && <p role="alert" className="mensagem-erro">{mensagemErro}</p>}
-          <BotaoPrimario
-              texto={estaEnviando ? "Entrando..." : "Entrar"}
-              desabilitado={estaEnviando}
-          />
-          <Link to="/" className="mt-4 block text-center text-sm text-viser-900/60 hover:text-viser-950">
-            Voltar ao site
-          </Link>
-        </form>
+        {/* lado da foto, igual ao topo do site */}
+        <div className="relative hidden overflow-hidden bg-site-hero lg:block">
+          <FotoSite chave="heroInicio" tom="escuro" prioritaria className="absolute inset-0 h-full w-full object-[70%_0%]" />
+          <div className="absolute inset-0 bg-black/30" aria-hidden="true" />
+          <div className="absolute bottom-0 left-0 p-12 text-white">
+            <LogoViser className="h-[64px] w-auto text-[#e4e1da]" />
+            <p className="mt-6 text-[30px] leading-[1.1]">
+              Sua essência.
+              <br />
+              Seu estilo.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex flex-col justify-center px-6 py-12 sm:px-12">
+          <form onSubmit={enviarFormulario} className="login-card">
+            <LogoViser className="mb-12 h-[44px] w-auto lg:hidden" />
+            <h1 className="login-titulo">Entrar</h1>
+            <p className="pagina-subtitulo">Acesso da equipe ao sistema de pós-venda.</p>
+            <span className="pagina-barra" aria-hidden="true" />
+
+            <div className="flex flex-col gap-5">
+              <CampoTexto rotulo="E-mail" tipo="email" valor={email} aoAlterar={definirEmail} autoComplete="email" obrigatorio />
+              <CampoTexto
+                  rotulo="Senha"
+                  tipo="password"
+                  valor={senha}
+                  aoAlterar={definirSenha}
+                  autoComplete="current-password"
+                  obrigatorio
+              />
+            </div>
+
+            {mensagemErro && <p role="alert" className="mensagem-erro mt-5 mb-0">{mensagemErro}</p>}
+
+            <div className="mt-8">
+              <BotaoPrimario texto={estaEnviando ? "Entrando..." : "Entrar"} desabilitado={estaEnviando} />
+            </div>
+
+            <Link to="/" className="link-voltar mt-8 mb-0 self-center">
+              <IconeVoltar className="h-4 w-4" />
+              Voltar ao site
+            </Link>
+          </form>
+        </div>
       </div>
   );
 }

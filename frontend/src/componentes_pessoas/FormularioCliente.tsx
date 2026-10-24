@@ -72,8 +72,8 @@ export function FormularioCliente({ clienteEmEdicao, aoSalvar, aoCancelarEdicao 
   }
 
   return (
-      <form onSubmit={enviarFormulario} className="cartao flex flex-col gap-4">
-        <h3 className="font-display text-lg text-viser-950">
+      <form onSubmit={enviarFormulario} className="cartao flex flex-col gap-5">
+        <h3 className="secao-titulo">
           {estaEditando ? "Editar cliente" : "Novo cliente"}
         </h3>
 

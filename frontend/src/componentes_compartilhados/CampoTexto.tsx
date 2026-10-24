@@ -4,9 +4,19 @@ type PropriedadesCampoTexto = {
     aoAlterar: (novoValor: string) => void;
     tipo?: string;
     obrigatorio?: boolean;
+    placeholder?: string;
+    autoComplete?: string;
 };
 
-export function CampoTexto({ rotulo, valor, aoAlterar, tipo = "text", obrigatorio = false }: PropriedadesCampoTexto) {
+export function CampoTexto({
+    rotulo,
+    valor,
+    aoAlterar,
+    tipo = "text",
+    obrigatorio = false,
+    placeholder,
+    autoComplete,
+}: PropriedadesCampoTexto) {
     return (
         <label className="campo-texto-rotulo">
             {rotulo}
@@ -14,6 +24,8 @@ export function CampoTexto({ rotulo, valor, aoAlterar, tipo = "text", obrigatori
                 type={tipo}
                 value={valor}
                 required={obrigatorio}
+                placeholder={placeholder}
+                autoComplete={autoComplete}
                 onChange={(evento) => aoAlterar(evento.target.value)}
                 className="campo-texto-input"
             />

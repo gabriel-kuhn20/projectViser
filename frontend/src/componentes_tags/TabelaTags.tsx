@@ -13,30 +13,30 @@ function formatarData(data: string) {
 
 export function TabelaTags({ tags, carregando, aoEditar, aoExcluir }: PropriedadesTabelaTags) {
     if (carregando) {
-        return <div className="cartao mt-4 mensagem-vazia">carregando tags...</div>;
+        return <div className="cartao mensagem-vazia">carregando tags...</div>;
     }
 
     if (tags.length === 0) {
-        return <div className="cartao mt-4 mensagem-vazia">nenhuma tag cadastrada ainda.</div>;
+        return <div className="cartao mensagem-vazia">nenhuma tag cadastrada ainda.</div>;
     }
 
     return (
-        <div className="cartao mt-4 tabela-wrapper max-w-sm">
+        <div className="cartao tabela-wrapper">
             <table className="tabela">
                 <thead>
                 <tr>
                     <th>Nome</th>
                     <th>Criada em</th>
-                    <th>Ações</th>
+                    <th className="text-right">Ações</th>
                 </tr>
                 </thead>
                 <tbody>
                 {tags.map((tag) => (
                     <tr key={tag.id}>
-                        <td>{tag.nome}</td>
+                        <td className="font-semibold">{tag.nome}</td>
                         <td>{formatarData(tag.criadoEm)}</td>
                         <td>
-                            <div className="flex gap-2">
+                            <div className="flex justify-end gap-2">
                                 <button type="button" className="botao-link" onClick={() => aoEditar(tag)}>
                                     Editar
                                 </button>

@@ -21,24 +21,29 @@ export function HistoricoInteracoes({ interacoesCliente, estaCarregando }: Propr
   }
 
   return (
-      <ol className="cartao p-0 divide-y divide-viser-creme2">
-        {interacoesCliente.map((interacaoCliente) => (
-            <li key={interacaoCliente.id} className="px-6 py-4">
-              <div className="flex flex-wrap items-baseline justify-between gap-2 text-sm">
-                <span className="font-medium text-viser-950">{interacaoCliente.usuario.pessoa.nome}</span>
-                <span className="text-viser-900/60">
-              <time dateTime={interacaoCliente.criadoEm}>{formatarDataHora(interacaoCliente.criadoEm)}</time>
-                  {", "}contato de {rotulosTipoMarco[interacaoCliente.lembrete.marco.tipoMarco.nome]}
-            </span>
-              </div>
-              <p className="mt-2 text-sm text-viser-900 whitespace-pre-line">{interacaoCliente.conteudo}</p>
-              {interacaoCliente.respostaCliente && (
-                  <p className="mt-2 text-sm text-viser-900/80 whitespace-pre-line">
-                    <span className="font-medium">Resposta do cliente:</span> {interacaoCliente.respostaCliente}
-                  </p>
-              )}
-            </li>
-        ))}
-      </ol>
+      <div>
+        <h2 className="secao-titulo mb-4">Contatos registrados</h2>
+        <ol className="relative flex flex-col gap-4 border-l-2 border-black pl-6">
+          {interacoesCliente.map((interacaoCliente) => (
+              <li key={interacaoCliente.id} className="cartao relative">
+                {/* ponto na linha do tempo, como em "3 anos de Viser" */}
+                <span className="absolute -left-[31px] top-7 h-3 w-3 rounded-full bg-black" aria-hidden="true" />
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="font-semibold text-black">{interacaoCliente.usuario.pessoa.nome}</span>
+                  <span className="flex items-center gap-2 text-[13px] text-black/55">
+                    <span className="etiqueta">{rotulosTipoMarco[interacaoCliente.lembrete.marco.tipoMarco.nome]}</span>
+                    <time dateTime={interacaoCliente.criadoEm}>{formatarDataHora(interacaoCliente.criadoEm)}</time>
+                  </span>
+                </div>
+                <p className="mt-3 whitespace-pre-line text-[14px] leading-relaxed text-black/85">{interacaoCliente.conteudo}</p>
+                {interacaoCliente.respostaCliente && (
+                    <p className="mt-3 whitespace-pre-line rounded-[10px] bg-app-fundo px-4 py-3 text-[14px] text-black/80">
+                      <span className="font-semibold">Resposta da cliente:</span> {interacaoCliente.respostaCliente}
+                    </p>
+                )}
+              </li>
+          ))}
+        </ol>
+      </div>
   );
 }

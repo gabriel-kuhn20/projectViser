@@ -38,79 +38,75 @@ export function ListaLembretes({
   }
 
   return (
-      <div className="cartao tabela-wrapper">
-        <table className="tabela">
-          <thead>
-          <tr>
-            <th>Cliente</th>
-            <th>Contato</th>
-            <th>Entregue em</th>
-            <th>Marco atingido em</th>
-            <th>Situação</th>
-            <th>Ações</th>
-          </tr>
-          </thead>
-          <tbody>
-          {lembretesPendentes.map((lembretePendente) => {
-            const clienteLembrete = lembretePendente.marco.entrega.cliente;
-            const atendenteResponsavel = lembretePendente.emAtendimentos?.usuario.pessoa.nome;
-            const acaoEmAndamento = lembreteEmAcao === lembretePendente.id;
+      <ul className="flex flex-col gap-4">
+        {lembretesPendentes.map((lembretePendente) => {
+          const clienteLembrete = lembretePendente.marco.entrega.cliente;
+          const atendenteResponsavel = lembretePendente.emAtendimentos?.usuario.pessoa.nome;
+          const acaoEmAndamento = lembreteEmAcao === lembretePendente.id;
 
-            return (
-                <tr key={lembretePendente.id}>
-                  <td className="font-medium text-viser-950">{clienteLembrete.pessoa.nome}</td>
-                  <td>{clienteLembrete.contato}</td>
-                  <td>{formatarDataEntrega(lembretePendente.marco.entrega.dataEntrega)}</td>
-                  <td>{formatarData(lembretePendente.marco.dataAlvo)}</td>
-                  <td>
+          return (
+              <li
+                  key={lembretePendente.id}
+                  className="cartao grid gap-5 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_auto] lg:items-center"
+              >
+                <div>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <h3 className="text-[18px] font-bold text-black">{clienteLembrete.pessoa.nome}</h3>
                     {atendenteResponsavel ? (
-                        <span className="text-viser-800">Em atendimento por {atendenteResponsavel}</span>
+                        <span className="etiqueta etiqueta-escura">Em atendimento com {atendenteResponsavel}</span>
                     ) : (
-                        <span className="text-viser-900/60">Aguardando contato</span>
+                        <span className="etiqueta">Aguardando contato</span>
                     )}
-                  </td>
-                  <td>
-                    <div className="flex flex-wrap gap-2">
-                      {atendenteResponsavel ? (
-                          <button
-                              type="button"
-                              className="botao-link"
-                              onClick={() => aoLiberar(lembretePendente)}
-                              disabled={acaoEmAndamento}
-                          >
-                            Liberar
-                          </button>
-                      ) : (
-                          <button
-                              type="button"
-                              className="botao-link"
-                              onClick={() => aoAssumir(lembretePendente)}
-                              disabled={acaoEmAndamento}
-                          >
-                            Assumir
-                          </button>
-                      )}
-                      <Link
-                          to={`/historico/${clienteLembrete.id}?lembreteId=${lembretePendente.id}`}
-                          className="botao-link"
-                      >
-                        Registrar contato
-                      </Link>
+                  </div>
+                  <p className="mt-1 text-[14px] text-black/60">{clienteLembrete.contato}</p>
+                </div>
+
+                <dl className="flex gap-8 text-[13px]">
+                  <div>
+                    <dt className="font-sans text-[11px] font-semibold uppercase tracking-[0.04em] text-black/50">Entregue em</dt>
+                    <dd className="mt-1 font-semibold">{formatarDataEntrega(lembretePendente.marco.entrega.dataEntrega)}</dd>
+                  </div>
+                  <div>
+                    <dt className="font-sans text-[11px] font-semibold uppercase tracking-[0.04em] text-black/50">Marco em</dt>
+                    <dd className="mt-1 font-semibold">{formatarData(lembretePendente.marco.dataAlvo)}</dd>
+                  </div>
+                </dl>
+
+                <div className="flex flex-wrap gap-2 lg:justify-end">
+                  {atendenteResponsavel ? (
                       <button
                           type="button"
-                          className="botao-secundario py-1.5"
-                          onClick={() => aoConcluir(lembretePendente)}
+                          className="botao-link"
+                          onClick={() => aoLiberar(lembretePendente)}
                           disabled={acaoEmAndamento}
                       >
-                        Concluir
+                        Liberar
                       </button>
-                    </div>
-                  </td>
-                </tr>
-            );
-          })}
-          </tbody>
-        </table>
-      </div>
+                  ) : (
+                      <button
+                          type="button"
+                          className="botao-link"
+                          onClick={() => aoAssumir(lembretePendente)}
+                          disabled={acaoEmAndamento}
+                      >
+                        Assumir
+                      </button>
+                  )}
+                  <Link to={`/historico/${clienteLembrete.id}?lembreteId=${lembretePendente.id}`} className="botao-link">
+                    Registrar contato
+                  </Link>
+                  <button
+                      type="button"
+                      className="botao-link border-black bg-black text-white hover:bg-site-botao"
+                      onClick={() => aoConcluir(lembretePendente)}
+                      disabled={acaoEmAndamento}
+                  >
+                    Concluir
+                  </button>
+                </div>
+              </li>
+          );
+        })}
+      </ul>
   );
 }

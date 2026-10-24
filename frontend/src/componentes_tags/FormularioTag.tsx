@@ -41,8 +41,8 @@ export function FormularioTag({ tagEmEdicao, aoSalvar, aoCancelarEdicao }: Propr
     }
 
     return (
-        <form onSubmit={enviarFormulario} className="cartao flex flex-col gap-4 max-w-sm">
-            <h3 className="font-display text-lg text-viser-950">{estaEditando ? "Editar tag" : "Nova tag"}</h3>
+        <form onSubmit={enviarFormulario} className="cartao flex flex-col gap-5">
+            <h3 className="secao-titulo">{estaEditando ? "Editar tag" : "Nova tag"}</h3>
 
             {mensagemErro && <p role="alert" className="mensagem-erro">{mensagemErro}</p>}
 
