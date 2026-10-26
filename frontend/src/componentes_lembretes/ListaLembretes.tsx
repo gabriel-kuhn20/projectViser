@@ -88,6 +88,14 @@ export function ListaLembretes({
                   </div>
                   <p className="mt-1 text-[14px] text-black/60">{formatarTelefone(clienteLembrete.contato)}</p>
                   <p className="mt-1 text-[14px] text-black">{lembretePendente.marco.entrega.produto}</p>
+                  {lembretePendente.interacoes.length > 0 && (
+                      <p className="mt-2">
+                        <span className="etiqueta">
+                          {lembretePendente.interacoes.length}{" "}
+                          {lembretePendente.interacoes.length === 1 ? "tentativa registrada" : "tentativas registradas"}
+                        </span>
+                      </p>
+                  )}
                   <EtiquetasCliente tagsCliente={clienteLembrete.tags} />
                 </div>
 
@@ -126,14 +134,14 @@ export function ListaLembretes({
                   <Link to={`/historico/${clienteLembrete.id}`} className="botao-link">
                     Ver cliente
                   </Link>
-                  {/* RF17: concluir abre o formulário da interação, que grava e conclui na mesma ação */}
+                  {/* RF17: abre o formulário, onde a atendente registra a tentativa e escolhe se já conclui */}
                   <button
                       type="button"
                       className="botao-link border-black bg-black text-white hover:bg-site-botao"
                       onClick={() => aoConcluir(lembretePendente)}
                       disabled={acaoEmAndamento}
                   >
-                    Concluir
+                    Registrar contato
                   </button>
                 </div>
               </li>

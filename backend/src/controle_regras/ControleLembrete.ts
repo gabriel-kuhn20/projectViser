@@ -36,6 +36,18 @@ async function listarPorMarco(req: Request, res: Response) {
       // quem está atendendo aparece na tela para outro atendente não ligar para o mesmo
       // cliente — só o nome sai, email e senha do usuário ficam de fora
       emAtendimentos: { include: { usuario: { select: { id: true, pessoa: { select: { nome: true } } } } } },
+      // tentativas já registradas (não atendeu, pediu para ligar depois...): o lembrete só sai da
+      // lista quando alguém conclui, e quem pega o cliente vê o que já foi tentado
+      interacoes: {
+        orderBy: { criadoEm: "asc" },
+        select: {
+          id: true,
+          conteudo: true,
+          respostaCliente: true,
+          criadoEm: true,
+          usuario: { select: { pessoa: { select: { nome: true } } } },
+        },
+      },
     },
     // o marco atingido há mais tempo vem primeiro: é o cliente que espera contato há mais tempo
     orderBy: { marco: { dataAlvo: "asc" } },
@@ -125,4 +137,4 @@ export const controleLembrete = {
   concluirLembrete,
   marcarEmAtendimento,
   desmarcarEmAtendimento,
-};
+};
