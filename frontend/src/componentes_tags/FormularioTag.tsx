@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { CampoTexto } from "../componentes_compartilhados/CampoTexto";
 import { BotaoPrimario } from "../componentes_compartilhados/BotaoPrimario";
 import { cadastrarTag, editarTag, type TagApi } from "../servicos_api/ApiTag";
+import { formatarMensagemErro } from "../utilitarios_formatacao/FormatarErro";
 
 type PropriedadesFormularioTag = {
     tagEmEdicao: TagApi | null;
@@ -33,8 +34,9 @@ export function FormularioTag({ tagEmEdicao, aoSalvar, aoCancelarEdicao }: Propr
                 : await cadastrarTag(nome);
             aoSalvar(tagSalva);
             if (!tagEmEdicao) definirNome("");
-        } catch (erro: any) {
-            definirMensagemErro(erro?.response?.data?.mensagem ?? "não foi possível salvar a tag. tente novamente.");
+        } catch (erro) {
+            // formatarMensagemErro mostra os detalhes do 400 (ex: nome em branco) em vez do genérico "dados inválidos"
+            definirMensagemErro(formatarMensagemErro(erro, "não foi possível salvar a tag. tente novamente."));
         } finally {
             definirEstaEnviando(false);
         }
