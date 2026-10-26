@@ -1,7 +1,11 @@
 import cron from "node-cron";
 import { Prisma } from "@prisma/client";
 import { clientePrisma } from "../config_servidor/ClientePrisma";
-import { calcularDataAlvoMarco, calcularMarcosAtingidos } from "../utilitarios_datas/CalculoMarcos";
+import {
+  calcularDataAlvoMarco,
+  calcularMarcosAtingidos,
+  verificarMarcoValeParaEntrega,
+} from "../utilitarios_datas/CalculoMarcos";
 
 // UC04 · Calcular marcos de acompanhamento (RF03)
 // Decisão de implementação (seção 9 do PRD): roda como rotina agendada,
@@ -23,32 +27,29 @@ export function executarVerificacaoMarcos() {
 }
 
 async function verificarClientesEGerarLembretes() {
-  // busca uma vez só e monta um mapa nome -> id (evita 1 query por marco dentro do loop)
-  const tiposMarco = await clientePrisma.tipoMarco.findMany();
-  const idPorNomeTipoMarco = new Map(tiposMarco.map((tipo) => [tipo.nome, tipo.id]));
+  // só os marcos ativos geram lembretes; buscados uma vez só, fora do loop das entregas
+  const tiposMarcoAtivos = await clientePrisma.tipoMarco.findMany({ where: { ativo: true } });
 
   const entregas = await clientePrisma.entrega.findMany({
-    include: { marcos: { include: { tipoMarco: true } } },
+    include: { marcos: { select: { tipoMarcoId: true } } },
   });
 
   for (const entrega of entregas) {
-    const marcosAtingidos = calcularMarcosAtingidos(entrega.dataEntrega, new Date());
+    const marcosAtingidos = calcularMarcosAtingidos(entrega.dataEntrega, new Date(), tiposMarcoAtivos);
 
-    for (const nomeTipoMarco of marcosAtingidos) {
-      const marcoJaExiste = entrega.marcos.some(
-        (marco) => marco.tipoMarco.nome === nomeTipoMarco
-      );
+    for (const tipoMarco of marcosAtingidos) {
+      const marcoJaExiste = entrega.marcos.some((marco) => marco.tipoMarcoId === tipoMarco.id);
       if (marcoJaExiste) continue; // A1: evita duplicar lembrete do mesmo marco
 
-      const tipoMarcoId = idPorNomeTipoMarco.get(nomeTipoMarco);
-      if (!tipoMarcoId) continue; // tabela tipo_marco ainda não tem esse valor cadastrado
+      const dataAlvo = calcularDataAlvoMarco(entrega.dataEntrega, tipoMarco.diasAposEntrega);
+      if (!verificarMarcoValeParaEntrega(dataAlvo, entrega.criadoEm, tipoMarco.criadoEm)) continue;
 
       try {
         await clientePrisma.marcoAcompanhamento.create({
           data: {
             entregaId: entrega.id,
-            tipoMarcoId,
-            dataAlvo: calcularDataAlvoMarco(entrega.dataEntrega, nomeTipoMarco),
+            tipoMarcoId: tipoMarco.id,
+            dataAlvo,
             lembretes: { create: {} },
           },
         });
