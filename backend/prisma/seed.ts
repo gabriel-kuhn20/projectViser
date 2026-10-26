@@ -3,7 +3,12 @@ import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 
-const NOMES_TIPO_MARCO = ["7d", "2m", "1a"] as const;
+// marcos iniciais do PRD (RF03); depois o administrador cria, renomeia ou desativa pela tela de marcos
+const MARCOS_INICIAIS = [
+  { nome: "7 dias", diasAposEntrega: 7 },
+  { nome: "2 meses", diasAposEntrega: 60 },
+  { nome: "1 ano", diasAposEntrega: 365 },
+];
 
 // valores padrão pensados só pra ambiente local — em produção, sobrescreva
 // via variáveis de ambiente antes de rodar o seed
@@ -11,11 +16,12 @@ const EMAIL_ATENDENTE_PADRAO = process.env.SEED_ATENDENTE_EMAIL ?? "admin@oticav
 const SENHA_ATENDENTE_PADRAO = process.env.SEED_ATENDENTE_SENHA ?? "trocar123";
 
 async function main() {
-  for (const nome of NOMES_TIPO_MARCO) {
+  // procura pelos dias: o nome pode ter sido trocado pelo administrador e não deve voltar ao padrão
+  for (const marcoInicial of MARCOS_INICIAIS) {
     await prisma.tipoMarco.upsert({
-      where: { nome },
+      where: { diasAposEntrega: marcoInicial.diasAposEntrega },
       update: {},
-      create: { nome },
+      create: marcoInicial,
     });
   }
   console.log("Seed de tipo_marco concluído.");

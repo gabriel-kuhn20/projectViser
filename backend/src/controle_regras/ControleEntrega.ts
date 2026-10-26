@@ -35,7 +35,7 @@ async function excluirMarcosEntregas(transacaoBanco: Prisma.TransactionClient, e
 
 // Cadastrar entrega para um cliente que já existe (ex: compra de um óculos novo)
 async function cadastrarEntrega(req: Request, res: Response) {
-    const { clienteId, dataEntrega } = validadorCadastroEntrega.parse(req.body);
+    const { clienteId, dataEntrega, produto } = validadorCadastroEntrega.parse(req.body);
 
     const clienteExistente = await clientePrisma.cliente.findUnique({ where: { id: clienteId } });
     if (!clienteExistente) {
@@ -43,7 +43,7 @@ async function cadastrarEntrega(req: Request, res: Response) {
     }
 
     const novaEntrega = await clientePrisma.entrega.create({
-        data: { clienteId, dataEntrega },
+        data: { clienteId, dataEntrega, produto },
         include: dadosIncluidosResposta,
     });
 
@@ -94,7 +94,7 @@ async function buscarEntregaPorId(req: Request, res: Response) {
 // Editar data de entrega
 async function editarEntrega(req: Request, res: Response) {
     const { id: entregaId } = validadorParametroId.parse({ id: req.params.entregaId });
-    const { dataEntrega } = validadorEdicaoEntrega.parse(req.body);
+    const { dataEntrega, produto } = validadorEdicaoEntrega.parse(req.body);
 
     const entregaExistente = await clientePrisma.entrega.findUnique({
         where: { id: entregaId },
@@ -129,7 +129,7 @@ async function editarEntrega(req: Request, res: Response) {
 
         return transacaoBanco.entrega.update({
             where: { id: entregaId },
-            data: { dataEntrega },
+            data: { dataEntrega, produto },
             include: dadosIncluidosResposta,
         });
     });

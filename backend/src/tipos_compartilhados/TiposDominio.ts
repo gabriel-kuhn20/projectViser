@@ -2,4 +2,3 @@
 import { StatusLembrete } from "@prisma/client";
 
 export type { StatusLembrete };
-export type NomeTipoMarco = "7d" | "2m" | "1a";

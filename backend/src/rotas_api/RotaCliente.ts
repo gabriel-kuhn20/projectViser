@@ -17,3 +17,5 @@ rotaCliente.get("/:clienteId", controleCliente.buscarClientePorId);
 rotaCliente.put("/:clienteId", controleCliente.editarCliente);
 // Excluir cliente: só o administrador (RF11, RNF06)
 rotaCliente.delete("/:clienteId", exigirPapel("admin"), controleCliente.excluirCliente);
+// RF12 (UC11): vincular tags ao cliente é gestão de tags, só do administrador (RF11, RNF06)
+rotaCliente.put("/:clienteId/tags", exigirPapel("admin"), controleCliente.definirTagsCliente);

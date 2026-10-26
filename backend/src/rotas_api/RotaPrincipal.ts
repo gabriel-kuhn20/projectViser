@@ -8,6 +8,7 @@ import { rotaPainel } from "./RotaPainel";
 import { rotaTag } from "./RotaTag";
 import { rotaPessoa } from "./RotaPessoa";
 import { rotaEntrega } from "./RotaEntrega";
+import { rotaTipoMarco } from "./RotaTipoMarco";
 
 export const rotaPrincipal = Router();
 
@@ -20,3 +21,4 @@ rotaPrincipal.use("/painel", rotaPainel);              // UC11
 rotaPrincipal.use("/tags", rotaTag);
 rotaPrincipal.use("/pessoas", rotaPessoa);
 rotaPrincipal.use("/entregas", rotaEntrega);
+rotaPrincipal.use("/tipos-marco", rotaTipoMarco);  // UC04: marcos definidos pelo administrador
