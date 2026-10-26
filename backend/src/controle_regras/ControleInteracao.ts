@@ -2,7 +2,11 @@ import { Request, Response } from "express";
 import { Prisma } from "@prisma/client";
 import { clientePrisma } from "../config_servidor/ClientePrisma";
 import { ErroHttp } from "../middlewares_seguranca/ErroHttp";
-import { validadorRegistroInteracao, validadorRespostaInteracao } from "../validadores_entrada/ValidadorInteracao";
+import {
+  validadorEdicaoInteracao,
+  validadorRegistroInteracao,
+  validadorRespostaInteracao,
+} from "../validadores_entrada/ValidadorInteracao";
 import { validadorParametroId } from "../validadores_entrada/ValidadorParametros";
 import { buscarLembretePendente } from "./ControleLembrete";
 
@@ -83,6 +87,29 @@ async function registrarInteracao(req: Request, res: Response) {
   return res.status(201).json(novaInteracao);
 }
 
+// UC07 · Registrar interação (RF05): corrigir o texto de uma tentativa
+// só enquanto o lembrete está pendente — depois de concluído o histórico é o registro do atendimento
+// e não muda; editadoEm deixa claro na tela que o texto foi alterado
+async function editarInteracao(req: Request, res: Response) {
+  const { id: interacaoId } = validadorParametroId.parse({ id: req.params.interacaoId });
+  const { conteudo, respostaCliente } = validadorEdicaoInteracao.parse(req.body);
+
+  const interacaoExistente = await buscarInteracaoExistente(interacaoId);
+  verificarAutorOuAdmin(req, interacaoExistente.usuarioId);
+  const jaFoiConcluida = interacaoExistente.lembrete.status !== "pendente";
+  if (jaFoiConcluida) {
+    throw new ErroHttp(409, "não é possível editar interação de lembrete já concluído");
+  }
+
+  const interacaoEditada = await clientePrisma.interacao.update({
+    where: { id: interacaoId },
+    data: { conteudo, respostaCliente: respostaCliente || null, editadoEm: new Date() },
+    include: relacoesPublicasInteracao,
+  });
+
+  return res.json(interacaoEditada);
+}
+
 // UC07 · Registrar interação (RF05)
 // a resposta do cliente pode chegar depois do contato — por isso não exige lembrete pendente
 async function registrarRespostaCliente(req: Request, res: Response) {
@@ -123,5 +150,6 @@ export const controleInteracao = {
   buscarInteracaoPorId,
   registrarInteracao,
   registrarRespostaCliente,
+  editarInteracao,
   excluirInteracao,
-};
+};

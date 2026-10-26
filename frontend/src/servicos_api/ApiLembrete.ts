@@ -29,6 +29,8 @@ export type TentativaContatoApi = {
   conteudo: string;
   respostaCliente: string | null;
   criadoEm: string;
+  editadoEm: string | null;
+  usuarioId: number;
   usuario: { pessoa: { nome: string } };
 };
 
@@ -54,4 +56,9 @@ export async function marcarEmAtendimento(lembreteId: number): Promise<void> {
 
 export async function desmarcarEmAtendimento(lembreteId: number): Promise<void> {
   await clienteHttp.delete(`/lembretes/${lembreteId}/em-atendimento`);
-}
+}
+
+// UC07 A3: só o admin desfaz uma conclusão feita por engano
+export async function reabrirLembrete(lembreteId: number): Promise<void> {
+  await clienteHttp.patch(`/lembretes/${lembreteId}/reabrir`);
+}

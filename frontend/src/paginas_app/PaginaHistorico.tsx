@@ -75,6 +75,12 @@ export function PaginaHistorico() {
         definirMensagemSucesso("alterações do cliente salvas.");
     }
 
+    // edição ou reabertura: recarrega para o status do lembrete e o "(editado)" virem do servidor
+    async function aoAlterarHistorico(mensagemAlteracao: string) {
+        definirMensagemSucesso(mensagemAlteracao);
+        await carregarHistorico();
+    }
+
     return (
         <div>
             <Link to="/clientes" className="link-voltar">
@@ -146,7 +152,11 @@ export function PaginaHistorico() {
             )}
 
             <h3 className="secao-titulo mb-4">Histórico de contatos</h3>
-            <HistoricoInteracoes interacoesCliente={interacoesCliente} estaCarregando={estaCarregando} />
+            <HistoricoInteracoes
+                interacoesCliente={interacoesCliente}
+                estaCarregando={estaCarregando}
+                aoAlterar={aoAlterarHistorico}
+            />
         </div>
     );
 }

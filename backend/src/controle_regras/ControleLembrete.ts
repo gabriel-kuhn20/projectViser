@@ -45,6 +45,8 @@ async function listarPorMarco(req: Request, res: Response) {
           conteudo: true,
           respostaCliente: true,
           criadoEm: true,
+          editadoEm: true,
+          usuarioId: true,
           usuario: { select: { pessoa: { select: { nome: true } } } },
         },
       },
@@ -87,6 +89,28 @@ async function concluirLembrete(req: Request, res: Response) {
   });
 
   return res.json(lembreteConcluido);
+}
+
+// UC07 · Concluir lembrete de contato (RF07) — A3: reabrir lembrete concluído por engano
+// só o admin (rota com exigirPapel); as tentativas continuam vinculadas e o lembrete volta
+// para a aba do marco. Cliente que retorna com problema é contato novo, não reabertura
+async function reabrirLembrete(req: Request, res: Response) {
+  const { id: lembreteId } = validadorParametroId.parse({ id: req.params.lembreteId });
+
+  const lembreteEncontrado = await clientePrisma.lembrete.findUnique({ where: { id: lembreteId } });
+  if (!lembreteEncontrado) {
+    throw new ErroHttp(404, "lembrete não encontrado");
+  }
+  if (lembreteEncontrado.status === "pendente") {
+    throw new ErroHttp(409, "lembrete já está pendente");
+  }
+
+  const lembreteReaberto = await clientePrisma.lembrete.update({
+    where: { id: lembreteId },
+    data: { status: "pendente", concluidoEm: null },
+  });
+
+  return res.json(lembreteReaberto);
 }
 
 // UC09 · Marcar lembrete como em atendimento (RF08)
@@ -135,6 +159,7 @@ async function desmarcarEmAtendimento(req: Request, res: Response) {
 export const controleLembrete = {
   listarPorMarco,
   concluirLembrete,
+  reabrirLembrete,
   marcarEmAtendimento,
   desmarcarEmAtendimento,
 };

@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { BotaoPrimario } from "../componentes_compartilhados/BotaoPrimario";
 import { CampoTexto } from "../componentes_compartilhados/CampoTexto";
-import { concluirLembrete, type LembreteApi } from "../servicos_api/ApiLembrete";
-import { registrarInteracao } from "../servicos_api/ApiInteracao";
+import { concluirLembrete, type LembreteApi, type TentativaContatoApi } from "../servicos_api/ApiLembrete";
+import { registrarInteracao, type InteracaoApi } from "../servicos_api/ApiInteracao";
+import { usarAutenticacao } from "../hooks_dados/useAutenticacao";
+import { EdicaoInteracao, MarcaEditado } from "./EdicaoInteracao";
 import { formatarMensagemErro } from "../utilitarios_formatacao/FormatarErro";
 import { formatarTelefone } from "../utilitarios_formatacao/FormatarTelefone";
 
@@ -27,13 +29,37 @@ export function FormularioInteracao({
   const [camposFormulario, definirCamposFormulario] = useState(camposIniciais);
   const [mensagemErro, definirMensagemErro] = useState<string | null>(null);
   const [estaEnviando, definirEstaEnviando] = useState(false);
+  // cópia local: corrigir uma tentativa atualiza só ela, sem fechar o formulário nem recarregar a lista
+  const [tentativasAnteriores, definirTentativasAnteriores] = useState(lembreteSelecionado.interacoes);
+  const [tentativaEmEdicaoId, definirTentativaEmEdicaoId] = useState<number | null>(null);
+  const { papelAcesso, usuarioId } = usarAutenticacao();
 
   const entregaLembrete = lembreteSelecionado.marco.entrega;
-  const tentativasAnteriores = lembreteSelecionado.interacoes;
   const possuiTentativas = tentativasAnteriores.length > 0;
   const conteudoDigitado = camposFormulario.conteudo.trim();
   // a API rejeita string vazia, então a resposta só vai se foi preenchida
   const respostaDigitada = camposFormulario.respostaCliente.trim() || undefined;
+
+  // mesma regra da API: só quem registrou ou um admin corrige (o lembrete aqui é sempre pendente)
+  function verificarPodeEditar(tentativa: TentativaContatoApi) {
+    return papelAcesso === "admin" || tentativa.usuarioId === usuarioId;
+  }
+
+  function aoSalvarEdicao(interacaoEditada: InteracaoApi) {
+    definirTentativasAnteriores((tentativasAtuais) =>
+        tentativasAtuais.map((tentativa) =>
+            tentativa.id === interacaoEditada.id
+                ? {
+                  ...tentativa,
+                  conteudo: interacaoEditada.conteudo,
+                  respostaCliente: interacaoEditada.respostaCliente,
+                  editadoEm: interacaoEditada.editadoEm,
+                }
+                : tentativa,
+        ),
+    );
+    definirTentativaEmEdicaoId(null);
+  }
 
   async function registrarSemConcluir() {
     definirMensagemErro(null);
@@ -91,14 +117,38 @@ export function FormularioInteracao({
               <ol className="flex flex-col divide-y divide-black/10 rounded-xl border border-black/10 text-[14px]">
                 {tentativasAnteriores.map((tentativa) => (
                     <li key={tentativa.id} className="px-4 py-3">
-                      <p className="text-[12px] text-black/55">
-                        {new Date(tentativa.criadoEm).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })}
-                        {" · "}
-                        {tentativa.usuario.pessoa.nome}
-                      </p>
-                      <p className="mt-1">{tentativa.conteudo}</p>
-                      {tentativa.respostaCliente && (
-                          <p className="mt-1 text-black/60">Cliente: {tentativa.respostaCliente}</p>
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className="flex flex-wrap gap-1 text-[12px] text-black/55">
+                          {new Date(tentativa.criadoEm).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })}
+                          {" · "}
+                          {tentativa.usuario.pessoa.nome}
+                          <MarcaEditado editadoEm={tentativa.editadoEm} />
+                        </p>
+                        {verificarPodeEditar(tentativa) && tentativa.id !== tentativaEmEdicaoId && (
+                            <button
+                                type="button"
+                                className="text-[12px] font-semibold underline underline-offset-2"
+                                onClick={() => definirTentativaEmEdicaoId(tentativa.id)}
+                                disabled={estaEnviando}
+                            >
+                              Editar
+                            </button>
+                        )}
+                      </div>
+                      {tentativa.id === tentativaEmEdicaoId && (
+                          <EdicaoInteracao
+                              interacaoEmEdicao={tentativa}
+                              aoSalvar={aoSalvarEdicao}
+                              aoCancelar={() => definirTentativaEmEdicaoId(null)}
+                          />
+                      )}
+                      {tentativa.id !== tentativaEmEdicaoId && (
+                          <>
+                            <p className="mt-1">{tentativa.conteudo}</p>
+                            {tentativa.respostaCliente && (
+                                <p className="mt-1 text-black/60">Cliente: {tentativa.respostaCliente}</p>
+                            )}
+                          </>
                       )}
                     </li>
                 ))}
