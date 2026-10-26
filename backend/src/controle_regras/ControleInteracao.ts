@@ -152,4 +152,4 @@ export const controleInteracao = {
   registrarRespostaCliente,
   editarInteracao,
   excluirInteracao,
-};
+};

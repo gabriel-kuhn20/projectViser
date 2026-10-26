@@ -26,4 +26,4 @@ export async function editarTag(tagId: number, nome: string): Promise<TagApi> {
 
 export async function excluirTag(tagId: number): Promise<void> {
     await clienteHttp.delete(`/tags/${tagId}`);
-}
+}

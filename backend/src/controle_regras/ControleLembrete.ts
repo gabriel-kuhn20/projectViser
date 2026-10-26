@@ -177,4 +177,4 @@ export const controleLembrete = {
   reabrirLembrete,
   marcarEmAtendimento,
   desmarcarEmAtendimento,
-};
+};

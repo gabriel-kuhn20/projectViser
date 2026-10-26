@@ -17,4 +17,4 @@ export const validadorEdicaoInteracao = z.object({
 
 export const validadorRespostaInteracao = z.object({
   respostaCliente: z.string().trim().min(1, "não pode ficar em branco"),
-});
+});

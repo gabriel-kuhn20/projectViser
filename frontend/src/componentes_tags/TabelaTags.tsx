@@ -57,4 +57,4 @@ export function TabelaTags({ tags, carregando, aoEditar, aoExcluir, filtroAtivo 
             </table>
         </div>
     );
-}
+}
