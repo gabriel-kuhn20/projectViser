@@ -4,6 +4,8 @@ import { TabelaAtendentes } from "../componentes_pessoas/TabelaAtendentes";
 import { excluirAtendente, listarAtendentes, type AtendenteApi } from "../servicos_api/ApiAtendente";
 import { formatarMensagemErro } from "../utilitarios_formatacao/FormatarErro";
 import { TituloPagina } from "../componentes_layout/TituloPagina";
+import { CampoBusca } from "../componentes_compartilhados/CampoBusca";
+import { correspondeBusca } from "../utilitarios_formatacao/BuscarTexto";
 
 // UC10 · Cadastrar conta de atendente (RF09) + listagem, edição de papel e exclusão (só administrador)
 export function PaginaAtendentes() {
@@ -11,6 +13,11 @@ export function PaginaAtendentes() {
     const [carregando, definirCarregando] = useState(true);
     const [atendenteEmEdicao, definirAtendenteEmEdicao] = useState<AtendenteApi | null>(null);
     const [mensagemErro, definirMensagemErro] = useState<string | null>(null);
+    const [termoBusca, definirTermoBusca] = useState("");
+
+    const atendentesFiltrados = atendentes.filter((atendente) =>
+        correspondeBusca(termoBusca, [atendente.pessoa.nome, atendente.email])
+    );
 
     // a lista é recarregada depois de salvar: o cadastro não devolve a conta completa
     const carregarAtendentes = useCallback(async () => {
@@ -57,12 +64,18 @@ export function PaginaAtendentes() {
                     aoSalvar={aoSalvarAtendente}
                     aoCancelarEdicao={() => definirAtendenteEmEdicao(null)}
                 />
-                <TabelaAtendentes
-                    atendentes={atendentes}
-                    carregando={carregando}
-                    aoEditar={definirAtendenteEmEdicao}
-                    aoExcluir={aoExcluirAtendente}
-                />
+                <div className="min-w-0">
+                    <div className="mb-4">
+                        <CampoBusca rotulo="Buscar conta" valor={termoBusca} aoAlterar={definirTermoBusca} placeholder="nome ou e-mail" />
+                    </div>
+                    <TabelaAtendentes
+                        atendentes={atendentesFiltrados}
+                        filtroAtivo={termoBusca.trim() !== ""}
+                        carregando={carregando}
+                        aoEditar={definirAtendenteEmEdicao}
+                        aoExcluir={aoExcluirAtendente}
+                    />
+                </div>
             </div>
         </div>
     );
