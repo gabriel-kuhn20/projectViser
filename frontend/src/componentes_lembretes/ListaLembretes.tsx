@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { type LembreteApi } from "../servicos_api/ApiLembrete";
+import { type EntregaResumoApi, type LembreteApi } from "../servicos_api/ApiLembrete";
 import { usarAutenticacao } from "../hooks_dados/useAutenticacao";
 import { EtiquetasCliente } from "../componentes_tags/EtiquetasCliente";
 import {
@@ -8,6 +8,20 @@ import {
   formatarDiasAguardando,
 } from "../utilitarios_formatacao/FormatarData";
 import { formatarTelefone } from "../utilitarios_formatacao/FormatarTelefone";
+
+// acima disso o card fica comprido; o resto aparece como "+N" e está completo em "Ver cliente"
+const MAXIMO_OUTRAS_ENTREGAS = 3;
+
+// "Hilux (24/10/2026), Lente (10/05/2025) +2" — contexto das outras compras na hora da ligação
+function descreverOutrasEntregas(outrasEntregas: EntregaResumoApi[]) {
+  const entregasVisiveis = outrasEntregas
+      .slice(0, MAXIMO_OUTRAS_ENTREGAS)
+      .map((entrega) => `${entrega.produto} (${formatarDataSemHora(entrega.dataEntrega)})`)
+      .join(", ");
+  const entregasOcultas = outrasEntregas.length - MAXIMO_OUTRAS_ENTREGAS;
+  if (entregasOcultas <= 0) return entregasVisiveis;
+  return `${entregasVisiveis} +${entregasOcultas}`;
+}
 
 type PropriedadesListaLembretes = {
   lembretesPendentes: LembreteApi[];
@@ -67,6 +81,9 @@ export function ListaLembretes({
           const assumidoPeloUsuario = lembretePendente.emAtendimentos?.usuario.id === usuarioId;
           const podeLiberar = papelAcesso === "admin" || assumidoPeloUsuario;
           const diasAguardando = calcularDiasAguardando(lembretePendente.marco.dataAlvo);
+          const outrasEntregas = clienteLembrete.entregas.filter(
+              (entrega) => entrega.id !== lembretePendente.marco.entrega.id,
+          );
 
           return (
               <li
@@ -88,6 +105,11 @@ export function ListaLembretes({
                   </div>
                   <p className="mt-1 text-[14px] text-black/60">{formatarTelefone(clienteLembrete.contato)}</p>
                   <p className="mt-1 text-[14px] text-black">{lembretePendente.marco.entrega.produto}</p>
+                  {outrasEntregas.length > 0 && (
+                      <p className="mt-1 text-[13px] text-black/60">
+                        Outras entregas: {descreverOutrasEntregas(outrasEntregas)}
+                      </p>
+                  )}
                   {lembretePendente.interacoes.length > 0 && (
                       <p className="mt-2">
                         <span className="etiqueta">

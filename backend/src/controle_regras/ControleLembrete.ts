@@ -30,7 +30,22 @@ async function listarPorMarco(req: Request, res: Response) {
       // as tags vão junto para a atendente saber o perfil do cliente antes de ligar
       marco: {
         include: {
-          entrega: { include: { cliente: { include: { pessoa: true, tags: { include: { tag: true } } } } } },
+          entrega: {
+            include: {
+              cliente: {
+                include: {
+                  pessoa: true,
+                  tags: { include: { tag: true } },
+                  // as outras compras do cliente dão contexto na ligação; a própria entrega do
+                  // lembrete também vem e a tela tira (o Prisma não filtra pelo id do nível de cima)
+                  entregas: {
+                    select: { id: true, produto: true, dataEntrega: true },
+                    orderBy: { dataEntrega: "desc" },
+                  },
+                },
+              },
+            },
+          },
         },
       },
       // quem está atendendo aparece na tela para outro atendente não ligar para o mesmo

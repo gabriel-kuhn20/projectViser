@@ -16,12 +16,25 @@ export type LembreteApi = {
       id: number;
       dataEntrega: string;
       produto: string;
-      cliente: { id: number; contato: string; pessoa: PessoaApi; tags?: VinculoTagApi[] };
+      cliente: {
+        id: number;
+        contato: string;
+        pessoa: PessoaApi;
+        tags?: VinculoTagApi[];
+        // todas as entregas do cliente, da mais recente para a mais antiga (inclui a deste lembrete)
+        entregas: EntregaResumoApi[];
+      };
     };
   };
   emAtendimentos: { usuario: { id: number; pessoa: { nome: string } } } | null;
   // tentativas de contato já registradas neste lembrete, da mais antiga para a mais recente
   interacoes: TentativaContatoApi[];
+};
+
+export type EntregaResumoApi = {
+  id: number;
+  produto: string;
+  dataEntrega: string;
 };
 
 export type TentativaContatoApi = {
