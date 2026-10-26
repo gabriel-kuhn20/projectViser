@@ -85,6 +85,13 @@ export function FormularioInteracao({
 
   async function concluirContato(eventoEnvio: React.FormEvent) {
     eventoEnvio.preventDefault();
+    // concluir tira o cliente da lista e só o administrador desfaz (UC07 A3): confirma antes
+    const confirmouConclusao = window.confirm(
+        `Deseja concluir o contato com ${entregaLembrete.cliente.pessoa.nome}? ` +
+        "Depois de concluído, só um administrador pode reabrir o lembrete.",
+    );
+    if (!confirmouConclusao) return;
+
     definirMensagemErro(null);
     definirEstaEnviando(true);
 
