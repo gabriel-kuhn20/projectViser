@@ -7,7 +7,7 @@ export const rotaLembrete = Router();
 rotaLembrete.use(middlewareAutenticacao);
 
 // RF04 (UC05): lista de lembretes pendentes por marco
-rotaLembrete.get("/marco/:tipoMarco", controleLembrete.listarPorMarco);
+rotaLembrete.get("/marco/:tipoMarcoId", controleLembrete.listarPorMarco);
 // RF07 (UC08): concluir lembrete, exige interação já registrada
 rotaLembrete.patch("/:lembreteId/concluir", controleLembrete.concluirLembrete);
 // RF08 (UC09): marcar/desmarcar como "em atendimento"

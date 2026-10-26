@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import { clientePrisma } from "../config_servidor/ClientePrisma";
 import { ErroHttp } from "../middlewares_seguranca/ErroHttp";
-import { validadorParametroTipoMarco } from "../validadores_entrada/ValidadorLembrete";
+import { validadorConclusaoLembrete } from "../validadores_entrada/ValidadorLembrete";
+import { validadorParametroId } from "../validadores_entrada/ValidadorParametros";
 
 // Buscar lembrete que ainda aceita atendimento
 // assumir, registrar interação e concluir só valem para lembrete pendente; a checagem
@@ -20,12 +21,18 @@ export async function buscarLembretePendente(lembreteId: number) {
 
 // UC05 · Ver lista de lembretes por marco (RF04)
 async function listarPorMarco(req: Request, res: Response) {
-  const { tipoMarco } = validadorParametroTipoMarco.parse(req.params);
+  // os marcos agora são cadastrados pelo administrador, então a aba é identificada pelo id
+  const { id: tipoMarcoId } = validadorParametroId.parse({ id: req.params.tipoMarcoId });
 
   const lembretesPendentes = await clientePrisma.lembrete.findMany({
-    where: { status: "pendente", marco: { tipoMarco: { nome: tipoMarco } } },
+    where: { status: "pendente", marco: { tipoMarcoId } },
     include: {
-      marco: { include: { entrega: { include: { cliente: { include: { pessoa: true } } } } } },
+      // as tags vão junto para a atendente saber o perfil do cliente antes de ligar
+      marco: {
+        include: {
+          entrega: { include: { cliente: { include: { pessoa: true, tags: { include: { tag: true } } } } } },
+        },
+      },
       // quem está atendendo aparece na tela para outro atendente não ligar para o mesmo
       // cliente — só o nome sai, email e senha do usuário ficam de fora
       emAtendimentos: { include: { usuario: { select: { id: true, pessoa: { select: { nome: true } } } } } },
@@ -37,22 +44,29 @@ async function listarPorMarco(req: Request, res: Response) {
   return res.json(lembretesPendentes);
 }
 
-// UC08 · Concluir lembrete de contato (RF07)
-// A1: bloqueia a conclusão se não houver interação registrada
+// UC07 · Concluir lembrete de contato (RF07)
+// com `conteudo` no corpo, registra a interação e conclui na mesma transação (o "concluir" da tela
+// abre o formulário da interação — RF17); sem ele, A1: só conclui se já houver interação registrada
 async function concluirLembrete(req: Request, res: Response) {
   const lembreteId = Number(req.params.lembreteId);
   if (Number.isNaN(lembreteId)) {
     return res.status(400).json({ mensagem: "lembreteId inválido" });
   }
+  const { conteudo, respostaCliente } = validadorConclusaoLembrete.parse(req.body ?? {});
 
   await buscarLembretePendente(lembreteId);
 
   const totalInteracoes = await clientePrisma.interacao.count({ where: { lembreteId } });
-  if (totalInteracoes === 0) {
+  const semInteracaoRegistrada = totalInteracoes === 0 && !conteudo;
+  if (semInteracaoRegistrada) {
     return res.status(400).json({ mensagem: "registre uma interação antes de concluir o lembrete" });
   }
 
+  const usuarioId = req.usuarioLogado!.usuarioId;
   const lembreteConcluido = await clientePrisma.$transaction(async (transacao) => {
+    if (conteudo) {
+      await transacao.interacao.create({ data: { lembreteId, usuarioId, conteudo, respostaCliente } });
+    }
     await transacao.emAtendimento.deleteMany({ where: { lembreteId } });
     return transacao.lembrete.update({
       where: { id: lembreteId },
@@ -70,7 +84,7 @@ async function marcarEmAtendimento(req: Request, res: Response) {
   if (Number.isNaN(lembreteId)) {
     return res.status(400).json({ mensagem: "lembreteId inválido" });
   }
-  const usuarioId = (req as any).usuarioLogado.usuarioId;
+  const usuarioId = req.usuarioLogado!.usuarioId;
   await buscarLembretePendente(lembreteId);
 
   const jaEmAtendimento = await clientePrisma.emAtendimento.findUnique({ where: { lembreteId } });
@@ -88,6 +102,20 @@ async function desmarcarEmAtendimento(req: Request, res: Response) {
   if (Number.isNaN(lembreteId)) {
     return res.status(400).json({ mensagem: "lembreteId inválido" });
   }
+
+  const atendimentoAtual = await clientePrisma.emAtendimento.findUnique({ where: { lembreteId } });
+  if (!atendimentoAtual) {
+    throw new ErroHttp(404, "lembrete não está em atendimento");
+  }
+
+  // só quem assumiu ou um admin libera — senão outro atendente tira o cliente da mão de quem
+  // está no contato e os dois acabam ligando para a mesma pessoa (o que o UC09 existe para evitar)
+  const { usuarioId, papelAcesso } = req.usuarioLogado!;
+  const podeLiberar = papelAcesso === "admin" || atendimentoAtual.usuarioId === usuarioId;
+  if (!podeLiberar) {
+    throw new ErroHttp(403, "só quem assumiu o atendimento ou um admin pode liberá-lo");
+  }
+
   await clientePrisma.emAtendimento.delete({ where: { lembreteId } });
   return res.status(204).send();
 }

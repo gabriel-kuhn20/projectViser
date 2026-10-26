@@ -4,5 +4,5 @@ import { middlewareAutenticacao } from "../middlewares_seguranca/MiddlewareAuten
 
 export const rotaPainel = Router();
 
-// RF11 (UC11): quantidade de clientes pendentes em cada marco
-rotaPainel.get("/", middlewareAutenticacao, controlePainel.obterResumoPendencias);
+// RF10/RF19 (UC09): pendências por marco, meus atendimentos, próximo cliente e contatos
+rotaPainel.get("/", middlewareAutenticacao, controlePainel.obterPainel);
