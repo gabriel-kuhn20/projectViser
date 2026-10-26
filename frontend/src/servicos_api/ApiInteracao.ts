@@ -1,5 +1,4 @@
 import { clienteHttp } from "./ClienteHttp";
-import { type TipoMarco } from "../tipos_compartilhados/TiposDominio";
 
 // chamadas à API de interações (/interacoes) e o formato que o histórico devolve
 
@@ -10,7 +9,7 @@ export type InteracaoApi = {
   respostaCliente: string | null;
   criadoEm: string;
   usuario: { id: number; pessoa: { nome: string } };
-  lembrete: { id: number; marco: { tipoMarco: { nome: TipoMarco } } };
+  lembrete: { id: number; marco: { tipoMarco: { nome: string } } };
 };
 
 export type DadosRegistroInteracao = {

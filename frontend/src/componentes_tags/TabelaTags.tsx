@@ -5,15 +5,21 @@ type PropriedadesTabelaTags = {
     carregando: boolean;
     aoEditar: (tag: TagApi) => void;
     aoExcluir: (tag: TagApi) => void;
+    // com busca ativa, "nenhuma tag cadastrada" daria a entender que não existe nenhuma
+    filtroAtivo?: boolean;
 };
 
 function formatarData(data: string) {
     return new Date(data).toLocaleDateString("pt-BR");
 }
 
-export function TabelaTags({ tags, carregando, aoEditar, aoExcluir }: PropriedadesTabelaTags) {
+export function TabelaTags({ tags, carregando, aoEditar, aoExcluir, filtroAtivo = false }: PropriedadesTabelaTags) {
     if (carregando) {
         return <div className="cartao mensagem-vazia">carregando tags...</div>;
+    }
+
+    if (tags.length === 0 && filtroAtivo) {
+        return <div className="cartao mensagem-vazia">nenhuma tag encontrada para essa busca.</div>;
     }
 
     if (tags.length === 0) {
@@ -51,4 +57,4 @@ export function TabelaTags({ tags, carregando, aoEditar, aoExcluir }: Propriedad
             </table>
         </div>
     );
-}
+}

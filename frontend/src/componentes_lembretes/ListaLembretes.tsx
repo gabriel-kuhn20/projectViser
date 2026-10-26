@@ -1,5 +1,13 @@
 import { Link } from "react-router-dom";
 import { type LembreteApi } from "../servicos_api/ApiLembrete";
+import { usarAutenticacao } from "../hooks_dados/useAutenticacao";
+import { EtiquetasCliente } from "../componentes_tags/EtiquetasCliente";
+import {
+  calcularDiasAguardando,
+  formatarDataSemHora,
+  formatarDiasAguardando,
+} from "../utilitarios_formatacao/FormatarData";
+import { formatarTelefone } from "../utilitarios_formatacao/FormatarTelefone";
 
 type PropriedadesListaLembretes = {
   lembretesPendentes: LembreteApi[];
@@ -8,19 +16,23 @@ type PropriedadesListaLembretes = {
   aoAssumir: (lembreteSelecionado: LembreteApi) => void;
   aoLiberar: (lembreteSelecionado: LembreteApi) => void;
   aoConcluir: (lembreteSelecionado: LembreteApi) => void;
+  // com busca ou filtro de tag ativo, a lista vazia não quer dizer que o marco está em dia
+  filtroAtivo?: boolean;
+  // cartão aberto a partir do "próximo cliente" do painel
+  lembreteDestacadoId?: number | null;
 };
 
-// dataEntrega é só data (vem como meia-noite em UTC); formatar no fuso local
-// mostraria o dia anterior no Brasil, por isso o timeZone fixo
-function formatarDataEntrega(dataEntrega: string) {
-  return new Date(dataEntrega).toLocaleDateString("pt-BR", { timeZone: "UTC" });
+const DIAS_PARA_ATENCAO = 3;
+const DIAS_PARA_ALERTA = 7;
+
+// a lista já vem de quem espera há mais tempo; a cor destaca quem passou do prazo de contato
+function escolherClasseUrgencia(diasAguardando: number) {
+  if (diasAguardando > DIAS_PARA_ALERTA) return "etiqueta etiqueta-alerta";
+  if (diasAguardando > DIAS_PARA_ATENCAO) return "etiqueta etiqueta-atencao";
+  return "etiqueta";
 }
 
-function formatarData(dataCompleta: string) {
-  return new Date(dataCompleta).toLocaleDateString("pt-BR");
-}
-
-// UC05 · Ver lista de lembretes por marco (RF04)
+// UC05 · Ver lista de lembretes por marco (RF05, RF17)
 export function ListaLembretes({
                                  lembretesPendentes,
                                  estaCarregando,
@@ -28,9 +40,17 @@ export function ListaLembretes({
                                  aoAssumir,
                                  aoLiberar,
                                  aoConcluir,
+                                 filtroAtivo = false,
+                                 lembreteDestacadoId = null,
                                }: PropriedadesListaLembretes) {
+  const { usuarioId, papelAcesso } = usarAutenticacao();
+
   if (estaCarregando && lembretesPendentes.length === 0) {
     return <div className="cartao mensagem-vazia">carregando lembretes...</div>;
+  }
+
+  if (lembretesPendentes.length === 0 && filtroAtivo) {
+    return <div className="cartao mensagem-vazia">nenhum cliente encontrado com esses filtros neste marco.</div>;
   }
 
   if (lembretesPendentes.length === 0) {
@@ -43,11 +63,18 @@ export function ListaLembretes({
           const clienteLembrete = lembretePendente.marco.entrega.cliente;
           const atendenteResponsavel = lembretePendente.emAtendimentos?.usuario.pessoa.nome;
           const acaoEmAndamento = lembreteEmAcao === lembretePendente.id;
+          // mesma regra do backend: só quem assumiu ou um admin libera o atendimento
+          const assumidoPeloUsuario = lembretePendente.emAtendimentos?.usuario.id === usuarioId;
+          const podeLiberar = papelAcesso === "admin" || assumidoPeloUsuario;
+          const diasAguardando = calcularDiasAguardando(lembretePendente.marco.dataAlvo);
 
           return (
               <li
                   key={lembretePendente.id}
-                  className="cartao grid gap-5 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_auto] lg:items-center"
+                  id={`lembrete-${lembretePendente.id}`}
+                  className={`cartao grid gap-5 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_auto] lg:items-center ${
+                      lembretePendente.id === lembreteDestacadoId ? "ring-2 ring-black ring-offset-2" : ""
+                  }`}
               >
                 <div>
                   <div className="flex flex-wrap items-center gap-3">
@@ -57,23 +84,26 @@ export function ListaLembretes({
                     ) : (
                         <span className="etiqueta">Aguardando contato</span>
                     )}
+                    <span className={escolherClasseUrgencia(diasAguardando)}>{formatarDiasAguardando(diasAguardando)}</span>
                   </div>
-                  <p className="mt-1 text-[14px] text-black/60">{clienteLembrete.contato}</p>
+                  <p className="mt-1 text-[14px] text-black/60">{formatarTelefone(clienteLembrete.contato)}</p>
+                  <p className="mt-1 text-[14px] text-black">{lembretePendente.marco.entrega.produto}</p>
+                  <EtiquetasCliente tagsCliente={clienteLembrete.tags} />
                 </div>
 
                 <dl className="flex gap-8 text-[13px]">
                   <div>
                     <dt className="font-sans text-[11px] font-semibold uppercase tracking-[0.04em] text-black/50">Entregue em</dt>
-                    <dd className="mt-1 font-semibold">{formatarDataEntrega(lembretePendente.marco.entrega.dataEntrega)}</dd>
+                    <dd className="mt-1 font-semibold">{formatarDataSemHora(lembretePendente.marco.entrega.dataEntrega)}</dd>
                   </div>
                   <div>
                     <dt className="font-sans text-[11px] font-semibold uppercase tracking-[0.04em] text-black/50">Marco em</dt>
-                    <dd className="mt-1 font-semibold">{formatarData(lembretePendente.marco.dataAlvo)}</dd>
+                    <dd className="mt-1 font-semibold">{formatarDataSemHora(lembretePendente.marco.dataAlvo)}</dd>
                   </div>
                 </dl>
 
                 <div className="flex flex-wrap gap-2 lg:justify-end">
-                  {atendenteResponsavel ? (
+                  {atendenteResponsavel && podeLiberar && (
                       <button
                           type="button"
                           className="botao-link"
@@ -82,7 +112,8 @@ export function ListaLembretes({
                       >
                         Liberar
                       </button>
-                  ) : (
+                  )}
+                  {!atendenteResponsavel && (
                       <button
                           type="button"
                           className="botao-link"
@@ -92,9 +123,10 @@ export function ListaLembretes({
                         Assumir
                       </button>
                   )}
-                  <Link to={`/historico/${clienteLembrete.id}?lembreteId=${lembretePendente.id}`} className="botao-link">
-                    Registrar contato
+                  <Link to={`/historico/${clienteLembrete.id}`} className="botao-link">
+                    Ver cliente
                   </Link>
+                  {/* RF17: concluir abre o formulário da interação, que grava e conclui na mesma ação */}
                   <button
                       type="button"
                       className="botao-link border-black bg-black text-white hover:bg-site-botao"

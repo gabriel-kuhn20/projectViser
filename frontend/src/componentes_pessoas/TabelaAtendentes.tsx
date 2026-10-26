@@ -5,6 +5,8 @@ type PropriedadesTabelaAtendentes = {
     carregando: boolean;
     aoEditar: (atendente: AtendenteApi) => void;
     aoExcluir: (atendente: AtendenteApi) => void;
+    // com busca ativa, "nenhuma conta cadastrada" daria a entender que a equipe está vazia
+    filtroAtivo?: boolean;
 };
 
 function formatarData(data: string) {
@@ -12,9 +14,19 @@ function formatarData(data: string) {
 }
 
 // contas da equipe que acessam o sistema
-export function TabelaAtendentes({ atendentes, carregando, aoEditar, aoExcluir }: PropriedadesTabelaAtendentes) {
+export function TabelaAtendentes({
+    atendentes,
+    carregando,
+    aoEditar,
+    aoExcluir,
+    filtroAtivo = false,
+}: PropriedadesTabelaAtendentes) {
     if (carregando) {
         return <div className="cartao mensagem-vazia">carregando contas...</div>;
+    }
+
+    if (atendentes.length === 0 && filtroAtivo) {
+        return <div className="cartao mensagem-vazia">nenhuma conta encontrada para essa busca.</div>;
     }
 
     if (atendentes.length === 0) {

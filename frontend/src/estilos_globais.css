@@ -161,6 +161,15 @@
         @apply bg-black text-white;
     }
 
+    /* urgência do contato: cliente esperando há mais de 3 dias (atenção) ou mais de 7 (alerta) */
+    .etiqueta-atencao {
+        @apply bg-amber-100 text-amber-900;
+    }
+
+    .etiqueta-alerta {
+        @apply bg-red-100 text-red-800;
+    }
+
     /* Abas em pílula (marcos 7 dias, 2 meses, 1 ano) */
     .abas {
         @apply inline-flex rounded-full border border-black p-1;
