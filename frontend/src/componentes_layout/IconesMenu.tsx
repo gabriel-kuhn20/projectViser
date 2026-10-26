@@ -49,6 +49,19 @@ export function IconePainel({ className = "" }: PropriedadesIcone) {
     );
 }
 
+// calendário com marcação: os prazos de contato após a entrega
+export function IconeMarcos({ className = "" }: PropriedadesIcone) {
+    return (
+        <svg viewBox="0 0 24 24" {...tracoPadrao} className={className} aria-hidden="true">
+            <rect x="3" y="5" width="18" height="16" rx="2" />
+            <path d="M3 10h18" />
+            <path d="M8 3v4" />
+            <path d="M16 3v4" />
+            <path d="M9 15l2 2 4-4" />
+        </svg>
+    );
+}
+
 export function IconeAtendentes({ className = "" }: PropriedadesIcone) {
     return (
         <svg viewBox="0 0 24 24" {...tracoPadrao} className={className} aria-hidden="true">

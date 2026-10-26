@@ -1,13 +1,15 @@
 import { Link, NavLink } from "react-router-dom";
 import { usarAutenticacao } from "../hooks_dados/useAutenticacao";
 import { LogoViser } from "../componentes_site/LogoViser";
-import { IconeAtendentes, IconeClientes, IconeLembretes, IconePainel, IconeTags } from "./IconesMenu";
+import { IconeAtendentes, IconeClientes, IconeLembretes, IconeMarcos, IconePainel, IconeTags } from "./IconesMenu";
 
+// RF19: o painel é a tela inicial, por isso vem primeiro no menu
 export const itensMenu = [
+    { rotulo: "Painel", rota: "/painel", restritoAdmin: false, Icone: IconePainel },
     { rotulo: "Lembretes", rota: "/lembretes", restritoAdmin: false, Icone: IconeLembretes },
     { rotulo: "Clientes", rota: "/clientes", restritoAdmin: false, Icone: IconeClientes },
-    { rotulo: "Painel", rota: "/painel", restritoAdmin: false, Icone: IconePainel },
     { rotulo: "Tags", rota: "/tags", restritoAdmin: true, Icone: IconeTags },
+    { rotulo: "Marcos", rota: "/marcos", restritoAdmin: true, Icone: IconeMarcos },
     { rotulo: "Atendentes", rota: "/atendentes", restritoAdmin: true, Icone: IconeAtendentes },
 ];
 
@@ -23,7 +25,7 @@ export function MenuLateral({ aoNavegar, className = "" }: PropriedadesMenuLater
 
     return (
         <aside className={`app-sidebar ${className}`}>
-            <Link to="/lembretes" className="app-sidebar-logo" aria-label="Viser, início do sistema" onClick={aoNavegar}>
+            <Link to="/painel" className="app-sidebar-logo" aria-label="Viser, início do sistema" onClick={aoNavegar}>
                 <LogoViser className="h-[40px] w-auto" />
                 <span className="mt-3 block font-comfortaa text-[12px] text-white/50">Pós-venda</span>
             </Link>

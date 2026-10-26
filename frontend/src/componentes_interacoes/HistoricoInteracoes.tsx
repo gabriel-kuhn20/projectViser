@@ -1,5 +1,4 @@
 import { type InteracaoApi } from "../servicos_api/ApiInteracao";
-import { rotulosTipoMarco } from "../tipos_compartilhados/TiposDominio";
 
 type PropriedadesHistoricoInteracoes = {
   interacoesCliente: InteracaoApi[];
@@ -31,7 +30,7 @@ export function HistoricoInteracoes({ interacoesCliente, estaCarregando }: Propr
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="font-semibold text-black">{interacaoCliente.usuario.pessoa.nome}</span>
                   <span className="flex items-center gap-2 text-[13px] text-black/55">
-                    <span className="etiqueta">{rotulosTipoMarco[interacaoCliente.lembrete.marco.tipoMarco.nome]}</span>
+                    <span className="etiqueta">{interacaoCliente.lembrete.marco.tipoMarco.nome}</span>
                     <time dateTime={interacaoCliente.criadoEm}>{formatarDataHora(interacaoCliente.criadoEm)}</time>
                   </span>
                 </div>

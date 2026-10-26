@@ -20,7 +20,7 @@ export function PaginaLogin() {
 
   // sessão ainda válida — mostrar o login de novo só faria a atendente entrar duas vezes;
   // fica depois de todos os hooks porque um retorno antes deles quebra a regra dos hooks do React
-  if (estaAutenticado) return <Navigate to="/lembretes" replace />;
+  if (estaAutenticado) return <Navigate to="/painel" replace />;
 
   async function enviarFormulario(evento: React.FormEvent) {
     evento.preventDefault();
@@ -31,7 +31,8 @@ export function PaginaLogin() {
       const { token } = await efetuarLogin(email, senha);
       entrar(token);
       // replace: o botão voltar do navegador não deve levar de volta ao formulário de login
-      navegar("/lembretes", { replace: true });
+      // RF19: a tela inicial é o painel de pendências por marco
+      navegar("/painel", { replace: true });
     } catch (erro: any) {
       definirMensagemErro(erro?.response?.data?.mensagem ?? "não foi possível entrar. tente novamente.");
     } finally {
