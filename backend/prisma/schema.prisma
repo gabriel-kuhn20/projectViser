@@ -142,6 +142,8 @@ model Interacao {
   conteudo        String
   respostaCliente String?
   criadoEm        DateTime @default(now())
+  // preenchido quando o texto é corrigido; a tela mostra "(editado)" para o histórico não mudar sem aviso
+  editadoEm       DateTime?
   lembrete        Lembrete @relation(fields: [lembreteId], references: [id])
   usuario         Usuario  @relation(fields: [usuarioId], references: [id])
 

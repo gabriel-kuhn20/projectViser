@@ -120,6 +120,15 @@ export function PaginaLembretes() {
     await recarregarTela();
   }
 
+  // a tentativa foi gravada, mas o lembrete segue pendente até alguém concluir
+  async function aoRegistrarTentativa(lembreteAtualizado: LembreteApi) {
+    definirLembreteEmConclusao(null);
+    definirMensagemSucesso(
+        `contato com ${lembreteAtualizado.marco.entrega.cliente.pessoa.nome} registrado; o lembrete continua pendente.`,
+    );
+    await recarregarTela();
+  }
+
   function aoSelecionarMarco(tipoMarcoEscolhidoId: number) {
     definirMensagemAcao(null);
     definirMensagemSucesso(null);
@@ -181,6 +190,7 @@ export function PaginaLembretes() {
             <FormularioInteracao
                 key={lembreteEmConclusao.id}
                 lembreteSelecionado={lembreteEmConclusao}
+                aoRegistrar={aoRegistrarTentativa}
                 aoConcluir={aoConcluirLembrete}
                 aoCancelar={() => definirLembreteEmConclusao(null)}
             />

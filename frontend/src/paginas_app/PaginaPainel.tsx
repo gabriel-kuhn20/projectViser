@@ -136,7 +136,7 @@ export function PaginaPainel() {
                         to={`/lembretes?marco=${lembrete.marco.tipoMarco.id}&concluir=${lembrete.id}`}
                         className="botao-secundario"
                     >
-                      Concluir
+                      Registrar contato
                     </Link>
                   </li>
               ))}

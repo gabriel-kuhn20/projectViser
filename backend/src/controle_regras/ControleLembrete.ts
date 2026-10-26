@@ -30,12 +30,41 @@ async function listarPorMarco(req: Request, res: Response) {
       // as tags vão junto para a atendente saber o perfil do cliente antes de ligar
       marco: {
         include: {
-          entrega: { include: { cliente: { include: { pessoa: true, tags: { include: { tag: true } } } } } },
+          entrega: {
+            include: {
+              cliente: {
+                include: {
+                  pessoa: true,
+                  tags: { include: { tag: true } },
+                  // as outras compras do cliente dão contexto na ligação; a própria entrega do
+                  // lembrete também vem e a tela tira (o Prisma não filtra pelo id do nível de cima)
+                  entregas: {
+                    select: { id: true, produto: true, dataEntrega: true },
+                    orderBy: { dataEntrega: "desc" },
+                  },
+                },
+              },
+            },
+          },
         },
       },
       // quem está atendendo aparece na tela para outro atendente não ligar para o mesmo
       // cliente — só o nome sai, email e senha do usuário ficam de fora
       emAtendimentos: { include: { usuario: { select: { id: true, pessoa: { select: { nome: true } } } } } },
+      // tentativas já registradas (não atendeu, pediu para ligar depois...): o lembrete só sai da
+      // lista quando alguém conclui, e quem pega o cliente vê o que já foi tentado
+      interacoes: {
+        orderBy: { criadoEm: "asc" },
+        select: {
+          id: true,
+          conteudo: true,
+          respostaCliente: true,
+          criadoEm: true,
+          editadoEm: true,
+          usuarioId: true,
+          usuario: { select: { pessoa: { select: { nome: true } } } },
+        },
+      },
     },
     // o marco atingido há mais tempo vem primeiro: é o cliente que espera contato há mais tempo
     orderBy: { marco: { dataAlvo: "asc" } },
@@ -75,6 +104,28 @@ async function concluirLembrete(req: Request, res: Response) {
   });
 
   return res.json(lembreteConcluido);
+}
+
+// UC07 · Concluir lembrete de contato (RF07) — A3: reabrir lembrete concluído por engano
+// só o admin (rota com exigirPapel); as tentativas continuam vinculadas e o lembrete volta
+// para a aba do marco. Cliente que retorna com problema é contato novo, não reabertura
+async function reabrirLembrete(req: Request, res: Response) {
+  const { id: lembreteId } = validadorParametroId.parse({ id: req.params.lembreteId });
+
+  const lembreteEncontrado = await clientePrisma.lembrete.findUnique({ where: { id: lembreteId } });
+  if (!lembreteEncontrado) {
+    throw new ErroHttp(404, "lembrete não encontrado");
+  }
+  if (lembreteEncontrado.status === "pendente") {
+    throw new ErroHttp(409, "lembrete já está pendente");
+  }
+
+  const lembreteReaberto = await clientePrisma.lembrete.update({
+    where: { id: lembreteId },
+    data: { status: "pendente", concluidoEm: null },
+  });
+
+  return res.json(lembreteReaberto);
 }
 
 // UC09 · Marcar lembrete como em atendimento (RF08)
@@ -123,6 +174,7 @@ async function desmarcarEmAtendimento(req: Request, res: Response) {
 export const controleLembrete = {
   listarPorMarco,
   concluirLembrete,
+  reabrirLembrete,
   marcarEmAtendimento,
   desmarcarEmAtendimento,
 };
