@@ -73,6 +73,8 @@ model Entrega {
   id          Int                   @id @default(autoincrement())
   clienteId   Int
   dataEntrega DateTime
+  // produto comprado em texto livre, digitado pelo atendente (PRD seção 8: sem catálogo de produtos)
+  produto     String
   criadoEm    DateTime              @default(now())
   cliente     Cliente               @relation(fields: [clienteId], references: [id])
   marcos      MarcoAcompanhamento[]
@@ -81,10 +83,16 @@ model Entrega {
 }
 
 model TipoMarco {
-  id       Int                   @id @default(autoincrement())
-  nome     String                @unique
-  criadoEm DateTime              @default(now())
-  marcos   MarcoAcompanhamento[]
+  id              Int                   @id @default(autoincrement())
+  // rótulo das abas e do painel (ex: "7 dias")
+  nome            String                @unique
+  // dias após a entrega em que o contato é feito — definido pelo administrador
+  // (eram 7, 60 e 365 fixos no código; continuam como valores iniciais do seed)
+  diasAposEntrega Int                   @unique
+  // inativo para de gerar marcos novos e sai das abas; os lembretes já gerados continuam
+  ativo           Boolean               @default(true)
+  criadoEm        DateTime              @default(now())
+  marcos          MarcoAcompanhamento[]
 
   @@map("tipo_marco")
 }
