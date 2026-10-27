@@ -245,18 +245,6 @@
         @apply inline-flex items-center justify-center p-1 hover:opacity-70 transition-opacity;
     }
 
-    .site-busca {
-        @apply absolute right-0 top-full mt-3 w-72 rounded-xl bg-white p-3 text-black shadow-xl;
-    }
-
-    .site-busca-campo {
-        @apply w-full rounded-full border border-black/20 px-4 py-2 text-sm font-montserrat focus:outline-none focus:border-black;
-    }
-
-    .site-busca-resultado {
-        @apply w-full rounded-md px-2 py-1.5 text-left text-sm hover:bg-site-secao;
-    }
-
     .site-menu-celular {
         @apply flex flex-col px-6 pb-4;
     }
