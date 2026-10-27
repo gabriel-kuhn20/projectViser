@@ -13,7 +13,7 @@ import estiloCasual from "../assets/site/estilo-casual.jpg";
 import estiloModerno from "../assets/site/estilo-moderno.jpg";
 import historia from "../assets/site/historia.jpg";
 import experiencia from "../assets/site/experiencia.jpg";
-import fundadoraBruna from "../assets/site/fundadora-bruna.jpg";
+import fundadoras from "../assets/site/fundadoras.jpg";
 import analise from "../assets/site/analise.jpg";
 import detalhe from "../assets/site/detalhe.jpg";
 import coloracao from "../assets/site/coloracao.jpg";
@@ -46,7 +46,7 @@ export const imagensSite = {
     // Quem somos
     historia: { src: historia, descricao: "Cliente sorrindo com óculos azul", posicao: "50% 20%" },
     experiencia: { src: experiencia, descricao: "Cliente segurando uma armação", posicao: "50% 25%" },
-    fundadoras: { src: fundadoraBruna, descricao: "Bruna Lewis", posicao: "50% 22%" },
+    fundadoras: { src: fundadoras, descricao: "Bruna Lewis e Daniela Mallmann sorrindo, fundo branco" },
     lojaCentro: { src: lojaCentro, descricao: "Interior de ótica com expositores iluminados", posicao: "18% 50%" },
     lojaSaoCristovao: { src: lojaSaoCristovao, descricao: "Ótica com espelho redondo e prateleiras de armações", posicao: "50% 50%" },
 
