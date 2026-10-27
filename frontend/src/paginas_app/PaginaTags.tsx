@@ -78,4 +78,4 @@ export function PaginaTags() {
             </div>
         </div>
     );
-}
+}

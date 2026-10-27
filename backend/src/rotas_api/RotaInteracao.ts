@@ -13,6 +13,8 @@ rotaInteracao.post("/", controleInteracao.registrarInteracao);
 // RF06 (UC06)
 rotaInteracao.get("/:interacaoId", controleInteracao.buscarInteracaoPorId);
 // RF05 (UC07)
+// RF05: corrigir o texto de uma tentativa (autor ou admin, lembrete pendente)
+rotaInteracao.patch("/:interacaoId", controleInteracao.editarInteracao);
 rotaInteracao.patch("/:interacaoId/resposta", controleInteracao.registrarRespostaCliente);
 // Excluir interação
 rotaInteracao.delete("/:interacaoId", controleInteracao.excluirInteracao);
