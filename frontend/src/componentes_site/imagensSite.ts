@@ -35,7 +35,7 @@ export type ImagemSite = { src?: string; descricao: string; posicao?: string };
 export const imagensSite = {
     // Início
     // os topos não têm `posicao`: o enquadramento muda entre celular e desktop e fica na className da página
-    heroInicio: { src: heroInicio, descricao: "Mulher ajustando os óculos, camisa azul" },
+    heroInicio: { src: heroInicio, descricao: "Mulher sorrindo e segurando uma armação, camisa azul" },
     estiloClassico: { src: estiloClassico, descricao: "Armação preta estilo browline sobre fundo branco", posicao: "50% 50%" },
     estiloElegante: { src: estiloElegante, descricao: "Armação tartaruga apoiada em degraus brancos", posicao: "50% 45%" },
     estiloCriativo: { src: estiloCriativo, descricao: "Armação de acetato cristal sobre fundo preto", posicao: "50% 50%" },
