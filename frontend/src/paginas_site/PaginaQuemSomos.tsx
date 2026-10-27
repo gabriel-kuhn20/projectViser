@@ -97,9 +97,9 @@ export function PaginaQuemSomos() {
             </section>
 
             {/* Fundadoras */}
-            <section className="mt-[110px] bg-[#f8f8f8]">
-                <div className="site-container grid gap-10 pt-[80px] md:grid-cols-[minmax(0,1fr)_420px] md:items-end md:gap-16 lg:grid-cols-[minmax(0,1fr)_460px]">
-                    <div className="max-w-[340px] md:pb-[80px]">
+            <section className="mt-[110px] bg-[#fafafa]">
+                <div className="site-container grid gap-10 pt-[80px] md:grid-cols-[minmax(0,380px)_minmax(0,1fr)] md:items-end md:gap-10">
+                    <div className="max-w-[380px] md:self-center md:pb-[80px]">
                         <h2 className="text-[30px] font-bold md:text-[35px]">Bruna Lewis</h2>
                         <span className="site-barra mt-[24px]" aria-hidden="true" />
                         <p className="site-texto mt-[34px] text-[13.5px]">
@@ -114,8 +114,8 @@ export function PaginaQuemSomos() {
                             Óptica.
                         </p>
                     </div>
-                    {/* foto em pé (retrato), alinhada ao conteúdo e encostada no fim da seção */}
-                    <FotoSite chave="fundadoras" className="h-[480px] w-full md:h-[560px]" />
+                    {/* foto com fundo branco: encosta no fim da seção, sem moldura, como no Figma */}
+                    <FotoSite chave="fundadoras" className="mx-auto h-auto w-full max-w-[680px] md:ml-auto md:mr-0" />
                 </div>
             </section>
 
