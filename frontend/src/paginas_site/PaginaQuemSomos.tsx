@@ -73,7 +73,10 @@ export function PaginaQuemSomos() {
                         </p>
                     </div>
                 </div>
-                <FotoSite chave="experiencia" className="h-[420px] w-full md:h-full md:min-h-[683px] md:border-l md:border-black/20" />
+                {/* a foto preenche a altura do texto ao lado; absoluta para o tamanho real dela não esticar a seção */}
+                <div className="relative h-[420px] md:h-auto md:min-h-[683px] md:border-l md:border-black/20">
+                    <FotoSite chave="experiencia" className="absolute inset-0 h-full w-full" />
+                </div>
             </section>
 
             {/* 3 anos de Viser */}

@@ -154,7 +154,9 @@ export function PaginaVisagismo() {
                         imagem para óculos, ajudando cada cliente a se enxergar com mais confiança, autenticidade e propósito.
                     </p>
                 </div>
-                <FotoSite chave="visagismoOptico" className="h-[360px] w-full md:h-full md:min-h-[520px]" />
+                <div className="relative h-[360px] md:h-auto md:min-h-[520px]">
+                    <FotoSite chave="visagismoOptico" className="absolute inset-0 h-full w-full" />
+                </div>
             </section>
         </LayoutSite>
     );
