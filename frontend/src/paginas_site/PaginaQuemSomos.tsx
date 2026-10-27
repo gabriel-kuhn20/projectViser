@@ -97,9 +97,9 @@ export function PaginaQuemSomos() {
             </section>
 
             {/* Fundadoras */}
-            <section className="relative mt-[110px] overflow-hidden bg-[#f8f8f8]">
-                <div className="site-container relative z-10 py-[80px] md:min-h-[600px]">
-                    <div className="max-w-[340px]">
+            <section className="mt-[110px] bg-[#f8f8f8]">
+                <div className="site-container grid gap-10 pt-[80px] md:grid-cols-[minmax(0,1fr)_420px] md:items-end md:gap-16 lg:grid-cols-[minmax(0,1fr)_460px]">
+                    <div className="max-w-[340px] md:pb-[80px]">
                         <h2 className="text-[30px] font-bold md:text-[35px]">Bruna Lewis</h2>
                         <span className="site-barra mt-[24px]" aria-hidden="true" />
                         <p className="site-texto mt-[34px] text-[13.5px]">
@@ -114,11 +114,9 @@ export function PaginaQuemSomos() {
                             Óptica.
                         </p>
                     </div>
+                    {/* foto em pé (retrato), alinhada ao conteúdo e encostada no fim da seção */}
+                    <FotoSite chave="fundadoras" className="h-[480px] w-full md:h-[560px]" />
                 </div>
-                <FotoSite
-                    chave="fundadoras"
-                    className="h-[380px] w-full md:absolute md:bottom-0 md:right-[40px] md:top-[60px] md:h-auto md:w-[56%] md:max-w-[780px]"
-                />
             </section>
 
             {/* Marcas */}

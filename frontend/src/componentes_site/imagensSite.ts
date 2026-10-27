@@ -46,7 +46,7 @@ export const imagensSite = {
     // Quem somos
     historia: { src: historia, descricao: "Cliente sorrindo com óculos azul", posicao: "50% 20%" },
     experiencia: { src: experiencia, descricao: "Cliente segurando uma armação", posicao: "50% 25%" },
-    fundadoras: { src: fundadoraBruna, descricao: "Bruna Lewis", posicao: "50% 55%" },
+    fundadoras: { src: fundadoraBruna, descricao: "Bruna Lewis", posicao: "50% 22%" },
     lojaCentro: { src: lojaCentro, descricao: "Interior de ótica com expositores iluminados", posicao: "18% 50%" },
     lojaSaoCristovao: { src: lojaSaoCristovao, descricao: "Ótica com espelho redondo e prateleiras de armações", posicao: "50% 50%" },
 
