@@ -89,7 +89,9 @@ export function PaginaTendencias() {
                         </p>
                     </div>
                 </div>
-                <FotoSite chave="futurasTendencias" className="h-[420px] w-full md:h-full md:min-h-[570px]" />
+                <div className="relative h-[420px] md:h-auto md:min-h-[570px]">
+                    <FotoSite chave="futurasTendencias" className="absolute inset-0 h-full w-full" />
+                </div>
             </section>
         </LayoutSite>
     );
