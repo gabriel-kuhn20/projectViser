@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { PapelAcesso } from "@prisma/client";
+import { clientePrisma } from "../config_servidor/ClientePrisma";
 import { obterSegredoJwt } from "../config_servidor/ConfiguracaoAmbiente";
 
 // RNF03: usuário não autenticado não acessa dados de cliente
-export function middlewareAutenticacao(req: Request, res: Response, next: NextFunction) {
+export async function middlewareAutenticacao(req: Request, res: Response, next: NextFunction) {
   const cabecalhoAutorizacao = req.headers.authorization;
 
   if (!cabecalhoAutorizacao) {
@@ -19,10 +19,23 @@ export function middlewareAutenticacao(req: Request, res: Response, next: NextFu
   // fora do try: segredo ausente é erro de configuração (500), não token inválido
   const segredoJwt = obterSegredoJwt();
 
+  let usuarioIdToken: number;
   try {
-    req.usuarioLogado = jwt.verify(token, segredoJwt) as { usuarioId: number; papelAcesso: PapelAcesso };
-    next();
+    usuarioIdToken = (jwt.verify(token, segredoJwt) as { usuarioId: number }).usuarioId;
   } catch {
     return res.status(401).json({ mensagem: "token inválido ou expirado" });
   }
+
+  // o token vale 8h: conta excluída ou papel alterado nesse meio-tempo precisa valer já,
+  // por isso o papel vem do banco e não do token
+  const usuarioAtual = await clientePrisma.usuario.findUnique({
+    where: { id: usuarioIdToken },
+    select: { id: true, papelAcesso: true },
+  });
+  if (!usuarioAtual) {
+    return res.status(401).json({ mensagem: "usuário do token não existe mais" });
+  }
+
+  req.usuarioLogado = { usuarioId: usuarioAtual.id, papelAcesso: usuarioAtual.papelAcesso };
+  next();
 }
