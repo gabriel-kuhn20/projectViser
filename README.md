@@ -8,7 +8,7 @@ gerando lembretes de contato nos marcos definidos pelo administrador (por padrã
 
 **Sistema publicado:** http://177.44.248.93
 
-**Board:** https://github.com/users/gabriel-kuhn20/projects/4/views/1
+**Board:** https://github.com/users/gabriel-kuhn20/projects/6
 
 ## Tecnologias
 
