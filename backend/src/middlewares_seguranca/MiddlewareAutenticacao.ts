@@ -26,14 +26,17 @@ export async function middlewareAutenticacao(req: Request, res: Response, next: 
     return res.status(401).json({ mensagem: "token inválido ou expirado" });
   }
 
-  // o token vale 8h: conta excluída ou papel alterado nesse meio-tempo precisa valer já,
+  // o token vale 8h: conta excluída, desativada ou com papel alterado nesse meio-tempo precisa valer já,
   // por isso o papel vem do banco e não do token
   const usuarioAtual = await clientePrisma.usuario.findUnique({
     where: { id: usuarioIdToken },
-    select: { id: true, papelAcesso: true },
+    select: { id: true, papelAcesso: true, ativo: true },
   });
   if (!usuarioAtual) {
     return res.status(401).json({ mensagem: "usuário do token não existe mais" });
+  }
+  if (!usuarioAtual.ativo) {
+    return res.status(401).json({ mensagem: "conta desativada — fale com o administrador" });
   }
 
   req.usuarioLogado = { usuarioId: usuarioAtual.id, papelAcesso: usuarioAtual.papelAcesso };

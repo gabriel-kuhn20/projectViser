@@ -34,6 +34,11 @@ export function FormularioCliente({ clienteEmEdicao, aoSalvar, aoCancelarEdicao 
   const [estaEnviando, definirEstaEnviando] = useState(false);
 
   const estaEditando = clienteEmEdicao !== null;
+  // conta desativada não recebe cliente novo, mas a responsável atual continua na lista
+  // para a edição não trocar o responsável sem ninguém pedir
+  const atendentesSelecionaveis = atendentes.filter(
+      (atendente) => atendente.ativo || atendente.id === clienteEmEdicao?.responsavelId
+  );
   // no cadastro, quem está logado costuma ser quem fez a venda — já vem selecionado
   const responsavelPadrao = usuarioId ? String(usuarioId) : "";
 
@@ -141,9 +146,9 @@ export function FormularioCliente({ clienteEmEdicao, aoSalvar, aoCancelarEdicao 
                 className="campo-texto-input"
             >
               <option value="">Sem responsável</option>
-              {atendentes.map((atendente) => (
+              {atendentesSelecionaveis.map((atendente) => (
                   <option key={atendente.id} value={atendente.id}>
-                    {atendente.pessoa.nome}
+                    {atendente.ativo ? atendente.pessoa.nome : `${atendente.pessoa.nome} (desativada)`}
                   </option>
               ))}
             </select>

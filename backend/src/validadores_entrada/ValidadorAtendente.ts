@@ -13,3 +13,7 @@ export const validadorEdicaoAtendente = z.object({
   email: z.string().email(),
   papelAcesso: z.nativeEnum(PapelAcesso),
 });
+
+export const validadorSituacaoAtendente = z.object({
+  ativo: z.boolean(),
+});

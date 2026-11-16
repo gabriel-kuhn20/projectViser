@@ -25,6 +25,8 @@ model Usuario {
   email               String          @unique
   senha               String
   papelAcesso         PapelAcesso     @default(atendente)
+  // desativar tira o acesso sem apagar a conta — o histórico de interações continua com o nome de quem atendeu
+  ativo               Boolean         @default(true)
   criadoEm            DateTime        @default(now())
   clientesResponsavel Cliente[]       @relation("ClienteResponsavel")
   emAtendimentos      EmAtendimento[]

@@ -20,6 +20,11 @@ async function efetuarLogin(req: Request, res: Response) {
     return res.status(401).json({ mensagem: "email ou senha inválidos" });
   }
 
+  // a senha já foi conferida, então dizer que a conta está desativada não ajuda quem tenta adivinhar senhas
+  if (!usuario.ativo) {
+    return res.status(401).json({ mensagem: "conta desativada — fale com o administrador" });
+  }
+
  const token = jwt.sign(
   { usuarioId: usuario.id, papelAcesso: usuario.papelAcesso },
   obterSegredoJwt(),
