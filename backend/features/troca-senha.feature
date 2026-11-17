@@ -53,3 +53,11 @@ Funcionalidade: Trocar senha
     Dado que entrei como "atendente"
     Quando envio o link de senha para "admin@oticaviser.com.br"
     Então o status da resposta deve ser 403
+
+  Cenário: Conta desativada não recebe o link disparado pelo administrador
+    Dado que entrei como "administrador"
+    E que desativei a conta "atendente"
+    Quando envio o link de senha para "atendente@oticaviser.com.br"
+    Então o status da resposta deve ser 409
+    E a resposta deve dizer "conta desativada"
+    E não deve existir nenhum link de recuperação
