@@ -15,7 +15,7 @@ export function RodapeSite() {
                             <p className="text-[16px] leading-[1.3]">
                                 <strong className="font-bold">Centro</strong>
                                 <br />
-                                Rua Benjamin Constant, 1126, Sala
+                                Av Benjamin Constant, 1126, Sala
                                 <br />
                                 408 - Bairro centro, Lajeado/RS
                             </p>
