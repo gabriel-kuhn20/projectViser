@@ -62,9 +62,7 @@ async function buscarNomesDosLembretes(mundo: Mundo, nomeMarco: string) {
   return lembretes.map((l: any) => l.marco.entrega.cliente.pessoa.nome as string);
 }
 
-// ---------- Dado ----------
-
-Given("que entrei como {string}", async function (this: Mundo, papel: string) {
+async function entrarComo(papel: string) {
   const conta = CONTAS[papel as keyof typeof CONTAS];
   assert.ok(conta, `não existe conta de teste para "${papel}"`);
 
@@ -73,7 +71,43 @@ Given("que entrei como {string}", async function (this: Mundo, papel: string) {
     corpo: { email: conta.email, senha: conta.senha },
   });
   assert.equal(resposta.status, 200, `login de ${papel} falhou`);
-  this.token = (await resposta.json()).token;
+  return (await resposta.json()).token as string;
+}
+
+// as contas de teste não têm id fixo: busca pelo e-mail na listagem, como a tela faz
+async function buscarIdDaConta(papel: string, token: string) {
+  const conta = CONTAS[papel as keyof typeof CONTAS];
+  assert.ok(conta, `não existe conta de teste para "${papel}"`);
+
+  const contas = await (await api("/atendentes", { token })).json();
+  const encontrada = contas.find((c: { email: string }) => c.email === conta.email);
+  assert.ok(encontrada, `a conta de ${papel} não aparece na listagem`);
+  return encontrada.id as number;
+}
+
+async function alterarSituacaoDaConta(token: string, papel: string, ativo: boolean) {
+  // a busca do id usa o token do admin: a listagem é liberada a qualquer usuário logado
+  const tokenAdmin = await entrarComo("administrador");
+  const usuarioId = await buscarIdDaConta(papel, tokenAdmin);
+  return api(`/atendentes/${usuarioId}/ativo`, { metodo: "PATCH", corpo: { ativo }, token });
+}
+
+// ---------- Dado ----------
+
+Given("que entrei como {string}", async function (this: Mundo, papel: string) {
+  this.token = await entrarComo(papel);
+});
+
+Given("que desativei a conta {string}", async function (this: Mundo, papel: string) {
+  const resposta = await alterarSituacaoDaConta(this.token!, papel, false);
+  assert.equal(resposta.status, 200, `desativar ${papel} falhou`);
+});
+
+// o token de quem está logado no cenário fica guardado: o admin age por fora
+Given("que o administrador desativou a conta {string}", async function (this: Mundo, papel: string) {
+  const tokenAdmin = await entrarComo("administrador");
+  const resposta = await alterarSituacaoDaConta(tokenAdmin, papel, false);
+  assert.equal(resposta.status, 200, `desativar ${papel} falhou`);
 });
 
 Given("que a cliente {string} está cadastrada", async function (this: Mundo, nome: string) {
@@ -85,6 +119,18 @@ Given("que a cliente {string} está cadastrada", async function (this: Mundo, no
 
 When("peço a lista de clientes sem estar logado", async function (this: Mundo) {
   await guardarResposta(this, await api("/clientes"));
+});
+
+When("peço a lista de clientes", async function (this: Mundo) {
+  await guardarResposta(this, await api("/clientes", { token: this.token }));
+});
+
+When("desativo a conta {string}", async function (this: Mundo, papel: string) {
+  await guardarResposta(this, await alterarSituacaoDaConta(this.token!, papel, false));
+});
+
+When("reativo a conta {string}", async function (this: Mundo, papel: string) {
+  await guardarResposta(this, await alterarSituacaoDaConta(this.token!, papel, true));
 });
 
 When("entro com o e-mail {string} e a senha {string}", async function (this: Mundo, email: string, senha: string) {

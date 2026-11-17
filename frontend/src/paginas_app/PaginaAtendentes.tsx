@@ -1,13 +1,18 @@
 import { useCallback, useEffect, useState } from "react";
 import { FormularioAtendente } from "../componentes_pessoas/FormularioAtendente";
 import { TabelaAtendentes } from "../componentes_pessoas/TabelaAtendentes";
-import { excluirAtendente, listarAtendentes, type AtendenteApi } from "../servicos_api/ApiAtendente";
+import {
+    alterarSituacaoAtendente,
+    excluirAtendente,
+    listarAtendentes,
+    type AtendenteApi,
+} from "../servicos_api/ApiAtendente";
 import { formatarMensagemErro } from "../utilitarios_formatacao/FormatarErro";
 import { TituloPagina } from "../componentes_layout/TituloPagina";
 import { CampoBusca } from "../componentes_compartilhados/CampoBusca";
 import { correspondeBusca } from "../utilitarios_formatacao/BuscarTexto";
 
-// UC10 · Cadastrar conta de atendente (RF09) + listagem, edição de papel e exclusão (só administrador)
+// UC10 · Cadastrar conta de atendente (RF09) + listagem, edição de papel, desativação e exclusão (só administrador)
 export function PaginaAtendentes() {
     const [atendentes, definirAtendentes] = useState<AtendenteApi[]>([]);
     const [carregando, definirCarregando] = useState(true);
@@ -54,6 +59,24 @@ export function PaginaAtendentes() {
         }
     }
 
+    async function aoAlternarSituacaoAtendente(atendente: AtendenteApi) {
+        const nome = atendente.pessoa.nome;
+        let textoConfirmacao = `Reativar a conta de "${nome}"? A pessoa volta a entrar no sistema.`;
+        if (atendente.ativo) {
+            textoConfirmacao = `Desativar a conta de "${nome}"? A pessoa sai do sistema na hora, mas o histórico de contatos continua.`;
+        }
+        if (!window.confirm(textoConfirmacao)) return;
+
+        definirMensagemErro(null);
+        try {
+            const atendenteAtualizado = await alterarSituacaoAtendente(atendente.id, !atendente.ativo);
+            definirAtendentes((atuais) => atuais.map((a) => (a.id === atendente.id ? atendenteAtualizado : a)));
+        } catch (erro) {
+            // o servidor recusa desativar a própria conta e o último administrador ativo
+            definirMensagemErro(formatarMensagemErro(erro, "não foi possível alterar a situação da conta."));
+        }
+    }
+
     return (
         <div>
             <TituloPagina titulo="Atendentes" subtitulo="Contas da equipe que acessam o sistema de pós-venda." />
@@ -74,6 +97,7 @@ export function PaginaAtendentes() {
                         carregando={carregando}
                         aoEditar={definirAtendenteEmEdicao}
                         aoExcluir={aoExcluirAtendente}
+                        aoAlternarSituacao={aoAlternarSituacaoAtendente}
                     />
                 </div>
             </div>
