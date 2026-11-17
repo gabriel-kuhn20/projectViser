@@ -62,18 +62,39 @@ async function cadastrarCliente(mundo: Mundo, nome: string, dataEntrega: string)
   }
 }
 
-async function buscarNomesDosLembretes(mundo: Mundo, nomeMarco: string) {
+async function buscarLembretesDoMarco(mundo: Mundo, nomeMarco: string) {
   const marcos = await (await api("/tipos-marco", { token: mundo.token })).json();
   const marco = marcos.find((m: { nome: string }) => m.nome === nomeMarco);
   assert.ok(marco, `esperava o marco "${nomeMarco}"`);
 
-  const lembretes = await (await api(`/lembretes/marco/${marco.id}`, { token: mundo.token })).json();
+  return (await api(`/lembretes/marco/${marco.id}`, { token: mundo.token })).json();
+}
+
+async function buscarNomesDosLembretes(mundo: Mundo, nomeMarco: string) {
+  const lembretes = await buscarLembretesDoMarco(mundo, nomeMarco);
   return lembretes.map((l: any) => l.marco.entrega.cliente.pessoa.nome as string);
 }
 
-// ---------- Dado ----------
+async function buscarIdDoLembrete(mundo: Mundo, nomeMarco: string, nomeCliente: string) {
+  const lembretes = await buscarLembretesDoMarco(mundo, nomeMarco);
+  const lembreteEncontrado = lembretes.find((l: any) => l.marco.entrega.cliente.pessoa.nome === nomeCliente);
+  assert.ok(lembreteEncontrado, `${nomeCliente} não tem lembrete pendente em ${nomeMarco}`);
+  return lembreteEncontrado.id as number;
+}
 
-Given("que entrei como {string}", async function (this: Mundo, papel: string) {
+async function concluirLembreteDaCliente(mundo: Mundo, nomeMarco: string, nomeCliente: string, conteudo?: string) {
+  const lembreteId = await buscarIdDoLembrete(mundo, nomeMarco, nomeCliente);
+  await guardarResposta(
+    mundo,
+    await api(`/lembretes/${lembreteId}/concluir`, {
+      metodo: "PATCH",
+      corpo: conteudo ? { conteudo } : undefined,
+      token: mundo.token,
+    })
+  );
+}
+
+async function entrarComo(papel: string) {
   const conta = CONTAS[papel as keyof typeof CONTAS];
   assert.ok(conta, `não existe conta de teste para "${papel}"`);
 
@@ -82,7 +103,43 @@ Given("que entrei como {string}", async function (this: Mundo, papel: string) {
     corpo: { email: conta.email, senha: conta.senha },
   });
   assert.equal(resposta.status, 200, `login de ${papel} falhou`);
-  this.token = (await resposta.json()).token;
+  return (await resposta.json()).token as string;
+}
+
+// as contas de teste não têm id fixo: busca pelo e-mail na listagem, como a tela faz
+async function buscarIdDaConta(papel: string, token: string) {
+  const conta = CONTAS[papel as keyof typeof CONTAS];
+  assert.ok(conta, `não existe conta de teste para "${papel}"`);
+
+  const contas = await (await api("/atendentes", { token })).json();
+  const encontrada = contas.find((c: { email: string }) => c.email === conta.email);
+  assert.ok(encontrada, `a conta de ${papel} não aparece na listagem`);
+  return encontrada.id as number;
+}
+
+async function alterarSituacaoDaConta(token: string, papel: string, ativo: boolean) {
+  // a busca do id usa o token do admin: a listagem é liberada a qualquer usuário logado
+  const tokenAdmin = await entrarComo("administrador");
+  const usuarioId = await buscarIdDaConta(papel, tokenAdmin);
+  return api(`/atendentes/${usuarioId}/ativo`, { metodo: "PATCH", corpo: { ativo }, token });
+}
+
+// ---------- Dado ----------
+
+Given("que entrei como {string}", async function (this: Mundo, papel: string) {
+  this.token = await entrarComo(papel);
+});
+
+Given("que desativei a conta {string}", async function (this: Mundo, papel: string) {
+  const resposta = await alterarSituacaoDaConta(this.token!, papel, false);
+  assert.equal(resposta.status, 200, `desativar ${papel} falhou`);
+});
+
+// o token de quem está logado no cenário fica guardado: o admin age por fora
+Given("que o administrador desativou a conta {string}", async function (this: Mundo, papel: string) {
+  const tokenAdmin = await entrarComo("administrador");
+  const resposta = await alterarSituacaoDaConta(tokenAdmin, papel, false);
+  assert.equal(resposta.status, 200, `desativar ${papel} falhou`);
 });
 
 Given("que a cliente {string} está cadastrada", async function (this: Mundo, nome: string) {
@@ -90,10 +147,41 @@ Given("que a cliente {string} está cadastrada", async function (this: Mundo, no
   assert.equal(this.resposta.status, 201, `cadastro de ${nome} falhou`);
 });
 
+Given("que a cliente {string} está cadastrada com entrega há {int} dias", async function (this: Mundo, nome: string, dias: number) {
+  await cadastrarCliente(this, nome, diasAPartirDeHoje(-dias));
+  assert.equal(this.resposta.status, 201, `cadastro de ${nome} falhou`);
+});
+
 // ---------- Quando ----------
+
+When(
+  "tento concluir o lembrete de {string} da cliente {string} sem registrar contato",
+  async function (this: Mundo, marco: string, nome: string) {
+    await concluirLembreteDaCliente(this, marco, nome);
+  }
+);
+
+When(
+  "concluo o lembrete de {string} da cliente {string} com o contato {string}",
+  async function (this: Mundo, marco: string, nome: string, conteudo: string) {
+    await concluirLembreteDaCliente(this, marco, nome, conteudo);
+  }
+);
 
 When("peço a lista de clientes sem estar logado", async function (this: Mundo) {
   await guardarResposta(this, await api("/clientes"));
+});
+
+When("peço a lista de clientes", async function (this: Mundo) {
+  await guardarResposta(this, await api("/clientes", { token: this.token }));
+});
+
+When("desativo a conta {string}", async function (this: Mundo, papel: string) {
+  await guardarResposta(this, await alterarSituacaoDaConta(this.token!, papel, false));
+});
+
+When("reativo a conta {string}", async function (this: Mundo, papel: string) {
+  await guardarResposta(this, await alterarSituacaoDaConta(this.token!, papel, true));
 });
 
 When("entro com o e-mail {string} e a senha {string}", async function (this: Mundo, email: string, senha: string) {
@@ -119,6 +207,14 @@ When("cadastro a tag {string}", async function (this: Mundo, nome: string) {
 });
 
 // ---------- Então ----------
+
+Then("o histórico da cliente {string} deve conter {string}", async function (this: Mundo, nome: string, trecho: string) {
+  const clienteId = this.clientes?.[nome];
+  assert.ok(clienteId, `a cliente ${nome} não foi cadastrada no cenário`);
+
+  const historico = await (await api(`/interacoes/cliente/${clienteId}`, { token: this.token })).json();
+  assert.ok(JSON.stringify(historico).includes(trecho), `o histórico de ${nome} não tem "${trecho}"`);
+});
 
 Then("o status da resposta deve ser {int}", function (this: Mundo, esperado: number) {
   assert.equal(this.resposta.status, esperado);

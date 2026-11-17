@@ -11,7 +11,7 @@ type PropriedadesFormularioAtendente = {
     aoCancelarEdicao: () => void;
 };
 
-const camposIniciais = { nome: "", email: "", senha: "", papelAcesso: "atendente" as PapelAcesso };
+const camposIniciais = { nome: "", email: "", senha: "", confirmacaoSenha: "", papelAcesso: "atendente" as PapelAcesso };
 
 // UC10 · Cadastrar conta de atendente (RF09) e edição da conta (nome, e-mail e papel)
 // no cadastro a conta nasce como atendente; o papel só muda pela edição
@@ -30,6 +30,7 @@ export function FormularioAtendente({ atendenteEmEdicao, aoSalvar, aoCancelarEdi
                       nome: atendenteEmEdicao.pessoa.nome,
                       email: atendenteEmEdicao.email,
                       senha: "",
+                      confirmacaoSenha: "",
                       papelAcesso: atendenteEmEdicao.papelAcesso,
                   }
                 : camposIniciais
@@ -38,7 +39,7 @@ export function FormularioAtendente({ atendenteEmEdicao, aoSalvar, aoCancelarEdi
         definirMensagemSucesso(null);
     }, [atendenteEmEdicao]);
 
-    function definirCampo(campo: "nome" | "email" | "senha") {
+    function definirCampo(campo: "nome" | "email" | "senha" | "confirmacaoSenha") {
         return (valor: string) => definirCampos((atual) => ({ ...atual, [campo]: valor }));
     }
 
@@ -49,6 +50,13 @@ export function FormularioAtendente({ atendenteEmEdicao, aoSalvar, aoCancelarEdi
 
         if (!estaEditando && campos.senha.length < 8) {
             definirMensagemErro("a senha precisa ter no mínimo 8 caracteres");
+            return;
+        }
+
+        // o campo é `password`, então um erro de digitação não aparece na tela —
+        // sem conferir, a conta nasceria com uma senha que ninguém sabe qual é
+        if (!estaEditando && campos.senha !== campos.confirmacaoSenha) {
+            definirMensagemErro("as senhas não conferem");
             return;
         }
 
@@ -98,14 +106,24 @@ export function FormularioAtendente({ atendenteEmEdicao, aoSalvar, aoCancelarEdi
                     </select>
                 </label>
             ) : (
-                <CampoTexto
-                    rotulo="Senha (mínimo 8 caracteres)"
-                    tipo="password"
-                    valor={campos.senha}
-                    aoAlterar={definirCampo("senha")}
-                    autoComplete="new-password"
-                    obrigatorio
-                />
+                <>
+                    <CampoTexto
+                        rotulo="Senha (mínimo 8 caracteres)"
+                        tipo="password"
+                        valor={campos.senha}
+                        aoAlterar={definirCampo("senha")}
+                        autoComplete="new-password"
+                        obrigatorio
+                    />
+                    <CampoTexto
+                        rotulo="Confirmar senha"
+                        tipo="password"
+                        valor={campos.confirmacaoSenha}
+                        aoAlterar={definirCampo("confirmacaoSenha")}
+                        autoComplete="new-password"
+                        obrigatorio
+                    />
+                </>
             )}
 
             <div className="formulario-acoes">
