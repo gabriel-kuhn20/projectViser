@@ -18,3 +18,6 @@ rotaAtendente.put("/:usuarioId", exigirPapel("admin"), controleAtendente.editarA
 rotaAtendente.delete("/:usuarioId", exigirPapel("admin"), controleAtendente.excluirAtendente);
 // desativar e reativar conta também é só do administrador (RF11)
 rotaAtendente.patch("/:usuarioId/ativo", exigirPapel("admin"), controleAtendente.alterarSituacaoAtendente);
+// o admin dispara o link; quem escolhe a senha é a dona da conta, pelo e-mail
+// RF22 (UC14)
+rotaAtendente.post("/:usuarioId/recuperacao-senha", exigirPapel("admin"), controleAtendente.enviarLinkRecuperacaoAtendente);

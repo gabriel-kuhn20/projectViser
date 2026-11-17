@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { usarAutenticacao } from "../hooks_dados/useAutenticacao";
 import { LogoViser } from "../componentes_site/LogoViser";
 import { IconeMenu } from "../componentes_site/IconesSite";
@@ -32,6 +32,10 @@ export function CabecalhoPrincipal({ aoAbrirMenu }: PropriedadesCabecalhoPrincip
                         {papelAcesso === "admin" ? "Administrador" : "Atendente"}
                     </span>
                 )}
+                {/* UC13 · Trocar a própria senha (RF21) */}
+                <Link to="/minha-conta" className="botao-secundario h-[38px] gap-2 px-4">
+                    Minha conta
+                </Link>
                 <button type="button" onClick={aoClicarSair} className="botao-secundario h-[38px] gap-2 px-4">
                     <IconeSair className="h-[16px] w-[16px]" />
                     Sair

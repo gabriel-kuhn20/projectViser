@@ -5,6 +5,14 @@ export const validadorLogin = z.object({
   senha: z.string().min(1),
 });
 
+// UC13 · Trocar a própria senha (RF21)
+// a senha atual tem mínimo 1 e não 8: contas antigas podem ter senha mais curta que a
+// regra de hoje, e exigir 8 aqui impediria justamente essas pessoas de trocar
+export const validadorTrocaSenha = z.object({
+  senhaAtual: z.string().min(1),
+  novaSenha: z.string().min(8),
+});
+
 // UC12 · Recuperar senha (RF20)
 export const validadorSolicitacaoRecuperacao = z.object({
   email: z.string().email(),

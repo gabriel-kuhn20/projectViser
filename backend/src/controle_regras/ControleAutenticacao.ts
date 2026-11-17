@@ -1,21 +1,17 @@
-import crypto from "node:crypto";
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { clientePrisma } from "../config_servidor/ClientePrisma";
-import { obterSegredoJwt, obterUrlFrontend } from "../config_servidor/ConfiguracaoAmbiente";
+import { obterSegredoJwt } from "../config_servidor/ConfiguracaoAmbiente";
 import { ErroHttp } from "../middlewares_seguranca/ErroHttp";
-import { enviarEmailRecuperacaoSenha } from "../servicos_email/EnviadorEmail";
+import { atualizarSenhaUsuario } from "../regras_senha/AtualizacaoSenha";
+import { criarEEnviarLinkRecuperacao, gerarHashToken } from "../regras_senha/LinkRecuperacao";
 import {
   validadorLogin,
   validadorRedefinicaoSenha,
   validadorSolicitacaoRecuperacao,
+  validadorTrocaSenha,
 } from "../validadores_entrada/ValidadorAutenticacao";
-
-// UC12 · Recuperar senha (RF20)
-// 30 minutos: curto o bastante para um link vazado perder valor rápido, longo o
-// bastante para a pessoa achar o e-mail e trocar a senha sem o link morrer no meio
-const MINUTOS_VALIDADE_RECUPERACAO = 30;
 
 // a mesma resposta para e-mail cadastrado e não cadastrado — responder diferente
 // entregaria, para quem só quer descobrir isso, quais e-mails existem no sistema
@@ -56,19 +52,6 @@ async function efetuarLogin(req: Request, res: Response) {
   return res.json({ token });
 }
 
-// Gerar o hash que representa o token no banco
-// o banco nunca vê o token puro: aqui para gravar, na redefinição para procurar
-function gerarHashToken(tokenPuro: string) {
-  return crypto.createHash("sha256").update(tokenPuro).digest("hex");
-}
-
-// Gerar o token que vai no link do e-mail, junto do hash correspondente
-function gerarTokenRecuperacao() {
-  // 32 bytes de aleatoriedade criptográfica — o equivalente do SecureRandom do Java
-  const tokenPuro = crypto.randomBytes(32).toString("hex");
-  return { tokenPuro, tokenHash: gerarHashToken(tokenPuro) };
-}
-
 // UC12 · Recuperar senha (RF20)
 async function solicitarRecuperacaoSenha(req: Request, res: Response) {
   const dadosValidados = validadorSolicitacaoRecuperacao.parse(req.body);
@@ -84,19 +67,7 @@ async function solicitarRecuperacaoSenha(req: Request, res: Response) {
   const contaPodeRecuperar = usuario?.ativo === true;
   if (!contaPodeRecuperar) return res.json(RESPOSTA_SOLICITACAO_RECUPERACAO);
 
-  const { tokenPuro, tokenHash } = gerarTokenRecuperacao();
-
-  await clientePrisma.tokenRecuperacaoSenha.create({
-    data: {
-      usuarioId: usuario.id,
-      tokenHash,
-      expiraEm: new Date(Date.now() + MINUTOS_VALIDADE_RECUPERACAO * 60 * 1000),
-    },
-  });
-
-  // o token puro existe só nesta função e no e-mail de quem pediu
-  const linkRecuperacao = `${obterUrlFrontend()}/redefinir-senha?token=${tokenPuro}`;
-  await enviarEmailRecuperacaoSenha(dadosValidados.email, linkRecuperacao, MINUTOS_VALIDADE_RECUPERACAO);
+  await criarEEnviarLinkRecuperacao(usuario.id, dadosValidados.email);
 
   return res.json(RESPOSTA_SOLICITACAO_RECUPERACAO);
 }
@@ -116,24 +87,37 @@ async function redefinirSenha(req: Request, res: Response) {
   const tokenVencido = tokenEncontrado.expiraEm <= new Date();
   if (tokenJaUsado || tokenVencido) throw new ErroHttp(400, MENSAGEM_LINK_INVALIDO);
 
-  const senhaComHash = await bcrypt.hash(dadosValidados.novaSenha, 10);
-
-  // transação: gravar a senha nova e queimar o token valem juntos ou nenhum dos dois —
-  // um token que sobrevivesse à troca continuaria abrindo a conta
-  await clientePrisma.$transaction([
-    clientePrisma.usuario.update({
-      where: { id: tokenEncontrado.usuarioId },
-      data: { senha: senhaComHash },
-    }),
-    // queima o token usado e, no mesmo passe, os outros links em aberto da conta:
-    // depois da troca, nenhum link antigo na caixa de entrada deve continuar valendo
-    clientePrisma.tokenRecuperacaoSenha.updateMany({
-      where: { usuarioId: tokenEncontrado.usuarioId, usadoEm: null },
-      data: { usadoEm: new Date() },
-    }),
-  ]);
+  // queima o token usado e os outros links em aberto da conta, junto com a senha nova
+  await atualizarSenhaUsuario(tokenEncontrado.usuarioId, dadosValidados.novaSenha);
 
   return res.json({ mensagem: "senha redefinida — entre com a senha nova" });
 }
 
-export const controleAutenticacao = { efetuarLogin, solicitarRecuperacaoSenha, redefinirSenha };
+// UC13 · Trocar a própria senha (RF21)
+async function trocarPropriaSenha(req: Request, res: Response) {
+  const dadosValidados = validadorTrocaSenha.parse(req.body);
+  const { usuarioId } = req.usuarioLogado!;
+
+  const usuario = await clientePrisma.usuario.findUnique({ where: { id: usuarioId } });
+  if (!usuario) throw new ErroHttp(401, "usuário do token não existe mais");
+
+  // sem conferir a senha atual, quem encontrasse a tela aberta de alguém trocaria a
+  // senha e tomaria a conta — o token sozinho não prova que é a pessoa na frente da tela
+  const senhaAtualConfere = await bcrypt.compare(dadosValidados.senhaAtual, usuario.senha);
+  if (!senhaAtualConfere) throw new ErroHttp(400, "senha atual incorreta");
+
+  const repetiuASenha = await bcrypt.compare(dadosValidados.novaSenha, usuario.senha);
+  if (repetiuASenha) throw new ErroHttp(400, "a nova senha precisa ser diferente da atual");
+
+  await atualizarSenhaUsuario(usuarioId, dadosValidados.novaSenha);
+
+  // RNF: a senha não volta em nenhuma resposta da API, nem a que acabou de ser definida
+  return res.json({ mensagem: "senha alterada" });
+}
+
+export const controleAutenticacao = {
+  efetuarLogin,
+  solicitarRecuperacaoSenha,
+  redefinirSenha,
+  trocarPropriaSenha,
+};

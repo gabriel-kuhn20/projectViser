@@ -4,6 +4,7 @@ type PropriedadesTabelaAtendentes = {
     atendentes: AtendenteApi[];
     carregando: boolean;
     aoEditar: (atendente: AtendenteApi) => void;
+    aoEnviarLinkSenha: (atendente: AtendenteApi) => void;
     aoExcluir: (atendente: AtendenteApi) => void;
     aoAlternarSituacao: (atendente: AtendenteApi) => void;
     // com busca ativa, "nenhuma conta cadastrada" daria a entender que a equipe está vazia
@@ -19,6 +20,7 @@ export function TabelaAtendentes({
     atendentes,
     carregando,
     aoEditar,
+    aoEnviarLinkSenha,
     aoExcluir,
     aoAlternarSituacao,
     filtroAtivo = false,
@@ -67,6 +69,13 @@ export function TabelaAtendentes({
                                     <button type="button" className="botao-link" onClick={() => aoEditar(atendente)}>
                                         Editar
                                     </button>
+{/* UC14 · Enviar à pessoa o link para criar uma senha nova (RF22) */}
+                                    {/* escondido em conta desativada: o servidor recusa, porque o link devolveria o acesso tirado */}
+                                    {atendente.ativo && (
+                                        <button type="button" className="botao-link" onClick={() => aoEnviarLinkSenha(atendente)}>
+                                            Enviar link de senha
+                                        </button>
+                                    )}
                                     <button type="button" className="botao-link" onClick={() => aoAlternarSituacao(atendente)}>
                                         {atendente.ativo ? "Desativar" : "Reativar"}
                                     </button>

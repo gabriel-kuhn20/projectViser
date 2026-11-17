@@ -290,3 +290,41 @@ When("excluo a conta de {string}", async function (this: Mundo, email: string) {
   const usuarioId = await obterIdUsuarioPorEmail(email);
   await guardarResposta(this, await api(`/atendentes/${usuarioId}`, { metodo: "DELETE", token: this.token }));
 });
+
+// ---------- UC13 · Trocar a própria senha (RF21) / UC14 · Redefinir senha de atendente (RF22) ----------
+
+When(
+  "troco minha senha de {string} para {string}",
+  async function (this: Mundo, senhaAtual: string, novaSenha: string) {
+    await guardarResposta(
+      this,
+      await api("/autenticacao/senha", { metodo: "PATCH", corpo: { senhaAtual, novaSenha }, token: this.token })
+    );
+  }
+);
+
+When("troco a senha sem estar logado", async function (this: Mundo) {
+  await guardarResposta(
+    this,
+    await api("/autenticacao/senha", {
+      metodo: "PATCH",
+      corpo: { senhaAtual: "qualquer-coisa", novaSenha: "senha-nova-12345" },
+    })
+  );
+});
+
+When("envio o link de senha para {string}", async function (this: Mundo, email: string) {
+  const usuarioId = await obterIdUsuarioPorEmail(email);
+  await guardarResposta(
+    this,
+    await api(`/atendentes/${usuarioId}/recuperacao-senha`, { metodo: "POST", token: this.token })
+  );
+});
+
+Then(
+  "a senha de {string} continua sendo {string}",
+  async function (this: Mundo, email: string, senha: string) {
+    const resposta = await api("/autenticacao/login", { metodo: "POST", corpo: { email, senha } });
+    assert.equal(resposta.status, 200, "a senha antiga deixou de funcionar");
+  }
+);
