@@ -57,3 +57,11 @@ Funcionalidade: Recuperar senha
     E que existe um link de recuperação válido para "atendente@oticaviser.com.br"
     Quando excluo a conta de "atendente@oticaviser.com.br"
     Então o status da resposta deve ser 200
+
+  Cenário: Conta desativada não recebe link de recuperação
+    Dado que entrei como "administrador"
+    E que desativei a conta "atendente"
+    Quando peço a redefinição de senha para "atendente@oticaviser.com.br"
+    Então o status da resposta deve ser 200
+    E a resposta deve dizer "se o e-mail estiver cadastrado"
+    E não deve existir nenhum link de recuperação
