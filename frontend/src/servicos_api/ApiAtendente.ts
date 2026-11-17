@@ -7,6 +7,7 @@ export type AtendenteApi = {
   id: number;
   email: string;
   papelAcesso: PapelAcesso;
+  ativo: boolean;
   criadoEm: string;
   pessoa: { nome: string };
 };
@@ -46,4 +47,9 @@ export async function enviarLinkRecuperacaoAtendente(usuarioId: number): Promise
 
 export async function excluirAtendente(usuarioId: number): Promise<void> {
   await clienteHttp.delete(`/atendentes/${usuarioId}`);
+}
+
+export async function alterarSituacaoAtendente(usuarioId: number, ativo: boolean): Promise<AtendenteApi> {
+  const resposta = await clienteHttp.patch(`/atendentes/${usuarioId}/ativo`, { ativo });
+  return resposta.data;
 }

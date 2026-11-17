@@ -16,6 +16,8 @@ rotaAtendente.post("/", exigirPapel("admin"), controleAtendente.cadastrarAtenden
 // RNF06: editar e excluir contas é só do administrador, conferido no servidor
 rotaAtendente.put("/:usuarioId", exigirPapel("admin"), controleAtendente.editarAtendente);
 rotaAtendente.delete("/:usuarioId", exigirPapel("admin"), controleAtendente.excluirAtendente);
+// desativar e reativar conta também é só do administrador (RF11)
+rotaAtendente.patch("/:usuarioId/ativo", exigirPapel("admin"), controleAtendente.alterarSituacaoAtendente);
 // o admin dispara o link; quem escolhe a senha é a dona da conta, pelo e-mail
 // RF22 (UC14)
 rotaAtendente.post("/:usuarioId/recuperacao-senha", exigirPapel("admin"), controleAtendente.enviarLinkRecuperacaoAtendente);

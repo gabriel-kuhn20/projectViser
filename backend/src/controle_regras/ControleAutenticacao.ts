@@ -38,6 +38,11 @@ async function efetuarLogin(req: Request, res: Response) {
     return res.status(401).json({ mensagem: "email ou senha inválidos" });
   }
 
+  // a senha já foi conferida, então dizer que a conta está desativada não ajuda quem tenta adivinhar senhas
+  if (!usuario.ativo) {
+    return res.status(401).json({ mensagem: "conta desativada — fale com o administrador" });
+  }
+
  const token = jwt.sign(
   { usuarioId: usuario.id, papelAcesso: usuario.papelAcesso },
   obterSegredoJwt(),
@@ -53,11 +58,14 @@ async function solicitarRecuperacaoSenha(req: Request, res: Response) {
 
   const usuario = await clientePrisma.usuario.findUnique({
     where: { email: dadosValidados.email },
-    select: { id: true },
+    select: { id: true, ativo: true },
   });
 
-  // sem conta cadastrada o fluxo termina aqui: a resposta de sempre e nenhum e-mail
-  if (!usuario) return res.json(RESPOSTA_SOLICITACAO_RECUPERACAO);
+  // conta inexistente e conta desativada param aqui, com a resposta de sempre e nenhum
+  // e-mail: mandar o link para quem foi desativado devolveria o acesso que o
+  // administrador acabou de tirar, e responder diferente revelaria qual é o caso
+  const contaPodeRecuperar = usuario?.ativo === true;
+  if (!contaPodeRecuperar) return res.json(RESPOSTA_SOLICITACAO_RECUPERACAO);
 
   await criarEEnviarLinkRecuperacao(usuario.id, dadosValidados.email);
 

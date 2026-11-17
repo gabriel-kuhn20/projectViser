@@ -6,6 +6,7 @@ type PropriedadesTabelaAtendentes = {
     aoEditar: (atendente: AtendenteApi) => void;
     aoEnviarLinkSenha: (atendente: AtendenteApi) => void;
     aoExcluir: (atendente: AtendenteApi) => void;
+    aoAlternarSituacao: (atendente: AtendenteApi) => void;
     // com busca ativa, "nenhuma conta cadastrada" daria a entender que a equipe está vazia
     filtroAtivo?: boolean;
 };
@@ -21,6 +22,7 @@ export function TabelaAtendentes({
     aoEditar,
     aoEnviarLinkSenha,
     aoExcluir,
+    aoAlternarSituacao,
     filtroAtivo = false,
 }: PropriedadesTabelaAtendentes) {
     if (carregando) {
@@ -47,25 +49,35 @@ export function TabelaAtendentes({
                 </thead>
                 <tbody>
                     {atendentes.map((atendente) => (
-                        <tr key={atendente.id}>
+                        // conta desativada fica na lista, apagada, para o admin poder reativar
+                        <tr key={atendente.id} className={atendente.ativo ? "" : "opacity-60"}>
                             <td>
                                 <span className="block font-semibold">{atendente.pessoa.nome}</span>
                                 <span className="mt-0.5 block text-[12px] text-black/55">{atendente.email}</span>
                                 <span className="block text-[12px] text-black/40">desde {formatarData(atendente.criadoEm)}</span>
                             </td>
                             <td>
-                                <span className={`etiqueta ${atendente.papelAcesso === "admin" ? "etiqueta-escura" : ""}`}>
-                                    {atendente.papelAcesso === "admin" ? "Administrador" : "Atendente"}
-                                </span>
+                                <div className="flex flex-wrap gap-2">
+                                    <span className={`etiqueta ${atendente.papelAcesso === "admin" ? "etiqueta-escura" : ""}`}>
+                                        {atendente.papelAcesso === "admin" ? "Administrador" : "Atendente"}
+                                    </span>
+                                    {!atendente.ativo && <span className="etiqueta etiqueta-alerta">Desativada</span>}
+                                </div>
                             </td>
                             <td>
                                 <div className="flex justify-end gap-2">
                                     <button type="button" className="botao-link" onClick={() => aoEditar(atendente)}>
                                         Editar
                                     </button>
-                                    {/* UC14 · Enviar à pessoa o link para criar uma senha nova (RF22) */}
-                                    <button type="button" className="botao-link" onClick={() => aoEnviarLinkSenha(atendente)}>
-                                        Enviar link de senha
+{/* UC14 · Enviar à pessoa o link para criar uma senha nova (RF22) */}
+                                    {/* escondido em conta desativada: o servidor recusa, porque o link devolveria o acesso tirado */}
+                                    {atendente.ativo && (
+                                        <button type="button" className="botao-link" onClick={() => aoEnviarLinkSenha(atendente)}>
+                                            Enviar link de senha
+                                        </button>
+                                    )}
+                                    <button type="button" className="botao-link" onClick={() => aoAlternarSituacao(atendente)}>
+                                        {atendente.ativo ? "Desativar" : "Reativar"}
                                     </button>
                                     <button type="button" className="botao-perigo" onClick={() => aoExcluir(atendente)}>
                                         Excluir
