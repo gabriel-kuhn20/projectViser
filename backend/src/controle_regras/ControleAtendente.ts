@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import { PapelAcesso, Prisma } from "@prisma/client";
 import { clientePrisma } from "../config_servidor/ClientePrisma";
 import { ErroHttp } from "../middlewares_seguranca/ErroHttp";
+import { criarEEnviarLinkRecuperacao } from "../regras_senha/LinkRecuperacao";
 import { validadorCadastroAtendente, validadorEdicaoAtendente } from "../validadores_entrada/ValidadorAtendente";
 import { validadorParametroId } from "../validadores_entrada/ValidadorParametros";
 
@@ -124,10 +125,25 @@ async function excluirAtendente(req: Request, res: Response) {
   return res.json({ mensagem: "usuário excluído" });
 }
 
+// UC14 · Enviar à pessoa o link para criar uma senha nova (RF22)
+async function enviarLinkRecuperacaoAtendente(req: Request, res: Response) {
+  const { id: usuarioId } = validadorParametroId.parse({ id: req.params.usuarioId });
+
+  const usuarioEncontrado = await buscarAtendenteExistente(usuarioId);
+
+  // o administrador destrava a pessoa, mas NÃO escolhe a senha dela: o link vai para o
+  // e-mail da conta e quem define a senha é a própria dona. Se o admin definisse a senha,
+  // passaria a poder entrar como ela — e o histórico registra quem atendeu cada cliente
+  await criarEEnviarLinkRecuperacao(usuarioEncontrado.id, usuarioEncontrado.email);
+
+  return res.json({ mensagem: `link de redefinição enviado para ${usuarioEncontrado.email}` });
+}
+
 export const controleAtendente = {
   cadastrarAtendente,
   listarAtendentes,
   buscarAtendentePorId,
   editarAtendente,
   excluirAtendente,
+  enviarLinkRecuperacaoAtendente,
 };
