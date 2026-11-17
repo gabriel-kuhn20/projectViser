@@ -53,13 +53,36 @@ async function cadastrarCliente(mundo: Mundo, nome: string, dataEntrega: string)
   }
 }
 
-async function buscarNomesDosLembretes(mundo: Mundo, nomeMarco: string) {
+async function buscarLembretesDoMarco(mundo: Mundo, nomeMarco: string) {
   const marcos = await (await api("/tipos-marco", { token: mundo.token })).json();
   const marco = marcos.find((m: { nome: string }) => m.nome === nomeMarco);
   assert.ok(marco, `esperava o marco "${nomeMarco}"`);
 
-  const lembretes = await (await api(`/lembretes/marco/${marco.id}`, { token: mundo.token })).json();
+  return (await api(`/lembretes/marco/${marco.id}`, { token: mundo.token })).json();
+}
+
+async function buscarNomesDosLembretes(mundo: Mundo, nomeMarco: string) {
+  const lembretes = await buscarLembretesDoMarco(mundo, nomeMarco);
   return lembretes.map((l: any) => l.marco.entrega.cliente.pessoa.nome as string);
+}
+
+async function buscarIdDoLembrete(mundo: Mundo, nomeMarco: string, nomeCliente: string) {
+  const lembretes = await buscarLembretesDoMarco(mundo, nomeMarco);
+  const lembreteEncontrado = lembretes.find((l: any) => l.marco.entrega.cliente.pessoa.nome === nomeCliente);
+  assert.ok(lembreteEncontrado, `${nomeCliente} não tem lembrete pendente em ${nomeMarco}`);
+  return lembreteEncontrado.id as number;
+}
+
+async function concluirLembreteDaCliente(mundo: Mundo, nomeMarco: string, nomeCliente: string, conteudo?: string) {
+  const lembreteId = await buscarIdDoLembrete(mundo, nomeMarco, nomeCliente);
+  await guardarResposta(
+    mundo,
+    await api(`/lembretes/${lembreteId}/concluir`, {
+      metodo: "PATCH",
+      corpo: conteudo ? { conteudo } : undefined,
+      token: mundo.token,
+    })
+  );
 }
 
 async function entrarComo(papel: string) {
@@ -115,7 +138,26 @@ Given("que a cliente {string} está cadastrada", async function (this: Mundo, no
   assert.equal(this.resposta.status, 201, `cadastro de ${nome} falhou`);
 });
 
+Given("que a cliente {string} está cadastrada com entrega há {int} dias", async function (this: Mundo, nome: string, dias: number) {
+  await cadastrarCliente(this, nome, diasAPartirDeHoje(-dias));
+  assert.equal(this.resposta.status, 201, `cadastro de ${nome} falhou`);
+});
+
 // ---------- Quando ----------
+
+When(
+  "tento concluir o lembrete de {string} da cliente {string} sem registrar contato",
+  async function (this: Mundo, marco: string, nome: string) {
+    await concluirLembreteDaCliente(this, marco, nome);
+  }
+);
+
+When(
+  "concluo o lembrete de {string} da cliente {string} com o contato {string}",
+  async function (this: Mundo, marco: string, nome: string, conteudo: string) {
+    await concluirLembreteDaCliente(this, marco, nome, conteudo);
+  }
+);
 
 When("peço a lista de clientes sem estar logado", async function (this: Mundo) {
   await guardarResposta(this, await api("/clientes"));
@@ -156,6 +198,14 @@ When("cadastro a tag {string}", async function (this: Mundo, nome: string) {
 });
 
 // ---------- Então ----------
+
+Then("o histórico da cliente {string} deve conter {string}", async function (this: Mundo, nome: string, trecho: string) {
+  const clienteId = this.clientes?.[nome];
+  assert.ok(clienteId, `a cliente ${nome} não foi cadastrada no cenário`);
+
+  const historico = await (await api(`/interacoes/cliente/${clienteId}`, { token: this.token })).json();
+  assert.ok(JSON.stringify(historico).includes(trecho), `o histórico de ${nome} não tem "${trecho}"`);
+});
 
 Then("o status da resposta deve ser {int}", function (this: Mundo, esperado: number) {
   assert.equal(this.resposta.status, esperado);
