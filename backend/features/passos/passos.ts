@@ -7,6 +7,7 @@ import {
   contarLinksRecuperacao,
   contarLinksRecuperacaoDe,
   criarLinkRecuperacao,
+  obterIdUsuarioPorEmail,
   url,
 } from "../suporte/mundo";
 
@@ -187,4 +188,9 @@ Then("deve existir {int} link de recuperação para {string}", async function (e
 
 Then("não deve existir nenhum link de recuperação", async function () {
   assert.equal(await contarLinksRecuperacao(), 0);
+});
+
+When("excluo a conta de {string}", async function (this: Mundo, email: string) {
+  const usuarioId = await obterIdUsuarioPorEmail(email);
+  await guardarResposta(this, await api(`/atendentes/${usuarioId}`, { metodo: "DELETE", token: this.token }));
 });

@@ -51,3 +51,9 @@ Funcionalidade: Recuperar senha
     Quando uso o link com a senha "senha-nova-12345" e a confirmação "outra-coisa-12345"
     Então o status da resposta deve ser 400
     E a resposta deve dizer "as senhas não conferem"
+
+  Cenário: Excluir uma conta que tem link de recuperação em aberto
+    Dado que entrei como "administrador"
+    E que existe um link de recuperação válido para "atendente@oticaviser.com.br"
+    Quando excluo a conta de "atendente@oticaviser.com.br"
+    Então o status da resposta deve ser 200

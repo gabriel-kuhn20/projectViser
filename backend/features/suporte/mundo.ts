@@ -118,6 +118,11 @@ export async function criarLinkRecuperacao(email: string, minutosParaVencer: num
   return tokenPuro;
 }
 
+export async function obterIdUsuarioPorEmail(email: string) {
+  const usuario = await prisma.usuario.findUniqueOrThrow({ where: { email } });
+  return usuario.id;
+}
+
 export async function contarLinksRecuperacaoDe(email: string) {
   return prisma.tokenRecuperacaoSenha.count({ where: { usuario: { email } } });
 }

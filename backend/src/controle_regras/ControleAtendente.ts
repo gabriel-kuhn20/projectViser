@@ -110,6 +110,9 @@ async function excluirAtendente(req: Request, res: Response) {
   await clientePrisma.$transaction(async (transacao) => {
     await transacao.cliente.updateMany({ where: { responsavelId: usuarioId }, data: { responsavelId: null } });
     await transacao.emAtendimento.deleteMany({ where: { usuarioId } });
+    // os links de recuperação em aberto apontam para o usuário e a FK é ON DELETE RESTRICT:
+    // sem apagar antes, excluir quem já pediu redefinição falha com "registros vinculados"
+    await transacao.tokenRecuperacaoSenha.deleteMany({ where: { usuarioId } });
     await transacao.usuario.delete({ where: { id: usuarioId } });
 
     const totalClientesDaPessoa = await transacao.cliente.count({ where: { pessoaId: usuarioExistente.pessoaId } });
