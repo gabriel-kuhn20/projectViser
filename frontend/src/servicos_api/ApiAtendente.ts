@@ -39,6 +39,12 @@ export async function editarAtendente(usuarioId: number, dadosAtendente: DadosEd
   return resposta.data;
 }
 
+// UC14 · Enviar à pessoa o link para criar uma senha nova (RF22)
+export async function enviarLinkRecuperacaoAtendente(usuarioId: number): Promise<{ mensagem: string }> {
+  const resposta = await clienteHttp.post(`/atendentes/${usuarioId}/recuperacao-senha`);
+  return resposta.data;
+}
+
 export async function excluirAtendente(usuarioId: number): Promise<void> {
   await clienteHttp.delete(`/atendentes/${usuarioId}`);
 }

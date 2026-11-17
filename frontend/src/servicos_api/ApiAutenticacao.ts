@@ -5,6 +5,12 @@ export async function efetuarLogin(email: string, senha: string) {
   return resposta.data;
 }
 
+// UC13 · Trocar a própria senha (RF21)
+export async function trocarPropriaSenha(senhaAtual: string, novaSenha: string) {
+  const resposta = await clienteHttp.patch("/autenticacao/senha", { senhaAtual, novaSenha });
+  return resposta.data;
+}
+
 // UC12 · Recuperar senha (RF20)
 export async function solicitarRecuperacaoSenha(email: string) {
   const resposta = await clienteHttp.post("/autenticacao/recuperacao-senha", { email });

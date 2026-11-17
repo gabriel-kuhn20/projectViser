@@ -9,6 +9,7 @@ import { PaginaClientes } from "./paginas_app/PaginaClientes";
 import { PaginaHistorico } from "./paginas_app/PaginaHistorico";
 import { PaginaPainel } from "./paginas_app/PaginaPainel";
 import { PaginaAtendentes } from "./paginas_app/PaginaAtendentes";
+import { PaginaMinhaConta } from "./paginas_app/PaginaMinhaConta";
 import { PaginaTags } from "./paginas_app/PaginaTags";
 import { PaginaMarcos } from "./paginas_app/PaginaMarcos";
 import { PaginaNovoCliente } from "./paginas_app/PaginaNovoCliente";
@@ -38,6 +39,8 @@ export function App() {
                     <Route path="/clientes/novo" element={<RotaProtegida><PaginaNovoCliente /></RotaProtegida>} />
                     <Route path="/historico/:clienteId" element={<RotaProtegida><PaginaHistorico /></RotaProtegida>} />
                     <Route path="/painel" element={<RotaProtegida><PaginaPainel /></RotaProtegida>} />
+                    {/* UC13 · Trocar a própria senha (RF21): qualquer papel troca a sua */}
+                    <Route path="/minha-conta" element={<RotaProtegida><PaginaMinhaConta /></RotaProtegida>} />
                     <Route path="/atendentes" element={<RotaProtegida papeisPermitidos={["admin"]}><PaginaAtendentes /></RotaProtegida>} />
                     <Route path="/tags" element={<RotaProtegida papeisPermitidos={["admin"]}><PaginaTags /></RotaProtegida>} />
                     <Route path="/marcos" element={<RotaProtegida papeisPermitidos={["admin"]}><PaginaMarcos /></RotaProtegida>} />

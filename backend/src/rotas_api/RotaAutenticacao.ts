@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { controleAutenticacao } from "../controle_regras/ControleAutenticacao";
+import { middlewareAutenticacao } from "../middlewares_seguranca/MiddlewareAutenticacao";
 
 export const rotaAutenticacao = Router();
 
@@ -12,3 +13,8 @@ rotaAutenticacao.post("/login", controleAutenticacao.efetuarLogin);
 rotaAutenticacao.post("/recuperacao-senha", controleAutenticacao.solicitarRecuperacaoSenha);
 // RF20 (UC12)
 rotaAutenticacao.post("/redefinir-senha", controleAutenticacao.redefinirSenha);
+
+// esta, ao contrário das duas acima, exige estar logado: é a pessoa trocando a própria
+// senha, e o middleware é quem diz de quem é a conta
+// RF21 (UC13)
+rotaAutenticacao.patch("/senha", middlewareAutenticacao, controleAutenticacao.trocarPropriaSenha);
