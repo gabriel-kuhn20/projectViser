@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { FormularioAtendente } from "../componentes_pessoas/FormularioAtendente";
 import { TabelaAtendentes } from "../componentes_pessoas/TabelaAtendentes";
-import { excluirAtendente, listarAtendentes, type AtendenteApi } from "../servicos_api/ApiAtendente";
+import {
+    enviarLinkRecuperacaoAtendente,
+    excluirAtendente,
+    listarAtendentes,
+    type AtendenteApi,
+} from "../servicos_api/ApiAtendente";
 import { formatarMensagemErro } from "../utilitarios_formatacao/FormatarErro";
 import { TituloPagina } from "../componentes_layout/TituloPagina";
 import { CampoBusca } from "../componentes_compartilhados/CampoBusca";
@@ -13,6 +18,7 @@ export function PaginaAtendentes() {
     const [carregando, definirCarregando] = useState(true);
     const [atendenteEmEdicao, definirAtendenteEmEdicao] = useState<AtendenteApi | null>(null);
     const [mensagemErro, definirMensagemErro] = useState<string | null>(null);
+    const [mensagemSucesso, definirMensagemSucesso] = useState<string | null>(null);
     const [termoBusca, definirTermoBusca] = useState("");
 
     const atendentesFiltrados = atendentes.filter((atendente) =>
@@ -39,6 +45,24 @@ export function PaginaAtendentes() {
         carregarAtendentes();
     }
 
+    // UC14 · Enviar à pessoa o link para criar uma senha nova (RF22)
+    async function aoEnviarLinkSenha(atendente: AtendenteApi) {
+        const confirmou = window.confirm(
+            `Enviar para ${atendente.email} um link para ${atendente.pessoa.nome} criar uma senha nova?`
+        );
+        if (!confirmou) return;
+
+        definirMensagemErro(null);
+        definirMensagemSucesso(null);
+        try {
+            // quem escolhe a senha é a dona da conta, pelo link — o administrador não a conhece
+            const { mensagem } = await enviarLinkRecuperacaoAtendente(atendente.id);
+            definirMensagemSucesso(mensagem);
+        } catch (erroRequisicao) {
+            definirMensagemErro(formatarMensagemErro(erroRequisicao, "não foi possível enviar o link."));
+        }
+    }
+
     async function aoExcluirAtendente(atendente: AtendenteApi) {
         const confirmou = window.confirm(`Excluir a conta de "${atendente.pessoa.nome}"? Essa ação não pode ser desfeita.`);
         if (!confirmou) return;
@@ -58,6 +82,7 @@ export function PaginaAtendentes() {
         <div>
             <TituloPagina titulo="Atendentes" subtitulo="Contas da equipe que acessam o sistema de pós-venda." />
             {mensagemErro && <p role="alert" className="mensagem-erro">{mensagemErro}</p>}
+            {mensagemSucesso && <p role="status" className="mensagem-sucesso">{mensagemSucesso}</p>}
             <div className="grid items-start gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
                 <FormularioAtendente
                     atendenteEmEdicao={atendenteEmEdicao}
@@ -73,6 +98,7 @@ export function PaginaAtendentes() {
                         filtroAtivo={termoBusca.trim() !== ""}
                         carregando={carregando}
                         aoEditar={definirAtendenteEmEdicao}
+                        aoEnviarLinkSenha={aoEnviarLinkSenha}
                         aoExcluir={aoExcluirAtendente}
                     />
                 </div>

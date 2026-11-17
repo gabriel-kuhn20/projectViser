@@ -4,6 +4,7 @@ type PropriedadesTabelaAtendentes = {
     atendentes: AtendenteApi[];
     carregando: boolean;
     aoEditar: (atendente: AtendenteApi) => void;
+    aoEnviarLinkSenha: (atendente: AtendenteApi) => void;
     aoExcluir: (atendente: AtendenteApi) => void;
     // com busca ativa, "nenhuma conta cadastrada" daria a entender que a equipe está vazia
     filtroAtivo?: boolean;
@@ -18,6 +19,7 @@ export function TabelaAtendentes({
     atendentes,
     carregando,
     aoEditar,
+    aoEnviarLinkSenha,
     aoExcluir,
     filtroAtivo = false,
 }: PropriedadesTabelaAtendentes) {
@@ -60,6 +62,10 @@ export function TabelaAtendentes({
                                 <div className="flex justify-end gap-2">
                                     <button type="button" className="botao-link" onClick={() => aoEditar(atendente)}>
                                         Editar
+                                    </button>
+                                    {/* UC14 · Enviar à pessoa o link para criar uma senha nova (RF22) */}
+                                    <button type="button" className="botao-link" onClick={() => aoEnviarLinkSenha(atendente)}>
+                                        Enviar link de senha
                                     </button>
                                     <button type="button" className="botao-perigo" onClick={() => aoExcluir(atendente)}>
                                         Excluir
