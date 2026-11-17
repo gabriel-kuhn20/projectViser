@@ -30,8 +30,27 @@ model Usuario {
   emAtendimentos      EmAtendimento[]
   interacoes          Interacao[]
   pessoa              Pessoa          @relation(fields: [pessoaId], references: [id])
+  tokensRecuperacao   TokenRecuperacaoSenha[]
 
   @@map("usuario")
+}
+
+// UC12 · Recuperar senha (RF20)
+// o token que vai no link do e-mail NUNCA é gravado aqui — só o hash dele
+model TokenRecuperacaoSenha {
+  id        Int       @id @default(autoincrement())
+  usuarioId Int
+  // SHA-256 do token enviado por e-mail: se o banco vazar, os links em aberto continuam inúteis
+  tokenHash String    @unique
+  expiraEm  DateTime
+  // preenchido no momento do uso — token usado não vale de novo, nem se a pessoa reabrir o link
+  usadoEm   DateTime?
+  criadoEm  DateTime  @default(now())
+  usuario   Usuario   @relation(fields: [usuarioId], references: [id])
+
+  // a redefinição invalida os tokens pendentes da mesma conta, e essa busca é por usuarioId
+  @@index([usuarioId])
+  @@map("token_recuperacao_senha")
 }
 
 model Cliente {
