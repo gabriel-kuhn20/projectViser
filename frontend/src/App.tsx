@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ContextoAutenticacao } from "./contextos_autenticacao/ContextoAutenticacao";
 import { RotaProtegida } from "./componentes_layout/RotaProtegida";
 import { PaginaLogin } from "./paginas_app/PaginaLogin";
+import { PaginaRecuperarSenha } from "./paginas_app/PaginaRecuperarSenha";
+import { PaginaRedefinirSenha } from "./paginas_app/PaginaRedefinirSenha";
 import { PaginaLembretes } from "./paginas_app/PaginaLembretes";
 import { PaginaClientes } from "./paginas_app/PaginaClientes";
 import { PaginaHistorico } from "./paginas_app/PaginaHistorico";
@@ -28,6 +30,9 @@ export function App() {
 
                     {/* sistema de pós-venda (equipe) */}
                     <Route path="/login" element={<PaginaLogin />} />
+                    {/* UC12 · Recuperar senha (RF20): públicas de propósito — quem perdeu a senha não tem como se autenticar */}
+                    <Route path="/recuperar-senha" element={<PaginaRecuperarSenha />} />
+                    <Route path="/redefinir-senha" element={<PaginaRedefinirSenha />} />
                     <Route path="/lembretes" element={<RotaProtegida><PaginaLembretes /></RotaProtegida>} />
                     <Route path="/clientes" element={<RotaProtegida><PaginaClientes /></RotaProtegida>} />
                     <Route path="/clientes/novo" element={<RotaProtegida><PaginaNovoCliente /></RotaProtegida>} />

@@ -2,13 +2,22 @@
 // Nada aqui conhece Express ou Prisma: só o contrato JSON por HTTP, como o frontend.
 import assert from "node:assert";
 import { Given, Then, When, World } from "@cucumber/cucumber";
-import { CONTAS, url } from "../suporte/mundo";
+import {
+  CONTAS,
+  contarLinksRecuperacao,
+  contarLinksRecuperacaoDe,
+  criarLinkRecuperacao,
+  obterIdUsuarioPorEmail,
+  url,
+} from "../suporte/mundo";
 
 type Mundo = World & {
   token?: string;
   resposta: Response;
   corpo: any;
   clientes?: Record<string, number>;
+  // o token do link de recuperação do cenário, como se tivesse chegado por e-mail
+  tokenRecuperacao?: string;
 };
 
 type OpcoesApi = { metodo?: string; corpo?: unknown; token?: string };
@@ -227,4 +236,57 @@ Then("a lista de lembretes de {string} deve conter {string}", async function (th
 Then("a lista de lembretes de {string} não deve conter {string}", async function (this: Mundo, marco: string, nome: string) {
   const nomes = await buscarNomesDosLembretes(this, marco);
   assert.ok(!nomes.includes(nome), `${nome} não deveria estar nos lembretes de ${marco}`);
+});
+
+// ---------- UC12 · Recuperar senha (RF20) ----------
+
+async function usarLinkRecuperacao(mundo: Mundo, novaSenha: string, confirmacaoSenha: string) {
+  await guardarResposta(
+    mundo,
+    await api("/autenticacao/redefinir-senha", {
+      metodo: "POST",
+      corpo: { token: mundo.tokenRecuperacao, novaSenha, confirmacaoSenha },
+    })
+  );
+}
+
+Given("que existe um link de recuperação válido para {string}", async function (this: Mundo, email: string) {
+  this.tokenRecuperacao = await criarLinkRecuperacao(email, 30);
+});
+
+Given("que existe um link de recuperação vencido para {string}", async function (this: Mundo, email: string) {
+  // minutos negativos: o link já nasce com a validade no passado, e o cenário
+  // não precisa esperar os 30 minutos de verdade para testar o vencimento
+  this.tokenRecuperacao = await criarLinkRecuperacao(email, -1);
+});
+
+When("peço a redefinição de senha para {string}", async function (this: Mundo, email: string) {
+  await guardarResposta(
+    this,
+    await api("/autenticacao/recuperacao-senha", { metodo: "POST", corpo: { email } })
+  );
+});
+
+When("uso o link com a senha {string}", async function (this: Mundo, novaSenha: string) {
+  await usarLinkRecuperacao(this, novaSenha, novaSenha);
+});
+
+When(
+  "uso o link com a senha {string} e a confirmação {string}",
+  async function (this: Mundo, novaSenha: string, confirmacaoSenha: string) {
+    await usarLinkRecuperacao(this, novaSenha, confirmacaoSenha);
+  }
+);
+
+Then("deve existir {int} link de recuperação para {string}", async function (esperado: number, email: string) {
+  assert.equal(await contarLinksRecuperacaoDe(email), esperado);
+});
+
+Then("não deve existir nenhum link de recuperação", async function () {
+  assert.equal(await contarLinksRecuperacao(), 0);
+});
+
+When("excluo a conta de {string}", async function (this: Mundo, email: string) {
+  const usuarioId = await obterIdUsuarioPorEmail(email);
+  await guardarResposta(this, await api(`/atendentes/${usuarioId}`, { metodo: "DELETE", token: this.token }));
 });

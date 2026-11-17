@@ -3,6 +3,7 @@
 // Express, JWT e Prisma até o banco, e o schema de teste vai fora no fim.
 import { AfterAll, Before, BeforeAll, setDefaultTimeout } from "@cucumber/cucumber";
 import { execSync } from "node:child_process";
+import { createHash, randomBytes } from "node:crypto";
 import type { Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import { join } from "node:path";
@@ -23,6 +24,13 @@ const urlBanco = new URL(
 urlBanco.searchParams.set("schema", SCHEMA_TESTE);
 process.env.DATABASE_URL = urlBanco.toString();
 process.env.JWT_SEGREDO ??= "segredo-so-dos-testes";
+
+// teste nunca manda e-mail de verdade: sem chave, o EnviadorEmail cai no console.
+// O .env carregado acima pode ter a chave do Resend, e aí cada execução gastaria cota
+// e registraria falhas no painel, porque o destinatário dos cenários não é a caixa da conta.
+// Vazia em vez de apagada: quando o BeforeAll importa a API, o dotenv roda de novo e
+// repõe variável AUSENTE — mas não sobrescreve a que já existe, nem vazia.
+process.env.RESEND_API_KEY = "";
 
 // as migrations e o bcrypt passam dos 5 segundos padrão do Cucumber
 setDefaultTimeout(60_000);
@@ -65,7 +73,7 @@ BeforeAll(async function () {
 Before(async function () {
   const tabelas = [
     "interacao", "em_atendimento", "lembrete", "marco_acompanhamento", "entrega",
-    "cliente_tag", "cliente", "tag", "tipo_marco", "usuario", "pessoa",
+    "cliente_tag", "cliente", "tag", "tipo_marco", "token_recuperacao_senha", "usuario", "pessoa",
   ].map((tabela) => `"${SCHEMA_TESTE}"."${tabela}"`);
   await prisma.$executeRawUnsafe(`TRUNCATE TABLE ${tabelas.join(", ")} RESTART IDENTITY CASCADE`);
 
@@ -90,6 +98,38 @@ Before(async function () {
     });
   }
 });
+
+// UC12 · Recuperar senha (RF20)
+// O teste não tem como descobrir um link de verdade: o banco guarda só o hash do token,
+// e o token puro existe apenas dentro do e-mail. Então o cenário cria o par aqui — gera
+// o token, grava o hash — e devolve o token puro para usar como se tivesse vindo do e-mail.
+export async function criarLinkRecuperacao(email: string, minutosParaVencer: number) {
+  const usuario = await prisma.usuario.findUniqueOrThrow({ where: { email } });
+  const tokenPuro = randomBytes(32).toString("hex");
+
+  await prisma.tokenRecuperacaoSenha.create({
+    data: {
+      usuarioId: usuario.id,
+      tokenHash: createHash("sha256").update(tokenPuro).digest("hex"),
+      expiraEm: new Date(Date.now() + minutosParaVencer * 60 * 1000),
+    },
+  });
+
+  return tokenPuro;
+}
+
+export async function obterIdUsuarioPorEmail(email: string) {
+  const usuario = await prisma.usuario.findUniqueOrThrow({ where: { email } });
+  return usuario.id;
+}
+
+export async function contarLinksRecuperacaoDe(email: string) {
+  return prisma.tokenRecuperacaoSenha.count({ where: { usuario: { email } } });
+}
+
+export async function contarLinksRecuperacao() {
+  return prisma.tokenRecuperacaoSenha.count();
+}
 
 AfterAll(async function () {
   await new Promise((resolve) => servidor.close(resolve));
