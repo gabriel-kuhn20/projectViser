@@ -130,7 +130,25 @@ export async function contarLinksRecuperacaoDe(email: string) {
 export async function contarLinksRecuperacao() {
   return prisma.tokenRecuperacaoSenha.count();
 }
+// UC03 A1 e UC04 A1 · a rotina dos marcos não pode duplicar lembrete
+// A entrega entra direto no banco, sem passar pela API: o cadastro pela API já roda a rotina
+// na hora e criaria o marco antes de o cenário começar. Assim o marco ainda não existe quando
+// o cenário roda a rotina, que é justamente o caso em que um lembrete duplicado poderia nascer.
+export async function registrarEntregaSemRotina(nomeCliente: string, diasAtras: number) {
+  await prisma.entrega.create({
+    data: {
+      dataEntrega: new Date(Date.now() - diasAtras * 24 * 60 * 60 * 1000),
+      produto: "Armação de acetato",
+      cliente: { create: { contato: "(51) 99999-0000", pessoa: { create: { nome: nomeCliente } } } },
+    },
+  });
+}
 
+// várias execuções juntas, como o cron da hora cheia e um cadastro chegando no mesmo instante
+export async function rodarRotinaMarcos(vezes: number) {
+  const { executarVerificacaoMarcos } = await import("../../src/rotina_marcos/AgendadorMarcos");
+  await Promise.all(Array.from({ length: vezes }, () => executarVerificacaoMarcos()));
+}
 AfterAll(async function () {
   await new Promise((resolve) => servidor.close(resolve));
   await prisma.$executeRawUnsafe(`DROP SCHEMA IF EXISTS "${SCHEMA_TESTE}" CASCADE`);
