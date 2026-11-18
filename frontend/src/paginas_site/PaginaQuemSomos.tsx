@@ -17,7 +17,7 @@ const fotosLojas: ChaveImagem[] = ["lojaCentro", "lojaSaoCristovao"];
 const marcosHistoria = [
     { ano: "2022", texto: "Início dos atendimentos personalizados e domiciliares." },
     { ano: "2023", texto: "Inauguração do primeiro espaço físico da Viser." },
-    { ano: "2024", texto: "Expansão para duas unidades e rebranding da marca." },
+    { ano: "2025", texto: "Expansão para duas unidades e rebranding da marca." },
 ];
 
 export function PaginaQuemSomos() {
@@ -79,9 +79,9 @@ export function PaginaQuemSomos() {
                 </div>
             </section>
 
-            {/* 3 anos de Viser */}
+            {/* 4 anos de Viser */}
             <section className="pt-[60px]">
-                <h2 className="site-container text-[30px] font-bold md:text-[35px]">3 anos de Viser</h2>
+                <h2 className="site-container text-[30px] font-bold md:text-[35px]">4 anos de Viser</h2>
                 <div className="relative mt-[36px]">
                     <span className="absolute inset-x-0 top-0 h-[2px] bg-black" aria-hidden="true" />
                     <ol className="site-container flex flex-col gap-10 md:flex-row md:gap-[10px]">

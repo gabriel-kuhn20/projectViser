@@ -93,7 +93,7 @@ export function HistoricoInteracoes({ interacoesCliente, estaCarregando, aoAlter
 
             return (
                 <li key={interacaoCliente.id} className="cartao relative">
-                  {/* ponto na linha do tempo, como em "3 anos de Viser" */}
+                  {/* ponto na linha do tempo, como em "4 anos de Viser" */}
                   <span className="absolute -left-[31px] top-7 h-3 w-3 rounded-full bg-black" aria-hidden="true" />
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <span className="font-semibold text-black">{interacaoCliente.usuario.pessoa.nome}</span>

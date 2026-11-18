@@ -128,8 +128,8 @@ export function PaginaVisagismo() {
                             Alinhar sua imagem aos seus objetivos.
                         </figcaption>
                         <div className="relative flex gap-[22px]">
-                            <FotoSite chave="antes" className="h-[290px] w-[150px] rounded-[12px] sm:h-[327px] sm:w-[211px]" />
                             <FotoSite chave="depois" className="h-[290px] w-[150px] rounded-[12px] sm:h-[327px] sm:w-[211px]" />
+                            <FotoSite chave="antes" className="h-[290px] w-[150px] rounded-[12px] sm:h-[327px] sm:w-[211px]" />
                             <span
                                 className="absolute left-1/2 top-1/2 flex h-[64px] w-[64px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-black"
                                 aria-hidden="true"
