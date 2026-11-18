@@ -74,7 +74,7 @@ BeforeAll(async function () {
 Before(async function () {
   const tabelas = [
     "interacao", "em_atendimento", "lembrete", "marco_acompanhamento", "entrega",
-    "cliente_tag", "cliente", "tag", "tipo_marco", "token_recuperacao_senha", "usuario", "pessoa",
+    "cliente_tag", "cliente", "tag", "tipo_marco", "token_recuperacao_senha", "token_revogado", "usuario", "pessoa",
   ].map((tabela) => `"${SCHEMA_TESTE}"."${tabela}"`);
   await prisma.$executeRawUnsafe(`TRUNCATE TABLE ${tabelas.join(", ")} RESTART IDENTITY CASCADE`);
 
@@ -130,6 +130,24 @@ export async function contarLinksRecuperacaoDe(email: string) {
 
 export async function contarLinksRecuperacao() {
   return prisma.tokenRecuperacaoSenha.count();
+}
+
+// UC01 · Entrar no sistema (RF01): encerrar a sessão
+// um token encerrado cujo vencimento já passou, como os que se acumulam no banco com o tempo
+export async function criarTokenEncerradoVencido() {
+  await prisma.tokenRevogado.create({
+    data: { jti: randomBytes(16).toString("hex"), expiraEm: new Date(Date.now() - 60 * 1000) },
+  });
+}
+
+export async function contarTokensEncerrados() {
+  return prisma.tokenRevogado.count();
+}
+
+// importa a rotina só agora, como a API: o Prisma dela precisa nascer depois do DATABASE_URL de teste
+export async function executarLimpezaDeTokens() {
+  const { removerTokensVencidos } = await import("../../src/rotina_limpeza/LimpezaTokens");
+  return removerTokensVencidos();
 }
 
 AfterAll(async function () {

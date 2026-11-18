@@ -89,3 +89,15 @@ export function IconeVoltar({ className = "" }: PropriedadesIcone) {
         </svg>
     );
 }
+
+export function IconeLixeira({ className = "" }: PropriedadesIcone) {
+    return (
+        <svg viewBox="0 0 24 24" {...tracoPadrao} className={className} aria-hidden="true">
+            <path d="M4 7h16" />
+            <path d="M9 7V4.5h6V7" />
+            <path d="M6.5 7l.8 12a1.5 1.5 0 0 0 1.5 1.4h6.4a1.5 1.5 0 0 0 1.5-1.4l.8-12" />
+            <path d="M10 11v5" />
+            <path d="M14 11v5" />
+        </svg>
+    );
+}
