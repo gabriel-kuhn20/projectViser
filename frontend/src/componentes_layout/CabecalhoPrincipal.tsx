@@ -1,5 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { usarAutenticacao } from "../hooks_dados/useAutenticacao";
+import { encerrarSessao } from "../servicos_api/ApiAutenticacao";
+import { lerTokenSessao } from "../utilitarios_autenticacao/SessaoArmazenada";
 import { LogoViser } from "../componentes_site/LogoViser";
 import { IconeMenu } from "../componentes_site/IconesSite";
 import { IconeSair } from "./IconesMenu";
@@ -12,9 +14,18 @@ export function CabecalhoPrincipal({ aoAbrirMenu }: PropriedadesCabecalhoPrincip
     const { sair, papelAcesso } = usarAutenticacao();
     const navegar = useNavigate();
 
+    // UC01 · Entrar no sistema (RF01): encerrar a sessão
     function aoClicarSair() {
+        const tokenDaSessao = lerTokenSessao();
+
+        // a sessão local cai primeiro, sem esperar resposta: num computador compartilhado da ótica,
+        // ficar preso aguardando uma API fora do ar deixaria a conta aberta para a próxima pessoa
         sair();
         navegar("/login", { replace: true });
+
+        // em segundo plano, com o token guardado acima: sem avisar o servidor, quem tivesse
+        // copiado esse token continuaria dentro pelas 8h restantes
+        if (tokenDaSessao) encerrarSessao(tokenDaSessao).catch(() => undefined);
     }
 
     return (

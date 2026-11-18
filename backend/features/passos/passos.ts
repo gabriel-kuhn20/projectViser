@@ -6,7 +6,10 @@ import {
   CONTAS,
   contarLinksRecuperacao,
   contarLinksRecuperacaoDe,
+  contarTokensEncerrados,
   criarLinkRecuperacao,
+  criarTokenEncerradoVencido,
+  executarLimpezaDeTokens,
   obterIdUsuarioPorEmail,
   url,
 } from "../suporte/mundo";
@@ -18,6 +21,10 @@ type Mundo = World & {
   clientes?: Record<string, number>;
   // o token do link de recuperação do cenário, como se tivesse chegado por e-mail
   tokenRecuperacao?: string;
+  // a mesma conta aberta em outro aparelho, com um token próprio
+  tokenOutroAparelho?: string;
+  // o token que a troca de senha devolve para quem acabou de trocar
+  tokenNovo?: string;
 };
 
 type OpcoesApi = { metodo?: string; corpo?: unknown; token?: string };
@@ -303,6 +310,15 @@ When(
   }
 );
 
+// guarda o token novo que a troca devolve: o antigo caiu junto com as outras sessões da conta
+When("troco minha senha de {string} para {string} e guardo o token novo", async function (this: Mundo, senhaAtual: string, novaSenha: string) {
+  await guardarResposta(
+    this,
+    await api("/autenticacao/senha", { metodo: "PATCH", corpo: { senhaAtual, novaSenha }, token: this.token })
+  );
+  this.tokenNovo = this.corpo.token;
+});
+
 When("troco a senha sem estar logado", async function (this: Mundo) {
   await guardarResposta(
     this,
@@ -328,3 +344,39 @@ Then(
     assert.equal(resposta.status, 200, "a senha antiga deixou de funcionar");
   }
 );
+
+// ---------- UC01 · Entrar no sistema (RF01): encerrar a sessão ----------
+
+Given("que entrei de novo como {string} em outro aparelho", async function (this: Mundo, papel: string) {
+  this.tokenOutroAparelho = await entrarComo(papel);
+});
+
+When("saio do sistema", async function (this: Mundo) {
+  await guardarResposta(this, await api("/autenticacao/sair", { metodo: "POST", token: this.token }));
+});
+
+When("saio do sistema sem estar logado", async function (this: Mundo) {
+  await guardarResposta(this, await api("/autenticacao/sair", { metodo: "POST" }));
+});
+
+When("peço a lista de clientes pelo outro aparelho", async function (this: Mundo) {
+  await guardarResposta(this, await api("/clientes", { token: this.tokenOutroAparelho }));
+});
+
+When("peço a lista de clientes com o token novo", async function (this: Mundo) {
+  await guardarResposta(this, await api("/clientes", { token: this.tokenNovo }));
+});
+
+// ---------- Limpeza de tokens vencidos ----------
+
+Given("que existe um token de sessão encerrado que já venceu", async function () {
+  await criarTokenEncerradoVencido();
+});
+
+When("a limpeza de tokens vencidos roda", async function () {
+  await executarLimpezaDeTokens();
+});
+
+Then("deve sobrar {int} token de sessão encerrado", async function (esperado: number) {
+  assert.equal(await contarTokensEncerrados(), esperado);
+});

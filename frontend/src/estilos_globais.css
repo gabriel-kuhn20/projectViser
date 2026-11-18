@@ -118,6 +118,12 @@
         @apply inline-flex h-[34px] items-center justify-center whitespace-nowrap rounded-full border border-red-700/60 px-4 text-[12px] font-semibold uppercase tracking-[0.02em] text-red-700 transition-colors hover:bg-red-700 hover:text-white disabled:cursor-not-allowed disabled:opacity-50;
     }
 
+    /* excluir é irreversível, mas não precisa gritar em toda linha da lista: fica neutro,
+       só um ícone, e o vermelho aparece quando a pessoa aponta ou foca nele */
+    .botao-icone-perigo {
+        @apply inline-flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full border border-black/20 text-black/50 transition-colors hover:border-red-700 hover:bg-red-700 hover:text-white focus-visible:border-red-700 focus-visible:bg-red-700 focus-visible:text-white focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50;
+    }
+
     .botao-link {
         @apply inline-flex h-[34px] items-center justify-center whitespace-nowrap rounded-full border border-black/20 px-4 text-[12px] font-semibold uppercase tracking-[0.02em] text-black transition-colors hover:border-black hover:bg-black hover:text-white disabled:cursor-not-allowed disabled:opacity-50;
     }

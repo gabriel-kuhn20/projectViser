@@ -1,5 +1,6 @@
 import { createContext, useState, ReactNode } from "react";
 import { obterPapelToken, obterUsuarioIdToken, verificarTokenExpirado } from "../utilitarios_autenticacao/ValidarToken";
+import { gravarTokenSessao, lerTokenSessao, limparTokenSessao } from "../utilitarios_autenticacao/SessaoArmazenada";
 import { PapelAcesso } from "../tipos_compartilhados/TiposDominio";
 
 type ValorContextoAutenticacao = {
@@ -16,10 +17,10 @@ export const contextoAutenticacao = createContext<ValorContextoAutenticacao | nu
 // checar se ele ainda é válido — senão o usuário "entra" com um token morto
 // e só descobre no primeiro 401
 function verificarTokenValidoNoStorage(): boolean {
-  const token = localStorage.getItem("token");
+  const token = lerTokenSessao();
   if (!token) return false;
   if (verificarTokenExpirado(token)) {
-    localStorage.removeItem("token");
+    limparTokenSessao();
     return false;
   }
   return true;
@@ -29,21 +30,21 @@ export function ContextoAutenticacao({ children }: { children: ReactNode }) {
   const [estaAutenticado, definirEstaAutenticado] = useState(verificarTokenValidoNoStorage);
   // precisam vir DEPOIS do useState acima: se o token venceu, ele já foi removido do storage
   const [papelAcesso, definirPapelAcesso] = useState<PapelAcesso | null>(
-    () => obterPapelToken(localStorage.getItem("token"))
+    () => obterPapelToken(lerTokenSessao())
   );
   const [usuarioId, definirUsuarioId] = useState<number | null>(
-    () => obterUsuarioIdToken(localStorage.getItem("token"))
+    () => obterUsuarioIdToken(lerTokenSessao())
   );
 
   function entrar(token: string) {
-    localStorage.setItem("token", token);
+    gravarTokenSessao(token);
     definirEstaAutenticado(true);
     definirPapelAcesso(obterPapelToken(token));
     definirUsuarioId(obterUsuarioIdToken(token));
   }
 
   function sair() {
-    localStorage.removeItem("token");
+    limparTokenSessao();
     definirEstaAutenticado(false);
     definirPapelAcesso(null);
     definirUsuarioId(null);
