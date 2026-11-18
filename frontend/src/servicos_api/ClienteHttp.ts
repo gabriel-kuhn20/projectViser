@@ -1,4 +1,5 @@
 import axios from "axios";
+import { lerTokenSessao, limparTokenSessao } from "../utilitarios_autenticacao/SessaoArmazenada";
 
 // instância única do axios com a URL base da API e o token já anexado
 export const clienteHttp = axios.create({
@@ -6,7 +7,7 @@ export const clienteHttp = axios.create({
 });
 
 clienteHttp.interceptors.request.use((configuracao) => {
-  const token = localStorage.getItem("token");
+  const token = lerTokenSessao();
   if (token) configuracao.headers.Authorization = `Bearer ${token}`;
   return configuracao;
 });
@@ -20,7 +21,7 @@ clienteHttp.interceptors.response.use(
       const jaEstaNaTelaLogin = window.location.pathname === "/login";
 
       if (erro.response?.status === 401 && !requisicaoParaLogin && !jaEstaNaTelaLogin) {
-        localStorage.removeItem("token");
+        limparTokenSessao();
         window.location.href = "/login";
       }
 

@@ -8,6 +8,10 @@ export const rotaAutenticacao = Router();
 // RF01: o sistema permite que o atendente acesse com email e senha
 rotaAutenticacao.post("/login", middlewareLimiteLogin, controleAutenticacao.efetuarLogin);
 
+// exige estar logado: é o token do cabeçalho que será encerrado
+// RF01 (UC01)
+rotaAutenticacao.post("/sair", middlewareAutenticacao, controleAutenticacao.encerrarSessao);
+
 // as duas rotas abaixo ficam fora do middlewareAutenticacao de propósito: quem perdeu
 // a senha não tem como se autenticar — o que autoriza a troca é o link enviado por e-mail
 // RF20 (UC12)

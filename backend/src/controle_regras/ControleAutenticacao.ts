@@ -1,11 +1,10 @@
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import { clientePrisma } from "../config_servidor/ClientePrisma";
-import { obterSegredoJwt } from "../config_servidor/ConfiguracaoAmbiente";
 import { ErroHttp } from "../middlewares_seguranca/ErroHttp";
 import { atualizarSenhaUsuario } from "../regras_senha/AtualizacaoSenha";
 import { criarEEnviarLinkRecuperacao, gerarHashToken } from "../regras_senha/LinkRecuperacao";
+import { gerarTokenSessao, revogarTokenSessao } from "../regras_sessao/SessaoToken";
 import {
   validadorLogin,
   validadorRedefinicaoSenha,
@@ -43,13 +42,20 @@ async function efetuarLogin(req: Request, res: Response) {
     return res.status(401).json({ mensagem: "conta desativada — fale com o administrador" });
   }
 
- const token = jwt.sign(
-  { usuarioId: usuario.id, papelAcesso: usuario.papelAcesso },
-  obterSegredoJwt(),
-  { expiresIn: "8h" }
-);
+  return res.json({ token: gerarTokenSessao(usuario) });
+}
 
-  return res.json({ token });
+// UC01 · Entrar no sistema (RF01): encerrar a sessão quando quiser
+async function encerrarSessao(req: Request, res: Response) {
+  const { jti, exp } = req.usuarioLogado!;
+
+  // o middleware já recusa token sem `jti` e sem `exp`; a checagem existe para o TypeScript e para falhar alto
+  if (!jti || !exp) throw new ErroHttp(401, "token inválido ou expirado");
+
+  // só ESTE token é encerrado — a mesma conta aberta em outro aparelho continua logada
+  await revogarTokenSessao(jti, exp);
+
+  return res.status(204).send();
 }
 
 // UC12 · Recuperar senha (RF20)
@@ -111,12 +117,15 @@ async function trocarPropriaSenha(req: Request, res: Response) {
 
   await atualizarSenhaUsuario(usuarioId, dadosValidados.novaSenha);
 
+  // a troca derrubou todas as sessões da conta, inclusive esta; devolve um token novo para quem
+  // acabou de provar a senha atual não ser mandado de volta ao login
   // RNF: a senha não volta em nenhuma resposta da API, nem a que acabou de ser definida
-  return res.json({ mensagem: "senha alterada" });
+  return res.json({ mensagem: "senha alterada", token: gerarTokenSessao(usuario) });
 }
 
 export const controleAutenticacao = {
   efetuarLogin,
+  encerrarSessao,
   solicitarRecuperacaoSenha,
   redefinirSenha,
   trocarPropriaSenha,

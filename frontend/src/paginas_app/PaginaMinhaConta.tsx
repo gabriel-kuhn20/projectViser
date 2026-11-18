@@ -2,6 +2,7 @@ import { useState } from "react";
 import { TituloPagina } from "../componentes_layout/TituloPagina";
 import { CampoTexto } from "../componentes_compartilhados/CampoTexto";
 import { BotaoPrimario } from "../componentes_compartilhados/BotaoPrimario";
+import { usarAutenticacao } from "../hooks_dados/useAutenticacao";
 import { trocarPropriaSenha } from "../servicos_api/ApiAutenticacao";
 import { formatarMensagemErro } from "../utilitarios_formatacao/FormatarErro";
 
@@ -11,6 +12,7 @@ const camposIniciais = { senhaAtual: "", novaSenha: "", confirmacaoSenha: "" };
 
 // UC13 · Trocar a própria senha (RF21)
 export function PaginaMinhaConta() {
+    const { entrar } = usarAutenticacao();
     const [campos, definirCampos] = useState(camposIniciais);
     const [mensagemSucesso, definirMensagemSucesso] = useState<string | null>(null);
     const [mensagemErro, definirMensagemErro] = useState<string | null>(null);
@@ -40,9 +42,12 @@ export function PaginaMinhaConta() {
         definirEstaEnviando(true);
         try {
             // quem confere a senha atual é o servidor: a tela não tem como saber se está certa
-            await trocarPropriaSenha(campos.senhaAtual, campos.novaSenha);
+            const resposta = await trocarPropriaSenha(campos.senhaAtual, campos.novaSenha);
+            // a troca derrubou todas as sessões da conta, inclusive esta: o token novo mantém a pessoa aqui.
+            // sem token na resposta, nada é gravado — o 401 da próxima chamada leva ao login, que é o certo
+            if (resposta.token) entrar(resposta.token);
             definirCampos(camposIniciais);
-            definirMensagemSucesso("senha alterada — ela já vale no próximo acesso");
+            definirMensagemSucesso("senha alterada — as outras sessões abertas com a senha antiga foram encerradas");
         } catch (erroRequisicao) {
             definirMensagemErro(formatarMensagemErro(erroRequisicao, "não foi possível alterar a senha."));
         } finally {
