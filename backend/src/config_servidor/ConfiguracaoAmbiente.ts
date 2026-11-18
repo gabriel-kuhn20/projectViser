@@ -21,3 +21,16 @@ export function obterUrlFrontend(): string {
     // sem remover a barra final, o link sairia com barra dupla
     return urlFrontend.replace(/\/+$/, "");
 }
+
+// em desenvolvimento qualquer origem passa; em produção só a origem do frontend configurada
+export function obterOrigemPermitida(): string | boolean {
+    if (process.env.NODE_ENV !== "production") return true;
+
+    const origemFrontend = process.env.ORIGEM_FRONTEND;
+
+    if (!origemFrontend) {
+        throw new Error("variável de ambiente ORIGEM_FRONTEND não definida (veja backend/.env.example)");
+    }
+
+    return origemFrontend.replace(/\/+$/, "");
+}

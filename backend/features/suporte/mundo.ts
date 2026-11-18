@@ -24,6 +24,7 @@ const urlBanco = new URL(
 urlBanco.searchParams.set("schema", SCHEMA_TESTE);
 process.env.DATABASE_URL = urlBanco.toString();
 process.env.JWT_SEGREDO ??= "segredo-so-dos-testes";
+process.env.NODE_ENV = "test";
 
 // teste nunca manda e-mail de verdade: sem chave, o EnviadorEmail cai no console.
 // O .env carregado acima pode ter a chave do Resend, e aí cada execução gastaria cota
