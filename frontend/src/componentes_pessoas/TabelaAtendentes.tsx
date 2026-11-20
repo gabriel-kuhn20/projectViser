@@ -1,4 +1,5 @@
 import { type AtendenteApi } from "../servicos_api/ApiAtendente";
+import { IconeLixeira } from "../componentes_layout/IconesMenu";
 
 type PropriedadesTabelaAtendentes = {
     atendentes: AtendenteApi[];
@@ -16,6 +17,8 @@ function formatarData(data: string) {
 }
 
 // contas da equipe que acessam o sistema
+// Lista e não `<table>` de propósito: cada linha quebra sozinha (dados em cima, botões embaixo)
+// quando falta espaço, então todos os botões aparecem em qualquer largura, sem rolagem lateral
 export function TabelaAtendentes({
     atendentes,
     carregando,
@@ -38,56 +41,60 @@ export function TabelaAtendentes({
     }
 
     return (
-        <div className="cartao tabela-wrapper">
-            <table className="tabela">
-                <thead>
-                    <tr>
-                        <th>Conta</th>
-                        <th>Papel</th>
-                        <th className="text-right">Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {atendentes.map((atendente) => (
-                        // conta desativada fica na lista, apagada, para o admin poder reativar
-                        <tr key={atendente.id} className={atendente.ativo ? "" : "opacity-60"}>
-                            <td>
-                                <span className="block font-semibold">{atendente.pessoa.nome}</span>
-                                <span className="mt-0.5 block text-[12px] text-black/55">{atendente.email}</span>
-                                <span className="block text-[12px] text-black/40">desde {formatarData(atendente.criadoEm)}</span>
-                            </td>
-                            <td>
-                                <div className="flex flex-wrap gap-2">
-                                    <span className={`etiqueta ${atendente.papelAcesso === "admin" ? "etiqueta-escura" : ""}`}>
-                                        {atendente.papelAcesso === "admin" ? "Administrador" : "Atendente"}
-                                    </span>
-                                    {!atendente.ativo && <span className="etiqueta etiqueta-alerta">Desativada</span>}
-                                </div>
-                            </td>
-                            <td>
-                                <div className="flex justify-end gap-2">
-                                    <button type="button" className="botao-link" onClick={() => aoEditar(atendente)}>
-                                        Editar
-                                    </button>
-{/* UC14 · Enviar à pessoa o link para criar uma senha nova (RF22) */}
-                                    {/* escondido em conta desativada: o servidor recusa, porque o link devolveria o acesso tirado */}
-                                    {atendente.ativo && (
-                                        <button type="button" className="botao-link" onClick={() => aoEnviarLinkSenha(atendente)}>
-                                            Enviar link de senha
-                                        </button>
-                                    )}
-                                    <button type="button" className="botao-link" onClick={() => aoAlternarSituacao(atendente)}>
-                                        {atendente.ativo ? "Desativar" : "Reativar"}
-                                    </button>
-                                    <button type="button" className="botao-perigo" onClick={() => aoExcluir(atendente)}>
-                                        Excluir
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
+        <ul className="cartao divide-y divide-black/10 p-0">
+            {atendentes.map((atendente) => {
+                const nomePapel = atendente.papelAcesso === "admin" ? "Administrador" : "Atendente";
+
+                return (
+                    // conta desativada fica na lista, apagada, para o admin poder reativar
+                    <li
+                        key={atendente.id}
+                        className={`flex flex-wrap items-center justify-between gap-x-6 gap-y-3 px-5 py-4 ${atendente.ativo ? "" : "opacity-60"}`}
+                    >
+                        <div className="min-w-0 flex-1 basis-[220px]">
+                            <div className="flex flex-wrap items-center gap-2">
+                                <span className="font-semibold">{atendente.pessoa.nome}</span>
+                                <span className={`etiqueta ${atendente.papelAcesso === "admin" ? "etiqueta-escura" : ""}`}>
+                                    {nomePapel}
+                                </span>
+                                {!atendente.ativo && <span className="etiqueta etiqueta-alerta">Desativada</span>}
+                            </div>
+                            <span className="mt-0.5 block break-words text-[12px] text-black/55">{atendente.email}</span>
+                            <span className="block text-[12px] text-black/40">desde {formatarData(atendente.criadoEm)}</span>
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-2">
+                            <button type="button" className="botao-link" onClick={() => aoEditar(atendente)}>
+                                Editar
+                            </button>
+                            {/* UC14 · Enviar à pessoa o link para criar uma senha nova (RF22) */}
+                            {/* escondido em conta desativada: o servidor recusa, porque o link devolveria o acesso tirado */}
+                            {atendente.ativo && (
+                                <button
+                                    type="button"
+                                    className="botao-link"
+                                    title="Enviar à pessoa um link para ela criar uma senha nova"
+                                    onClick={() => aoEnviarLinkSenha(atendente)}
+                                >
+                                    Enviar link
+                                </button>
+                            )}
+                            <button type="button" className="botao-link" onClick={() => aoAlternarSituacao(atendente)}>
+                                {atendente.ativo ? "Desativar" : "Reativar"}
+                            </button>
+                            <button
+                                type="button"
+                                className="botao-icone-perigo"
+                                title="Excluir conta"
+                                aria-label={`Excluir a conta de ${atendente.pessoa.nome}`}
+                                onClick={() => aoExcluir(atendente)}
+                            >
+                                <IconeLixeira className="h-[16px] w-[16px]" />
+                            </button>
+                        </div>
+                    </li>
+                );
+            })}
+        </ul>
     );
 }

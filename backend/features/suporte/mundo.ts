@@ -24,6 +24,7 @@ const urlBanco = new URL(
 urlBanco.searchParams.set("schema", SCHEMA_TESTE);
 process.env.DATABASE_URL = urlBanco.toString();
 process.env.JWT_SEGREDO ??= "segredo-so-dos-testes";
+process.env.NODE_ENV = "test";
 
 // teste nunca manda e-mail de verdade: sem chave, o EnviadorEmail cai no console.
 // O .env carregado acima pode ter a chave do Resend, e aí cada execução gastaria cota
@@ -73,7 +74,7 @@ BeforeAll(async function () {
 Before(async function () {
   const tabelas = [
     "interacao", "em_atendimento", "lembrete", "marco_acompanhamento", "entrega",
-    "cliente_tag", "cliente", "tag", "tipo_marco", "token_recuperacao_senha", "usuario", "pessoa",
+    "cliente_tag", "cliente", "tag", "tipo_marco", "token_recuperacao_senha", "token_revogado", "usuario", "pessoa",
   ].map((tabela) => `"${SCHEMA_TESTE}"."${tabela}"`);
   await prisma.$executeRawUnsafe(`TRUNCATE TABLE ${tabelas.join(", ")} RESTART IDENTITY CASCADE`);
 
@@ -130,6 +131,7 @@ export async function contarLinksRecuperacaoDe(email: string) {
 export async function contarLinksRecuperacao() {
   return prisma.tokenRecuperacaoSenha.count();
 }
+
 // UC03 A1 e UC04 A1 · a rotina dos marcos não pode duplicar lembrete
 // A entrega entra direto no banco, sem passar pela API: o cadastro pela API já roda a rotina
 // na hora e criaria o marco antes de o cenário começar. Assim o marco ainda não existe quando
@@ -144,11 +146,30 @@ export async function registrarEntregaSemRotina(nomeCliente: string, diasAtras: 
   });
 }
 
+// UC01 · Entrar no sistema (RF01): encerrar a sessão
+// um token encerrado cujo vencimento já passou, como os que se acumulam no banco com o tempo
+export async function criarTokenEncerradoVencido() {
+  await prisma.tokenRevogado.create({
+    data: { jti: randomBytes(16).toString("hex"), expiraEm: new Date(Date.now() - 60 * 1000) },
+  });
+}
+
+export async function contarTokensEncerrados() {
+  return prisma.tokenRevogado.count();
+}
+
+// importa a rotina só agora, como a API: o Prisma dela precisa nascer depois do DATABASE_URL de teste
+export async function executarLimpezaDeTokens() {
+  const { removerTokensVencidos } = await import("../../src/rotina_limpeza/LimpezaTokens");
+  return removerTokensVencidos();
+}
+
 // várias execuções juntas, como o cron da hora cheia e um cadastro chegando no mesmo instante
 export async function rodarRotinaMarcos(vezes: number) {
   const { executarVerificacaoMarcos } = await import("../../src/rotina_marcos/AgendadorMarcos");
   await Promise.all(Array.from({ length: vezes }, () => executarVerificacaoMarcos()));
 }
+
 AfterAll(async function () {
   await new Promise((resolve) => servidor.close(resolve));
   await prisma.$executeRawUnsafe(`DROP SCHEMA IF EXISTS "${SCHEMA_TESTE}" CASCADE`);

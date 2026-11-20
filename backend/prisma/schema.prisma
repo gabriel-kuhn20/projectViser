@@ -27,6 +27,9 @@ model Usuario {
   papelAcesso         PapelAcesso     @default(atendente)
   // desativar tira o acesso sem apagar a conta — o histórico de interações continua com o nome de quem atendeu
   ativo               Boolean         @default(true)
+  // todo token emitido ANTES desta data deixa de valer — preenchido ao trocar ou redefinir a senha,
+  // para quem copiou um token antigo não continuar dentro até as 8h do vencimento
+  sessoesValidasDesde DateTime?
   criadoEm            DateTime        @default(now())
   clientesResponsavel Cliente[]       @relation("ClienteResponsavel")
   emAtendimentos      EmAtendimento[]
@@ -53,6 +56,20 @@ model TokenRecuperacaoSenha {
   // a redefinição invalida os tokens pendentes da mesma conta, e essa busca é por usuarioId
   @@index([usuarioId])
   @@map("token_recuperacao_senha")
+}
+
+// UC01 · Entrar no sistema (RF01): encerrar a sessão
+// lista de tokens que o logout derrubou. O JWT é assinado e não depende do banco, então a única
+// forma de ele deixar de valer antes das 8h é o servidor lembrar que aquele `jti` foi encerrado
+model TokenRevogado {
+  // identificador único do token (claim `jti` do JWT)
+  jti      String   @id
+  // quando o token venceria sozinho — depois disso a linha não serve mais e a rotina de limpeza apaga
+  expiraEm DateTime
+
+  // a limpeza diária busca por vencimento
+  @@index([expiraEm])
+  @@map("token_revogado")
 }
 
 model Cliente {
