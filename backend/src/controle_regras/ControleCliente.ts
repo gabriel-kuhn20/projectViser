@@ -121,7 +121,8 @@ async function listarClientes(req: Request, res: Response) {
 }
 
 // Buscar cliente por id (com as entregas, da mais recente para a mais antiga); os marcos já gerados
-// vão junto para a tela saber qual contato ainda pode ser antecipado
+// vão junto para a tela saber qual contato ainda pode ser antecipado e se a compra já tem contato
+// (a atendente só exclui compra sem contato — RNF06)
 async function buscarClientePorId(req: Request, res: Response) {
   const { id: clienteId } = validadorParametroId.parse({ id: req.params.clienteId });
 
@@ -129,7 +130,14 @@ async function buscarClientePorId(req: Request, res: Response) {
     where: { id: clienteId },
     include: {
       ...dadosIncluidosResposta,
-      entregas: { orderBy: { dataEntrega: "desc" }, include: { marcos: { select: { tipoMarcoId: true } } } },
+      entregas: {
+        orderBy: { dataEntrega: "desc" },
+        include: {
+          marcos: {
+            select: { tipoMarcoId: true, lembretes: { select: { _count: { select: { interacoes: true } } } } },
+          },
+        },
+      },
     },
   });
   if (!clienteEncontrado) {
