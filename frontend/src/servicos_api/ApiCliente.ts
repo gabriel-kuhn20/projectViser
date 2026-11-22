@@ -21,10 +21,8 @@ export type ClienteApi = {
   pessoaId: number;
   contato: string;
   endereco?: string | null;
-  responsavelId?: number | null;
   criadoEm: string;
   pessoa: PessoaApi;
-  responsavel?: { id: number; pessoa: { nome: string } } | null;
   tags?: VinculoTagApi[];
   // só a busca por id devolve as entregas (tela do cliente, RF18)
   entregas?: EntregaApi[];
@@ -34,7 +32,6 @@ export type DadosCadastroCliente = {
   nome: string;
   contato: string;
   endereco?: string;
-  responsavelId?: number;
   dataEntrega: string;
   produto: string;
 };
@@ -43,8 +40,6 @@ export type DadosEdicaoCliente = {
   nome?: string;
   contato?: string;
   endereco?: string;
-  // null tira o responsável; ausente mantém o atual
-  responsavelId?: number | null;
 };
 
 export async function cadastrarCliente(dadosCliente: DadosCadastroCliente): Promise<ClienteApi> {

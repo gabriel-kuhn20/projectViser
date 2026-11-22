@@ -31,7 +31,6 @@ model Usuario {
   // para quem copiou um token antigo não continuar dentro até as 8h do vencimento
   sessoesValidasDesde DateTime?
   criadoEm            DateTime        @default(now())
-  clientesResponsavel Cliente[]       @relation("ClienteResponsavel")
   emAtendimentos      EmAtendimento[]
   interacoes          Interacao[]
   pessoa              Pessoa          @relation(fields: [pessoaId], references: [id])
@@ -77,10 +76,8 @@ model Cliente {
   pessoaId      Int
   contato       String
   endereco      String?
-  responsavelId Int?
   criadoEm      DateTime     @default(now())
   pessoa        Pessoa       @relation(fields: [pessoaId], references: [id])
-  responsavel   Usuario?     @relation("ClienteResponsavel", fields: [responsavelId], references: [id])
   tags          ClienteTag[]
   entregas      Entrega[]
 

@@ -75,7 +75,7 @@ export function ListaLembretes({
       <ul className="flex flex-col gap-4">
         {lembretesPendentes.map((lembretePendente) => {
           const clienteLembrete = lembretePendente.marco.entrega.cliente;
-          const atendenteResponsavel = lembretePendente.emAtendimentos?.usuario.pessoa.nome;
+          const atendenteAssumiu = lembretePendente.emAtendimentos?.usuario.pessoa.nome;
           const acaoEmAndamento = lembreteEmAcao === lembretePendente.id;
           // mesma regra do backend: só quem assumiu ou um admin libera o atendimento
           const assumidoPeloUsuario = lembretePendente.emAtendimentos?.usuario.id === usuarioId;
@@ -96,8 +96,8 @@ export function ListaLembretes({
                 <div>
                   <div className="flex flex-wrap items-center gap-3">
                     <h3 className="text-[18px] font-bold text-black">{clienteLembrete.pessoa.nome}</h3>
-                    {atendenteResponsavel ? (
-                        <span className="etiqueta etiqueta-escura">Em atendimento com {atendenteResponsavel}</span>
+                    {atendenteAssumiu ? (
+                        <span className="etiqueta etiqueta-escura">Em atendimento com {atendenteAssumiu}</span>
                     ) : (
                         <span className="etiqueta">Aguardando contato</span>
                     )}
@@ -133,7 +133,7 @@ export function ListaLembretes({
                 </dl>
 
                 <div className="flex flex-wrap gap-2 lg:justify-end">
-                  {atendenteResponsavel && podeLiberar && (
+                  {atendenteAssumiu && podeLiberar && (
                       <button
                           type="button"
                           className="botao-link"
@@ -143,7 +143,7 @@ export function ListaLembretes({
                         Liberar
                       </button>
                   )}
-                  {!atendenteResponsavel && (
+                  {!atendenteAssumiu && (
                       <button
                           type="button"
                           className="botao-link"

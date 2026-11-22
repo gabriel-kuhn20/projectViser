@@ -6,8 +6,6 @@ import {
   editarCliente,
   type ClienteApi,
 } from "../servicos_api/ApiCliente";
-import { listarAtendentes, type AtendenteApi } from "../servicos_api/ApiAtendente";
-import { usarAutenticacao } from "../hooks_dados/useAutenticacao";
 import { formatarMensagemErro } from "../utilitarios_formatacao/FormatarErro";
 import { aplicarMascaraTelefone, formatarTelefone } from "../utilitarios_formatacao/FormatarTelefone";
 
@@ -17,47 +15,20 @@ type PropriedadesFormularioCliente = {
   aoCancelarEdicao: () => void;
 };
 
-const camposIniciais = { nome: "", contato: "", endereco: "", responsavelId: "", dataEntrega: "", produto: "" };
-
-// o select trabalha com texto; "" é "sem responsável"
-function converterResponsavelId(valorSelecionado: string) {
-  if (valorSelecionado === "") return null;
-  return Number(valorSelecionado);
-}
+const camposIniciais = { nome: "", contato: "", endereco: "", dataEntrega: "", produto: "" };
 
 // UC02 · Manter cliente (RF02)
 export function FormularioCliente({ clienteEmEdicao, aoSalvar, aoCancelarEdicao }: PropriedadesFormularioCliente) {
-  const { usuarioId } = usarAutenticacao();
   const [campos, definirCampos] = useState(camposIniciais);
-  const [atendentes, definirAtendentes] = useState<AtendenteApi[]>([]);
   const [mensagemErro, definirMensagemErro] = useState<string | null>(null);
   const [estaEnviando, definirEstaEnviando] = useState(false);
 
   const estaEditando = clienteEmEdicao !== null;
-  // conta desativada não recebe cliente novo, mas a responsável atual continua na lista
-  // para a edição não trocar o responsável sem ninguém pedir
-  const atendentesSelecionaveis = atendentes.filter(
-      (atendente) => atendente.ativo || atendente.id === clienteEmEdicao?.responsavelId
-  );
-  // no cadastro, quem está logado costuma ser quem fez a venda — já vem selecionado
-  const responsavelPadrao = usuarioId ? String(usuarioId) : "";
-
-  useEffect(() => {
-    async function carregarAtendentes() {
-      try {
-        definirAtendentes(await listarAtendentes());
-      } catch {
-        // sem a lista o cliente ainda pode ser salvo sem responsável; o erro não trava o formulário
-        definirAtendentes([]);
-      }
-    }
-    carregarAtendentes();
-  }, []);
 
   useEffect(() => {
     definirMensagemErro(null);
     if (!clienteEmEdicao) {
-      definirCampos({ ...camposIniciais, responsavelId: responsavelPadrao });
+      definirCampos(camposIniciais);
       return;
     }
     definirCampos({
@@ -66,9 +37,8 @@ export function FormularioCliente({ clienteEmEdicao, aoSalvar, aoCancelarEdicao 
       // contato antigo salvo só com números já aparece com a máscara ao editar
       contato: formatarTelefone(clienteEmEdicao.contato),
       endereco: clienteEmEdicao.endereco ?? "",
-      responsavelId: clienteEmEdicao.responsavelId ? String(clienteEmEdicao.responsavelId) : "",
     });
-  }, [clienteEmEdicao, responsavelPadrao]);
+  }, [clienteEmEdicao]);
 
   function definirCampo(campo: keyof typeof camposIniciais) {
     return (valor: string) => definirCampos((atual) => ({ ...atual, [campo]: valor }));
@@ -79,14 +49,12 @@ export function FormularioCliente({ clienteEmEdicao, aoSalvar, aoCancelarEdicao 
     definirMensagemErro(null);
     definirEstaEnviando(true);
 
-    const responsavelId = converterResponsavelId(campos.responsavelId);
     try {
       if (clienteEmEdicao) {
         const clienteAtualizado = await editarCliente(clienteEmEdicao.id, {
           nome: campos.nome,
           contato: campos.contato,
           endereco: campos.endereco || undefined,
-          responsavelId,
         });
         aoSalvar(clienteAtualizado);
         return;
@@ -96,12 +64,11 @@ export function FormularioCliente({ clienteEmEdicao, aoSalvar, aoCancelarEdicao 
         nome: campos.nome,
         contato: campos.contato,
         endereco: campos.endereco || undefined,
-        responsavelId: responsavelId ?? undefined,
         dataEntrega: campos.dataEntrega,
         produto: campos.produto,
       });
       aoSalvar(novoCliente);
-      definirCampos({ ...camposIniciais, responsavelId: responsavelPadrao });
+      definirCampos(camposIniciais);
     } catch (erro) {
       // formatarMensagemErro mostra os detalhes do 400 (ex: data futura) em vez do genérico "dados inválidos"
       definirMensagemErro(formatarMensagemErro(erro, "não foi possível salvar o cliente. tente novamente."));
@@ -136,24 +103,8 @@ export function FormularioCliente({ clienteEmEdicao, aoSalvar, aoCancelarEdicao 
           />
         </div>
 
-        <div className="formulario-campo-linha">
-          <CampoTexto rotulo="Endereço" valor={campos.endereco} aoAlterar={definirCampo("endereco")} />
-          <label className="campo-texto-rotulo">
-            Atendente responsável
-            <select
-                value={campos.responsavelId}
-                onChange={(evento) => definirCampo("responsavelId")(evento.target.value)}
-                className="campo-texto-input"
-            >
-              <option value="">Sem responsável</option>
-              {atendentesSelecionaveis.map((atendente) => (
-                  <option key={atendente.id} value={atendente.id}>
-                    {atendente.ativo ? atendente.pessoa.nome : `${atendente.pessoa.nome} (desativada)`}
-                  </option>
-              ))}
-            </select>
-          </label>
-        </div>
+        <CampoTexto rotulo="Endereço" valor={campos.endereco} aoAlterar={definirCampo("endereco")} />
+
 
         {/* a primeira entrega vai junto com o cadastro; as próximas entram pela tela do cliente */}
         {!estaEditando && (

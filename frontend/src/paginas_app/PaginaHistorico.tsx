@@ -131,8 +131,6 @@ export function PaginaHistorico() {
                             <dd>{formatarTelefone(clienteSelecionado.contato)}</dd>
                             <dt className="text-black/55">Endereço</dt>
                             <dd>{clienteSelecionado.endereco || "—"}</dd>
-                            <dt className="text-black/55">Responsável</dt>
-                            <dd>{clienteSelecionado.responsavel?.pessoa.nome ?? "—"}</dd>
                         </dl>
 
                         <h3 className="secao-titulo mt-7 mb-4">Tags</h3>
