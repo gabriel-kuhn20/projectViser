@@ -14,6 +14,8 @@ export type EntregaApi = {
   id: number;
   dataEntrega: string;
   produto: string;
+  // marcos já gerados (só na busca do cliente por id): o que falta ainda pode ser antecipado
+  marcos?: { tipoMarcoId: number }[];
 };
 
 export type ClienteApi = {

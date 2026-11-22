@@ -1,7 +1,9 @@
 import { Request, Response } from "express";
+import { Prisma } from "@prisma/client";
 import { clientePrisma } from "../config_servidor/ClientePrisma";
 import { ErroHttp } from "../middlewares_seguranca/ErroHttp";
-import { validadorConclusaoLembrete } from "../validadores_entrada/ValidadorLembrete";
+import { validadorAntecipacaoLembrete, validadorConclusaoLembrete } from "../validadores_entrada/ValidadorLembrete";
+import { calcularDataAlvoMarco } from "../utilitarios_datas/CalculoMarcos";
 import { validadorParametroId } from "../validadores_entrada/ValidadorParametros";
 
 // Buscar lembrete que ainda aceita atendimento
@@ -171,8 +173,54 @@ async function desmarcarEmAtendimento(req: Request, res: Response) {
   return res.status(204).send();
 }
 
+// UC07 · Concluir lembrete de contato (RF07) — contato antecipado: o cliente ligou ou passou na loja
+// antes do marco vencer. O marco nasce agora com a data real e já com a conversa; quando a data chegar,
+// o AgendadorMarcos vê que ele existe e não gera outro (UC04 A1)
+async function anteciparLembrete(req: Request, res: Response) {
+  const { entregaId, tipoMarcoId, conteudo, respostaCliente, concluir } = validadorAntecipacaoLembrete.parse(req.body);
+
+  const entregaEncontrada = await clientePrisma.entrega.findUnique({ where: { id: entregaId } });
+  if (!entregaEncontrada) {
+    throw new ErroHttp(404, "entrega não encontrada");
+  }
+  const tipoMarcoEncontrado = await clientePrisma.tipoMarco.findUnique({ where: { id: tipoMarcoId } });
+  if (!tipoMarcoEncontrado || !tipoMarcoEncontrado.ativo) {
+    throw new ErroHttp(404, "marco não encontrado ou desativado");
+  }
+
+  const usuarioId = req.usuarioLogado!.usuarioId;
+  const dataAlvo = calcularDataAlvoMarco(entregaEncontrada.dataEntrega, tipoMarcoEncontrado.diasAposEntrega);
+
+  try {
+    // create aninhado: marco, lembrete e interação entram juntos ou nenhum entra
+    const marcoAntecipado = await clientePrisma.marcoAcompanhamento.create({
+      data: {
+        entregaId,
+        tipoMarcoId,
+        dataAlvo,
+        lembretes: {
+          create: {
+            status: concluir ? "concluido" : "pendente",
+            concluidoEm: concluir ? new Date() : null,
+            interacoes: { create: { usuarioId, conteudo, respostaCliente } },
+          },
+        },
+      },
+      include: { lembretes: true },
+    });
+    return res.status(201).json(marcoAntecipado);
+  } catch (erroCriacao) {
+    // o cron (ou outra atendente) gerou esse marco entre a tela abrir e o envio: o @@unique barra
+    if (erroCriacao instanceof Prisma.PrismaClientKnownRequestError && erroCriacao.code === "P2002") {
+      throw new ErroHttp(409, "esse marco já tem lembrete; registre o contato pela tela de lembretes");
+    }
+    throw erroCriacao;
+  }
+}
+
 export const controleLembrete = {
   listarPorMarco,
+  anteciparLembrete,
   concluirLembrete,
   reabrirLembrete,
   marcarEmAtendimento,
