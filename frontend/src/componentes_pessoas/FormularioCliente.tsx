@@ -6,7 +6,8 @@ import {
   editarCliente,
   type ClienteApi,
 } from "../servicos_api/ApiCliente";
-import { SelecaoMarcosEntrega } from "../componentes_entregas/SelecaoMarcosEntrega";
+import { calcularTiposMarcoIgnorados, SelecaoMarcosEntrega } from "../componentes_entregas/SelecaoMarcosEntrega";
+import { usarTiposMarcoAtivos } from "../hooks_dados/useTiposMarcoAtivos";
 import { formatarMensagemErro } from "../utilitarios_formatacao/FormatarErro";
 import { aplicarMascaraTelefone, formatarTelefone } from "../utilitarios_formatacao/FormatarTelefone";
 
@@ -21,7 +22,8 @@ const camposIniciais = { nome: "", contato: "", endereco: "", dataEntrega: "", p
 // UC02 · Manter cliente (RF02)
 export function FormularioCliente({ clienteEmEdicao, aoSalvar, aoCancelarEdicao }: PropriedadesFormularioCliente) {
   const [campos, definirCampos] = useState(camposIniciais);
-  const [tiposMarcoIgnorados, definirTiposMarcoIgnorados] = useState<number[]>([]);
+  const tiposMarcoAtivos = usarTiposMarcoAtivos();
+  const [tiposMarcoMarcados, definirTiposMarcoMarcados] = useState<number[]>([]);
   const [mensagemErro, definirMensagemErro] = useState<string | null>(null);
   const [estaEnviando, definirEstaEnviando] = useState(false);
 
@@ -49,6 +51,12 @@ export function FormularioCliente({ clienteEmEdicao, aoSalvar, aoCancelarEdicao 
   async function enviarFormulario(evento: React.FormEvent) {
     evento.preventDefault();
     definirMensagemErro(null);
+    // a escolha de lembretes só existe no cadastro: a edição não mexe nas entregas
+    // em branco de propósito: a atendente precisa escolher; sem nenhum, a compra não teria acompanhamento
+    if (!clienteEmEdicao && tiposMarcoAtivos.length > 0 && tiposMarcoMarcados.length === 0) {
+      definirMensagemErro("marque pelo menos um lembrete para esta compra.");
+      return;
+    }
     definirEstaEnviando(true);
 
     try {
@@ -68,11 +76,11 @@ export function FormularioCliente({ clienteEmEdicao, aoSalvar, aoCancelarEdicao 
         endereco: campos.endereco || undefined,
         dataEntrega: campos.dataEntrega,
         produto: campos.produto,
-        tiposMarcoIgnorados,
+        tiposMarcoIgnorados: calcularTiposMarcoIgnorados(tiposMarcoAtivos, tiposMarcoMarcados),
       });
       aoSalvar(novoCliente);
       definirCampos(camposIniciais);
-      definirTiposMarcoIgnorados([]);
+      definirTiposMarcoMarcados([]);
     } catch (erro) {
       // formatarMensagemErro mostra os detalhes do 400 (ex: data futura) em vez do genérico "dados inválidos"
       definirMensagemErro(formatarMensagemErro(erro, "não foi possível salvar o cliente. tente novamente."));
@@ -124,7 +132,11 @@ export function FormularioCliente({ clienteEmEdicao, aoSalvar, aoCancelarEdicao 
             </div>
         )}
         {!estaEditando && (
-            <SelecaoMarcosEntrega tiposMarcoIgnorados={tiposMarcoIgnorados} aoAlterar={definirTiposMarcoIgnorados} />
+            <SelecaoMarcosEntrega
+                tiposMarcoAtivos={tiposMarcoAtivos}
+                tiposMarcoMarcados={tiposMarcoMarcados}
+                aoAlterar={definirTiposMarcoMarcados}
+            />
         )}
 
         <div className="formulario-acoes">
