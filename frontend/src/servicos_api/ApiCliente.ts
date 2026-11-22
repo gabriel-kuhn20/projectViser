@@ -16,6 +16,8 @@ export type EntregaApi = {
   produto: string;
   // marcos já gerados (só na busca do cliente por id): o que falta ainda pode ser antecipado
   marcos?: { tipoMarcoId: number }[];
+  // marcos desmarcados no cadastro da compra: não geram lembrete nem podem ser antecipados
+  tiposMarcoIgnorados?: number[];
 };
 
 export type ClienteApi = {
@@ -36,6 +38,7 @@ export type DadosCadastroCliente = {
   endereco?: string;
   dataEntrega: string;
   produto: string;
+  tiposMarcoIgnorados?: number[];
 };
 
 export type DadosEdicaoCliente = {

@@ -19,7 +19,7 @@ const dadosIncluidosResposta = {
 
 // UC02 · Cadastrar cliente (RF02)
 async function cadastrarCliente(req: Request, res: Response) {
-  const { pessoaId, nome, dataEntrega, produto, ...dadosCliente } =
+  const { pessoaId, nome, dataEntrega, produto, tiposMarcoIgnorados, ...dadosCliente } =
       validadorCadastroCliente.parse(req.body);
 
   if (pessoaId) {
@@ -41,7 +41,7 @@ async function cadastrarCliente(req: Request, res: Response) {
     data: {
       ...dadosCliente,
       pessoa: pessoaId ? { connect: { id: pessoaId } } : { create: { nome: nome as string } },
-      entregas: { create: { dataEntrega, produto } },
+      entregas: { create: { dataEntrega, produto, tiposMarcoIgnorados } },
     },
     include: dadosIncluidosResposta,
   });

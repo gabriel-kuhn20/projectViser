@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { validadorDataEntrega, validadorProduto } from "./ValidadorEntrega";
+import { validadorDataEntrega, validadorProduto, validadorTiposMarcoIgnorados } from "./ValidadorEntrega";
 
 // o cliente pode ser criado vinculando uma pessoa que já existe (pessoaId)
 // ou criando a pessoa junto (nome) — exatamente um dos dois
@@ -14,6 +14,7 @@ export const validadorCadastroCliente = z
       dataEntrega: validadorDataEntrega,
       // RF02: a primeira entrega nasce junto com o cliente, já com o produto
       produto: validadorProduto,
+      tiposMarcoIgnorados: validadorTiposMarcoIgnorados,
     })
     .refine((dadosCliente) => (dadosCliente.pessoaId === undefined) !== (dadosCliente.nome === undefined), {
       message: "informe pessoaId (pessoa existente) ou nome (nova pessoa), não os dois",

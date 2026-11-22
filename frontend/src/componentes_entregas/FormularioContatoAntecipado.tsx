@@ -21,8 +21,11 @@ const camposIniciais = { conteudo: "", respostaCliente: "" };
 // já passou mas foi pulado por ter sido criado depois da entrega (verificarMarcoValeParaEntrega)
 export function encontrarProximoMarco(entrega: EntregaApi, tiposMarcoAtivos: TipoMarcoApi[]) {
   const marcosGerados = entrega.marcos ?? [];
+  const marcosIgnorados = entrega.tiposMarcoIgnorados ?? [];
   return tiposMarcoAtivos
       .filter((tipoMarco) => !marcosGerados.some((marco) => marco.tipoMarcoId === tipoMarco.id))
+      // marco desmarcado no cadastro da compra não vira contato
+      .filter((tipoMarco) => !marcosIgnorados.includes(tipoMarco.id))
       .sort((marcoA, marcoB) => marcoA.diasAposEntrega - marcoB.diasAposEntrega)[0];
 }
 
