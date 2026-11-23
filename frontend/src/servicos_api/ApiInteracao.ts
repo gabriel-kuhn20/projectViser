@@ -12,7 +12,11 @@ export type InteracaoApi = {
   // preenchido quando o texto foi corrigido depois do registro
   editadoEm: string | null;
   usuario: { id: number; pessoa: { nome: string } };
-  lembrete: { id: number; status: StatusLembrete; marco: { tipoMarco: { nome: string } } };
+  lembrete: {
+    id: number;
+    status: StatusLembrete;
+    marco: { tipoMarco: { nome: string }; entrega: { produto: string } };
+  };
 };
 
 export type DadosEdicaoInteracao = {

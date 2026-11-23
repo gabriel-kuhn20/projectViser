@@ -7,6 +7,8 @@ import { CampoBusca } from "../componentes_compartilhados/CampoBusca";
 import { correspondeBusca } from "../utilitarios_formatacao/BuscarTexto";
 import { formatarDataSemHora } from "../utilitarios_formatacao/FormatarData";
 import { formatarMensagemErro } from "../utilitarios_formatacao/FormatarErro";
+import { usarTiposMarcoAtivos } from "../hooks_dados/useTiposMarcoAtivos";
+import { calcularTiposMarcoIgnorados, SelecaoMarcosEntrega } from "./SelecaoMarcosEntrega";
 
 type PropriedadesListaEntregas = {
   entregasCliente: EntregaApi[];
@@ -32,6 +34,8 @@ export function ListaEntregas({ entregasCliente, aoAlterar }: PropriedadesListaE
   const { papelAcesso } = usarAutenticacao();
   const [entregaEmEdicaoId, definirEntregaEmEdicaoId] = useState<number | null>(null);
   const [camposEdicao, definirCamposEdicao] = useState(camposEdicaoIniciais);
+  const tiposMarcoAtivos = usarTiposMarcoAtivos();
+  const [tiposMarcoMarcados, definirTiposMarcoMarcados] = useState<number[]>([]);
   const [mensagemErro, definirMensagemErro] = useState<string | null>(null);
   const [estaEnviando, definirEstaEnviando] = useState(false);
   const [termoBusca, definirTermoBusca] = useState("");
@@ -58,6 +62,19 @@ export function ListaEntregas({ entregasCliente, aoAlterar }: PropriedadesListaE
     definirEntregaEmEdicaoId(entrega.id);
     // o input date só aceita AAAA-MM-DD
     definirCamposEdicao({ produto: entrega.produto, dataEntrega: entrega.dataEntrega.slice(0, 10) });
+    // na edição as caixas já vêm como estão hoje: marcado é todo marco ativo que a compra não ignora
+    const marcosIgnorados = entrega.tiposMarcoIgnorados ?? [];
+    definirTiposMarcoMarcados(
+        tiposMarcoAtivos.map((tipoMarco) => tipoMarco.id).filter((tipoMarcoId) => !marcosIgnorados.includes(tipoMarcoId))
+    );
+  }
+
+  // RF02: as caixas só mostram marcos ativos; os inativos que a compra já ignorava continuam ignorados,
+  // senão reativar um marco depois faria ele valer para essa compra sem ninguém pedir
+  function montarTiposMarcoIgnorados(entrega: EntregaApi) {
+    const idsAtivos = tiposMarcoAtivos.map((tipoMarco) => tipoMarco.id);
+    const inativosIgnorados = (entrega.tiposMarcoIgnorados ?? []).filter((tipoMarcoId) => !idsAtivos.includes(tipoMarcoId));
+    return [...calcularTiposMarcoIgnorados(tiposMarcoAtivos, tiposMarcoMarcados), ...inativosIgnorados];
   }
 
   function cancelarEdicao() {
@@ -67,16 +84,25 @@ export function ListaEntregas({ entregasCliente, aoAlterar }: PropriedadesListaE
 
   async function salvarEdicao(eventoEnvio: React.FormEvent) {
     eventoEnvio.preventDefault();
-    if (entregaEmEdicaoId === null) return;
+    if (!entregaEmEdicao) return;
 
     definirMensagemErro(null);
+    // mesma regra do cadastro: sem nenhum marco, a compra ficaria sem acompanhamento
+    if (tiposMarcoAtivos.length > 0 && tiposMarcoMarcados.length === 0) {
+      definirMensagemErro("marque pelo menos um lembrete para esta compra.");
+      return;
+    }
     definirEstaEnviando(true);
     try {
-      await editarEntrega(entregaEmEdicaoId, camposEdicao);
+      await editarEntrega(entregaEmEdicao.id, {
+        ...camposEdicao,
+        // sem a lista de marcos carregada, não manda nada: a API mantém os marcos como estão
+        tiposMarcoIgnorados: tiposMarcoAtivos.length > 0 ? montarTiposMarcoIgnorados(entregaEmEdicao) : undefined,
+      });
       definirEntregaEmEdicaoId(null);
       aoAlterar(`entrega de ${camposEdicao.produto.trim()} atualizada.`);
     } catch (erroRequisicao) {
-      // 409: a data não muda depois que algum lembrete da compra teve atendimento
+      // 409: data ou marco desmarcado depois que o lembrete da compra teve atendimento
       definirMensagemErro(formatarMensagemErro(erroRequisicao, "não foi possível salvar a entrega. tente novamente."));
     } finally {
       definirEstaEnviando(false);
@@ -201,6 +227,13 @@ export function ListaEntregas({ entregasCliente, aoAlterar }: PropriedadesListaE
                         definirCamposEdicao((camposAtuais) => ({ ...camposAtuais, dataEntrega: valorDigitado }))
                     }
                     obrigatorio
+                />
+              </div>
+              <div className="mt-4 mb-5">
+                <SelecaoMarcosEntrega
+                    tiposMarcoAtivos={tiposMarcoAtivos}
+                    tiposMarcoMarcados={tiposMarcoMarcados}
+                    aoAlterar={definirTiposMarcoMarcados}
                 />
               </div>
               <div className="formulario-acoes">
