@@ -98,7 +98,10 @@ export function HistoricoInteracoes({ interacoesCliente, estaCarregando, aoAlter
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <span className="font-semibold text-black">{interacaoCliente.usuario.pessoa.nome}</span>
                     <span className="flex flex-wrap items-center gap-2 text-[13px] text-black/55">
-                      <span className="etiqueta">{interacaoCliente.lembrete.marco.tipoMarco.nome}</span>
+                      {/* produto junto do marco: cliente com mais de uma compra precisa saber de qual foi a conversa */}
+                      <span className="etiqueta">
+                        {interacaoCliente.lembrete.marco.entrega.produto} · {interacaoCliente.lembrete.marco.tipoMarco.nome}
+                      </span>
                       <time dateTime={interacaoCliente.criadoEm}>{formatarDataHora(interacaoCliente.criadoEm)}</time>
                       <MarcaEditado editadoEm={interacaoCliente.editadoEm} />
                     </span>

@@ -14,7 +14,12 @@ import { buscarLembretePendente } from "./ControleLembrete";
 const relacoesPublicasInteracao = {
   usuario: { select: { id: true, pessoa: { select: { nome: true } } } },
   lembrete: {
-    select: { id: true, status: true, marco: { select: { tipoMarco: { select: { nome: true } } } } },
+    // o produto vai junto para o histórico mostrar de qual compra foi a conversa
+    select: {
+      id: true,
+      status: true,
+      marco: { select: { tipoMarco: { select: { nome: true } }, entrega: { select: { produto: true } } } },
+    },
   },
 } satisfies Prisma.InteracaoInclude;
 

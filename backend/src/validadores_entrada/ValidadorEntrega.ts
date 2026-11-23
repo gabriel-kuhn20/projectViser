@@ -24,4 +24,6 @@ export const validadorCadastroEntrega = z.object({
 export const validadorEdicaoEntrega = z.object({
     dataEntrega: validadorDataEntrega,
     produto: validadorProduto.optional(),
+    // ausente = mantém os marcos como estão; a edição só manda a lista quando ela existe na tela
+    tiposMarcoIgnorados: z.array(z.number().int().positive()).optional(),
 });

@@ -12,6 +12,7 @@ export type DadosCadastroEntrega = {
 export type DadosEdicaoEntrega = {
   dataEntrega: string;
   produto: string;
+  tiposMarcoIgnorados?: number[];
 };
 
 // trocar a data recalcula os marcos; a API recusa (409) se algum lembrete da compra já teve atendimento
