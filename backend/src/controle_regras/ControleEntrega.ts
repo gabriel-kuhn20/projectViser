@@ -149,6 +149,13 @@ async function excluirEntrega(req: Request, res: Response) {
         throw new ErroHttp(404, "entrega não encontrada");
     }
 
+    // RNF06: excluir apaga o histórico de contatos da compra; a atendente só corrige cadastro errado
+    const totalContatos = await clientePrisma.interacao.count({ where: { lembrete: { marco: { entregaId } } } });
+    const ehAdmin = req.usuarioLogado!.papelAcesso === "admin";
+    if (totalContatos > 0 && !ehAdmin) {
+        throw new ErroHttp(403, "essa compra já tem contato registrado: só o administrador pode excluí-la");
+    }
+
     await clientePrisma.$transaction(async (transacaoBanco) => {
         await excluirMarcosEntregas(transacaoBanco, [entregaId]);
         await transacaoBanco.entrega.delete({ where: { id: entregaId } });

@@ -2,7 +2,8 @@ import { useState } from "react";
 import { BotaoPrimario } from "../componentes_compartilhados/BotaoPrimario";
 import { CampoTexto } from "../componentes_compartilhados/CampoTexto";
 import { cadastrarEntrega } from "../servicos_api/ApiEntrega";
-import { SelecaoMarcosEntrega } from "./SelecaoMarcosEntrega";
+import { calcularTiposMarcoIgnorados, SelecaoMarcosEntrega } from "./SelecaoMarcosEntrega";
+import { usarTiposMarcoAtivos } from "../hooks_dados/useTiposMarcoAtivos";
 import { formatarMensagemErro } from "../utilitarios_formatacao/FormatarErro";
 
 type PropriedadesFormularioEntrega = {
@@ -15,7 +16,8 @@ const camposIniciais = { produto: "", dataEntrega: "" };
 // UC02 · Manter cliente (RF02): cliente já cadastrado recebe nova entrega, que gera os próprios marcos
 export function FormularioEntrega({ clienteId, aoCadastrar }: PropriedadesFormularioEntrega) {
   const [camposFormulario, definirCamposFormulario] = useState(camposIniciais);
-  const [tiposMarcoIgnorados, definirTiposMarcoIgnorados] = useState<number[]>([]);
+  const tiposMarcoAtivos = usarTiposMarcoAtivos();
+  const [tiposMarcoMarcados, definirTiposMarcoMarcados] = useState<number[]>([]);
   const [mensagemErro, definirMensagemErro] = useState<string | null>(null);
   const [mensagemSucesso, definirMensagemSucesso] = useState<string | null>(null);
   const [estaEnviando, definirEstaEnviando] = useState(false);
@@ -28,13 +30,19 @@ export function FormularioEntrega({ clienteId, aoCadastrar }: PropriedadesFormul
     eventoEnvio.preventDefault();
     definirMensagemErro(null);
     definirMensagemSucesso(null);
+    // em branco de propósito: a atendente precisa escolher; sem nenhum, a compra não teria acompanhamento
+    if (tiposMarcoAtivos.length > 0 && tiposMarcoMarcados.length === 0) {
+      definirMensagemErro("marque pelo menos um lembrete para esta compra.");
+      return;
+    }
     definirEstaEnviando(true);
 
     try {
+      const tiposMarcoIgnorados = calcularTiposMarcoIgnorados(tiposMarcoAtivos, tiposMarcoMarcados);
       await cadastrarEntrega({ clienteId, ...camposFormulario, tiposMarcoIgnorados });
       definirMensagemSucesso(`entrega de ${camposFormulario.produto.trim()} registrada.`);
       definirCamposFormulario(camposIniciais);
-      definirTiposMarcoIgnorados([]);
+      definirTiposMarcoMarcados([]);
       aoCadastrar();
     } catch (erroRequisicao) {
       definirMensagemErro(formatarMensagemErro(erroRequisicao, "não foi possível registrar a entrega. tente novamente."));
@@ -61,8 +69,13 @@ export function FormularioEntrega({ clienteId, aoCadastrar }: PropriedadesFormul
           />
         </div>
 
-        <div className="mt-4">
-          <SelecaoMarcosEntrega tiposMarcoIgnorados={tiposMarcoIgnorados} aoAlterar={definirTiposMarcoIgnorados} />
+        {/* mb-5: o botão colado nas caixas parecia fazer parte da escolha */}
+        <div className="mt-4 mb-5">
+          <SelecaoMarcosEntrega
+              tiposMarcoAtivos={tiposMarcoAtivos}
+              tiposMarcoMarcados={tiposMarcoMarcados}
+              aoAlterar={definirTiposMarcoMarcados}
+          />
         </div>
 
         <div className="formulario-acoes">

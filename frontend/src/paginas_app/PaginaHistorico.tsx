@@ -171,7 +171,7 @@ export function PaginaHistorico() {
 
                     <section className="cartao min-w-0">
                         <h3 className="secao-titulo mb-4">Entregas</h3>
-                        <ListaEntregas entregasCliente={clienteSelecionado.entregas ?? []} />
+                        <ListaEntregas entregasCliente={clienteSelecionado.entregas ?? []} aoAlterar={aoAlterarHistorico} />
                         <FormularioEntrega clienteId={clienteSelecionado.id} aoCadastrar={carregarHistorico} />
                     </section>
                 </div>
