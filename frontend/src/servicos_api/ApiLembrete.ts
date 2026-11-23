@@ -71,6 +71,19 @@ export async function desmarcarEmAtendimento(lembreteId: number): Promise<void> 
   await clienteHttp.delete(`/lembretes/${lembreteId}/em-atendimento`);
 }
 
+export type DadosAntecipacaoLembrete = {
+  entregaId: number;
+  tipoMarcoId: number;
+  conteudo: string;
+  respostaCliente?: string;
+  concluir: boolean;
+};
+
+// UC07: contato feito antes do marco vencer (cliente ligou ou passou na loja)
+export async function anteciparLembrete(dadosAntecipacao: DadosAntecipacaoLembrete): Promise<void> {
+  await clienteHttp.post("/lembretes/antecipar", dadosAntecipacao);
+}
+
 // UC07 A3: só o admin desfaz uma conclusão feita por engano
 export async function reabrirLembrete(lembreteId: number): Promise<void> {
   await clienteHttp.patch(`/lembretes/${lembreteId}/reabrir`);

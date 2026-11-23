@@ -3,9 +3,11 @@ import { Link, useLocation, useParams } from "react-router-dom";
 import { HistoricoInteracoes } from "../componentes_interacoes/HistoricoInteracoes";
 import { ListaEntregas } from "../componentes_entregas/ListaEntregas";
 import { FormularioEntrega } from "../componentes_entregas/FormularioEntrega";
+import { encontrarProximoMarco, FormularioContatoAntecipado } from "../componentes_entregas/FormularioContatoAntecipado";
 import { SelecaoTagsCliente } from "../componentes_tags/SelecaoTagsCliente";
 import { FormularioCliente } from "../componentes_pessoas/FormularioCliente";
 import { buscarClientePorId, type ClienteApi } from "../servicos_api/ApiCliente";
+import { listarTiposMarco, type TipoMarcoApi } from "../servicos_api/ApiTipoMarco";
 import { listarHistoricoCliente, type InteracaoApi } from "../servicos_api/ApiInteracao";
 import { usarAutenticacao } from "../hooks_dados/useAutenticacao";
 import { formatarMensagemErro } from "../utilitarios_formatacao/FormatarErro";
@@ -28,6 +30,13 @@ export function PaginaHistorico() {
     const [mensagemErro, definirMensagemErro] = useState<string | null>(null);
     const [mensagemSucesso, definirMensagemSucesso] = useState<string | null>(estadoNavegacao?.mensagemSucesso ?? null);
     const [estaEditando, definirEstaEditando] = useState(false);
+    const [tiposMarcoAtivos, definirTiposMarcoAtivos] = useState<TipoMarcoApi[]>([]);
+    const [estaRegistrandoContato, definirEstaRegistrandoContato] = useState(false);
+
+    // o botão só aparece se alguma entrega ainda tem marco por vir
+    const possuiContatoAntecipavel = (clienteSelecionado?.entregas ?? []).some((entrega) =>
+        encontrarProximoMarco(entrega, tiposMarcoAtivos)
+    );
 
     const carregarHistorico = useCallback(async () => {
         // id da URL que não é número (/historico/abc) nem chega na API — senão a tela mostra o erro técnico do Zod
@@ -64,6 +73,19 @@ export function PaginaHistorico() {
         carregarHistorico();
     }, [carregarHistorico]);
 
+    useEffect(() => {
+        async function carregarTiposMarco() {
+            try {
+                const tiposMarco = await listarTiposMarco();
+                definirTiposMarcoAtivos(tiposMarco.filter((tipoMarco) => tipoMarco.ativo));
+            } catch {
+                // sem os marcos só some a coluna de próximo contato; o resto da tela segue funcionando
+                definirTiposMarcoAtivos([]);
+            }
+        }
+        carregarTiposMarco();
+    }, []);
+
     // a resposta das tags e da edição não traz as entregas: mantém as que já estão na tela
     function aoSalvarTags(clienteAtualizado: ClienteApi) {
         definirClienteSelecionado((clienteAtual) => ({ ...clienteAtualizado, entregas: clienteAtual?.entregas }));
@@ -73,6 +95,12 @@ export function PaginaHistorico() {
         aoSalvarTags(clienteAtualizado);
         definirEstaEditando(false);
         definirMensagemSucesso("alterações do cliente salvas.");
+    }
+
+    // o marco novo e a interação vêm do servidor: recarrega entregas e histórico
+    async function aoSalvarContatoAntecipado(mensagemContato: string) {
+        definirEstaRegistrandoContato(false);
+        await aoAlterarHistorico(mensagemContato);
     }
 
     // edição ou reabertura: recarrega para o status do lembrete e o "(editado)" virem do servidor
@@ -149,7 +177,30 @@ export function PaginaHistorico() {
                 </div>
             )}
 
-            <h3 className="secao-titulo mb-4">Histórico de contatos</h3>
+            {/* UC07: contato antes do marco vencer — fica junto do histórico, onde a atendente procura */}
+            <div className="mb-4 flex items-center justify-between gap-3">
+                <h3 className="secao-titulo">Histórico de contatos</h3>
+                {possuiContatoAntecipavel && !estaRegistrandoContato && (
+                    <button
+                        type="button"
+                        className="botao-link"
+                        onClick={() => {
+                            definirMensagemSucesso(null);
+                            definirEstaRegistrandoContato(true);
+                        }}
+                    >
+                        Registrar contato
+                    </button>
+                )}
+            </div>
+            {clienteSelecionado && estaRegistrandoContato && (
+                <FormularioContatoAntecipado
+                    entregasCliente={clienteSelecionado.entregas ?? []}
+                    tiposMarcoAtivos={tiposMarcoAtivos}
+                    aoSalvar={aoSalvarContatoAntecipado}
+                    aoCancelar={() => definirEstaRegistrandoContato(false)}
+                />
+            )}
             <HistoricoInteracoes
                 interacoesCliente={interacoesCliente}
                 estaCarregando={estaCarregando}

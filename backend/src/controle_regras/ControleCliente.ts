@@ -120,13 +120,17 @@ async function listarClientes(req: Request, res: Response) {
   });
 }
 
-// Buscar cliente por id (com as entregas, da mais recente para a mais antiga)
+// Buscar cliente por id (com as entregas, da mais recente para a mais antiga); os marcos já gerados
+// vão junto para a tela saber qual contato ainda pode ser antecipado
 async function buscarClientePorId(req: Request, res: Response) {
   const { id: clienteId } = validadorParametroId.parse({ id: req.params.clienteId });
 
   const clienteEncontrado = await clientePrisma.cliente.findUnique({
     where: { id: clienteId },
-    include: { ...dadosIncluidosResposta, entregas: { orderBy: { dataEntrega: "desc" } } },
+    include: {
+      ...dadosIncluidosResposta,
+      entregas: { orderBy: { dataEntrega: "desc" }, include: { marcos: { select: { tipoMarcoId: true } } } },
+    },
   });
   if (!clienteEncontrado) {
     throw new ErroHttp(404, "cliente não encontrado");
