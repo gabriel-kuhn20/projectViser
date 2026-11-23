@@ -16,6 +16,8 @@ type PropriedadesListaEntregas = {
 const camposEdicaoIniciais = { produto: "", dataEntrega: "" };
 // com poucas compras a busca só ocupa espaço no cartão
 const MINIMO_ENTREGAS_PARA_BUSCA = 4;
+// as mais recentes são as que importam no dia a dia; o resto fica atrás do "Ver todas"
+const LIMITE_ENTREGAS_RECOLHIDAS = 5;
 
 // a compra já teve conversa registrada em algum dos lembretes
 function verificarPossuiContato(entrega: EntregaApi) {
@@ -33,12 +35,18 @@ export function ListaEntregas({ entregasCliente, aoAlterar }: PropriedadesListaE
   const [mensagemErro, definirMensagemErro] = useState<string | null>(null);
   const [estaEnviando, definirEstaEnviando] = useState(false);
   const [termoBusca, definirTermoBusca] = useState("");
+  const [mostrarTodas, definirMostrarTodas] = useState(false);
   const entregaEmEdicao = entregasCliente.find((entregaCliente) => entregaCliente.id === entregaEmEdicaoId);
 
   // busca pelo produto ou pela data como aparece na tela ("22/11" acha 22/11/2026)
   const entregasFiltradas = entregasCliente.filter((entregaCliente) =>
       correspondeBusca(termoBusca, [entregaCliente.produto, formatarDataSemHora(entregaCliente.dataEntrega)])
   );
+  // buscando, mostra todos os resultados: o limite é só para a lista inteira não crescer sem fim
+  const estaBuscando = termoBusca.trim() !== "";
+  const deveRecolher = !estaBuscando && !mostrarTodas && entregasFiltradas.length > LIMITE_ENTREGAS_RECOLHIDAS;
+  const entregasVisiveis = deveRecolher ? entregasFiltradas.slice(0, LIMITE_ENTREGAS_RECOLHIDAS) : entregasFiltradas;
+  const possuiMaisQueLimite = !estaBuscando && entregasFiltradas.length > LIMITE_ENTREGAS_RECOLHIDAS;
 
   // RNF06: mesma regra da API — a atendente só exclui compra sem contato registrado
   function verificarPodeExcluir(entrega: EntregaApi) {
@@ -127,7 +135,7 @@ export function ListaEntregas({ entregasCliente, aoAlterar }: PropriedadesListaE
                 </tr>
                 </thead>
                 <tbody>
-                {entregasFiltradas.map((entregaCliente) => {
+                {entregasVisiveis.map((entregaCliente) => {
                   return (
                       <tr key={entregaCliente.id}>
                         <td>{formatarDataSemHora(entregaCliente.dataEntrega)}</td>
@@ -160,6 +168,16 @@ export function ListaEntregas({ entregasCliente, aoAlterar }: PropriedadesListaE
                 </tbody>
               </table>
             </div>
+        )}
+
+        {possuiMaisQueLimite && (
+            <button
+                type="button"
+                className="mt-3 text-[13px] font-semibold underline underline-offset-2"
+                onClick={() => definirMostrarTodas((mostrandoTodas) => !mostrandoTodas)}
+            >
+              {mostrarTodas ? "Mostrar menos" : `Ver todas as ${entregasFiltradas.length} entregas`}
+            </button>
         )}
 
         {/* fora da tabela: as células têm whitespace-nowrap e espremiam os campos do formulário */}
