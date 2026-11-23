@@ -1,5 +1,7 @@
 // Os passos traduzem as frases em português para requisições HTTP de verdade.
 // Nada aqui conhece Express ou Prisma: só o contrato JSON por HTTP, como o frontend.
+
+
 import assert from "node:assert";
 import { Given, Then, When, World } from "@cucumber/cucumber";
 import {
@@ -11,6 +13,8 @@ import {
   criarTokenEncerradoVencido,
   executarLimpezaDeTokens,
   obterIdUsuarioPorEmail,
+  registrarEntregaSemRotina,
+  rodarRotinaMarcos,
   url,
 } from "../suporte/mundo";
 
@@ -158,7 +162,12 @@ Given("que a cliente {string} está cadastrada com entrega há {int} dias", asyn
   await cadastrarCliente(this, nome, diasAPartirDeHoje(-dias));
   assert.equal(this.resposta.status, 201, `cadastro de ${nome} falhou`);
 });
-
+Given(
+  "que a cliente {string} tem uma entrega de {int} dias atrás ainda sem lembretes",
+  async function (this: Mundo, nome: string, dias: number) {
+    await registrarEntregaSemRotina(nome, dias);
+  }
+);
 // ---------- Quando ----------
 
 When(
@@ -202,7 +211,13 @@ When("cadastro a cliente {string} com entrega há {int} dias", async function (t
 When("cadastro a cliente {string} com entrega daqui a {int} dias", async function (this: Mundo, nome: string, dias: number) {
   await cadastrarCliente(this, nome, diasAPartirDeHoje(dias));
 });
+When("a rotina de marcos roda {int} vezes ao mesmo tempo", async function (this: Mundo, vezes: number) {
+  await rodarRotinaMarcos(vezes);
+});
 
+When("a rotina de marcos roda de novo", async function (this: Mundo) {
+  await rodarRotinaMarcos(1);
+});
 When("tento excluir a cliente {string}", async function (this: Mundo, nome: string) {
   const clienteId = this.clientes?.[nome];
   assert.ok(clienteId, `a cliente ${nome} não foi cadastrada no cenário`);
@@ -245,6 +260,14 @@ Then("a lista de lembretes de {string} não deve conter {string}", async functio
   assert.ok(!nomes.includes(nome), `${nome} não deveria estar nos lembretes de ${marco}`);
 });
 
+Then(
+  "a cliente {string} deve aparecer uma vez só na lista de lembretes de {string}",
+  async function (this: Mundo, nome: string, marco: string) {
+    const nomes = await buscarNomesDosLembretes(this, marco);
+    const vezes = nomes.filter((nomeNaLista: string) => nomeNaLista === nome).length;
+    assert.equal(vezes, 1, `${nome} aparece ${vezes} vezes nos lembretes de ${marco}`);
+  }
+);
 // ---------- UC12 · Recuperar senha (RF20) ----------
 
 async function usarLinkRecuperacao(mundo: Mundo, novaSenha: string, confirmacaoSenha: string) {
