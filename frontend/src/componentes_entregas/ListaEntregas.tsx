@@ -33,6 +33,7 @@ export function ListaEntregas({ entregasCliente, aoAlterar }: PropriedadesListaE
   const [mensagemErro, definirMensagemErro] = useState<string | null>(null);
   const [estaEnviando, definirEstaEnviando] = useState(false);
   const [termoBusca, definirTermoBusca] = useState("");
+  const entregaEmEdicao = entregasCliente.find((entregaCliente) => entregaCliente.id === entregaEmEdicaoId);
 
   // busca pelo produto ou pela data como aparece na tela ("22/11" acha 22/11/2026)
   const entregasFiltradas = entregasCliente.filter((entregaCliente) =>
@@ -127,45 +128,6 @@ export function ListaEntregas({ entregasCliente, aoAlterar }: PropriedadesListaE
                 </thead>
                 <tbody>
                 {entregasFiltradas.map((entregaCliente) => {
-                  // a edição ocupa a linha inteira: inputs dentro das células estouravam o cartão
-                  if (entregaCliente.id === entregaEmEdicaoId) {
-                    return (
-                        <tr key={entregaCliente.id}>
-                          <td colSpan={3}>
-                            <form onSubmit={salvarEdicao} className="flex flex-col gap-3">
-                              <div className="formulario-campo-linha">
-                                <CampoTexto
-                                    rotulo="Produto comprado"
-                                    valor={camposEdicao.produto}
-                                    aoAlterar={(valorDigitado) =>
-                                        definirCamposEdicao((camposAtuais) => ({ ...camposAtuais, produto: valorDigitado }))
-                                    }
-                                    obrigatorio
-                                />
-                                <CampoTexto
-                                    rotulo="Data de entrega"
-                                    tipo="date"
-                                    valor={camposEdicao.dataEntrega}
-                                    aoAlterar={(valorDigitado) =>
-                                        definirCamposEdicao((camposAtuais) => ({ ...camposAtuais, dataEntrega: valorDigitado }))
-                                    }
-                                    obrigatorio
-                                />
-                              </div>
-                              <div className="flex gap-4 text-[13px] font-semibold">
-                                <button type="submit" className="underline underline-offset-2" disabled={estaEnviando}>
-                                  {estaEnviando ? "Salvando..." : "Salvar"}
-                                </button>
-                                <button type="button" className="text-black/60" onClick={cancelarEdicao} disabled={estaEnviando}>
-                                  Cancelar
-                                </button>
-                              </div>
-                            </form>
-                          </td>
-                        </tr>
-                    );
-                  }
-
                   return (
                       <tr key={entregaCliente.id}>
                         <td>{formatarDataSemHora(entregaCliente.dataEntrega)}</td>
@@ -198,6 +160,40 @@ export function ListaEntregas({ entregasCliente, aoAlterar }: PropriedadesListaE
                 </tbody>
               </table>
             </div>
+        )}
+
+        {/* fora da tabela: as células têm whitespace-nowrap e espremiam os campos do formulário */}
+        {entregaEmEdicao && (
+            <form onSubmit={salvarEdicao} className="mt-5 flex flex-col">
+              <h4 className="secao-titulo mb-3 text-[16px]">Editar entrega · {entregaEmEdicao.produto}</h4>
+              <div className="formulario-campo-linha">
+                <CampoTexto
+                    rotulo="Produto comprado"
+                    valor={camposEdicao.produto}
+                    aoAlterar={(valorDigitado) =>
+                        definirCamposEdicao((camposAtuais) => ({ ...camposAtuais, produto: valorDigitado }))
+                    }
+                    obrigatorio
+                />
+                <CampoTexto
+                    rotulo="Data de entrega"
+                    tipo="date"
+                    valor={camposEdicao.dataEntrega}
+                    aoAlterar={(valorDigitado) =>
+                        definirCamposEdicao((camposAtuais) => ({ ...camposAtuais, dataEntrega: valorDigitado }))
+                    }
+                    obrigatorio
+                />
+              </div>
+              <div className="formulario-acoes">
+                <button type="submit" className="botao-secundario" disabled={estaEnviando}>
+                  {estaEnviando ? "Salvando..." : "Salvar alterações"}
+                </button>
+                <button type="button" className="botao-link" onClick={cancelarEdicao} disabled={estaEnviando}>
+                  Cancelar
+                </button>
+              </div>
+            </form>
         )}
       </div>
   );

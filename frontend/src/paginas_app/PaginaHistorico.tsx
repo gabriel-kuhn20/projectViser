@@ -195,6 +195,8 @@ export function PaginaHistorico() {
             </div>
             {clienteSelecionado && estaRegistrandoContato && (
                 <FormularioContatoAntecipado
+                    // entrega nova ou excluída com o formulário aberto: recria para a escolha voltar ao padrão
+                    key={(clienteSelecionado.entregas ?? []).map((entrega) => entrega.id).join("-")}
                     entregasCliente={clienteSelecionado.entregas ?? []}
                     tiposMarcoAtivos={tiposMarcoAtivos}
                     aoSalvar={aoSalvarContatoAntecipado}
