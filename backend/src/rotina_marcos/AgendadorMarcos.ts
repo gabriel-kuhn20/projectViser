@@ -40,6 +40,8 @@ async function verificarClientesEGerarLembretes() {
     for (const tipoMarco of marcosAtingidos) {
       const marcoJaExiste = entrega.marcos.some((marco) => marco.tipoMarcoId === tipoMarco.id);
       if (marcoJaExiste) continue; // A1: evita duplicar lembrete do mesmo marco
+      // a atendente desmarcou esse marco ao cadastrar a compra
+      if (entrega.tiposMarcoIgnorados.includes(tipoMarco.id)) continue;
 
       const dataAlvo = calcularDataAlvoMarco(entrega.dataEntrega, tipoMarco.diasAposEntrega);
       if (!verificarMarcoValeParaEntrega(dataAlvo, entrega.criadoEm, tipoMarco.criadoEm)) continue;

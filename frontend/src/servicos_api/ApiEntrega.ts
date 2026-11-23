@@ -5,6 +5,7 @@ export type DadosCadastroEntrega = {
   clienteId: number;
   dataEntrega: string;
   produto: string;
+  tiposMarcoIgnorados?: number[];
 };
 
 // RF02: um cliente já cadastrado pode receber novas entregas (compra de outro óculos)

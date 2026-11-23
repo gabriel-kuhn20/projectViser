@@ -6,6 +6,7 @@ import {
   editarCliente,
   type ClienteApi,
 } from "../servicos_api/ApiCliente";
+import { SelecaoMarcosEntrega } from "../componentes_entregas/SelecaoMarcosEntrega";
 import { formatarMensagemErro } from "../utilitarios_formatacao/FormatarErro";
 import { aplicarMascaraTelefone, formatarTelefone } from "../utilitarios_formatacao/FormatarTelefone";
 
@@ -20,6 +21,7 @@ const camposIniciais = { nome: "", contato: "", endereco: "", dataEntrega: "", p
 // UC02 · Manter cliente (RF02)
 export function FormularioCliente({ clienteEmEdicao, aoSalvar, aoCancelarEdicao }: PropriedadesFormularioCliente) {
   const [campos, definirCampos] = useState(camposIniciais);
+  const [tiposMarcoIgnorados, definirTiposMarcoIgnorados] = useState<number[]>([]);
   const [mensagemErro, definirMensagemErro] = useState<string | null>(null);
   const [estaEnviando, definirEstaEnviando] = useState(false);
 
@@ -66,9 +68,11 @@ export function FormularioCliente({ clienteEmEdicao, aoSalvar, aoCancelarEdicao 
         endereco: campos.endereco || undefined,
         dataEntrega: campos.dataEntrega,
         produto: campos.produto,
+        tiposMarcoIgnorados,
       });
       aoSalvar(novoCliente);
       definirCampos(camposIniciais);
+      definirTiposMarcoIgnorados([]);
     } catch (erro) {
       // formatarMensagemErro mostra os detalhes do 400 (ex: data futura) em vez do genérico "dados inválidos"
       definirMensagemErro(formatarMensagemErro(erro, "não foi possível salvar o cliente. tente novamente."));
@@ -118,6 +122,9 @@ export function FormularioCliente({ clienteEmEdicao, aoSalvar, aoCancelarEdicao 
                   obrigatorio
               />
             </div>
+        )}
+        {!estaEditando && (
+            <SelecaoMarcosEntrega tiposMarcoIgnorados={tiposMarcoIgnorados} aoAlterar={definirTiposMarcoIgnorados} />
         )}
 
         <div className="formulario-acoes">

@@ -11,10 +11,14 @@ export const validadorDataEntrega = z.coerce
 // RF02: produto comprado em texto livre, obrigatório (PRD seção 8 — não há catálogo de produtos)
 export const validadorProduto = z.string().trim().min(1, "não pode ficar em branco");
 
+// marcos que não geram lembrete para esta compra; ausente = todos geram (comportamento padrão)
+export const validadorTiposMarcoIgnorados = z.array(z.number().int().positive()).optional().default([]);
+
 export const validadorCadastroEntrega = z.object({
     clienteId: z.number().int().positive(),
     dataEntrega: validadorDataEntrega,
     produto: validadorProduto,
+    tiposMarcoIgnorados: validadorTiposMarcoIgnorados,
 });
 
 export const validadorEdicaoEntrega = z.object({

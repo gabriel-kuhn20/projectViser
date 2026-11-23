@@ -187,6 +187,9 @@ async function anteciparLembrete(req: Request, res: Response) {
   if (!tipoMarcoEncontrado || !tipoMarcoEncontrado.ativo) {
     throw new ErroHttp(404, "marco não encontrado ou desativado");
   }
+  if (entregaEncontrada.tiposMarcoIgnorados.includes(tipoMarcoId)) {
+    throw new ErroHttp(409, "esse marco foi desmarcado para esta compra");
+  }
 
   const usuarioId = req.usuarioLogado!.usuarioId;
   const dataAlvo = calcularDataAlvoMarco(entregaEncontrada.dataEntrega, tipoMarcoEncontrado.diasAposEntrega);

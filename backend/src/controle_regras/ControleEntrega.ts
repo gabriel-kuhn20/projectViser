@@ -35,7 +35,7 @@ async function excluirMarcosEntregas(transacaoBanco: Prisma.TransactionClient, e
 
 // Cadastrar entrega para um cliente que já existe (ex: compra de um óculos novo)
 async function cadastrarEntrega(req: Request, res: Response) {
-    const { clienteId, dataEntrega, produto } = validadorCadastroEntrega.parse(req.body);
+    const { clienteId, dataEntrega, produto, tiposMarcoIgnorados } = validadorCadastroEntrega.parse(req.body);
 
     const clienteExistente = await clientePrisma.cliente.findUnique({ where: { id: clienteId } });
     if (!clienteExistente) {
@@ -43,7 +43,7 @@ async function cadastrarEntrega(req: Request, res: Response) {
     }
 
     const novaEntrega = await clientePrisma.entrega.create({
-        data: { clienteId, dataEntrega, produto },
+        data: { clienteId, dataEntrega, produto, tiposMarcoIgnorados },
         include: dadosIncluidosResposta,
     });
 

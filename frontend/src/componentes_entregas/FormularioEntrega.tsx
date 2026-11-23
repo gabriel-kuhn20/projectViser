@@ -2,6 +2,7 @@ import { useState } from "react";
 import { BotaoPrimario } from "../componentes_compartilhados/BotaoPrimario";
 import { CampoTexto } from "../componentes_compartilhados/CampoTexto";
 import { cadastrarEntrega } from "../servicos_api/ApiEntrega";
+import { SelecaoMarcosEntrega } from "./SelecaoMarcosEntrega";
 import { formatarMensagemErro } from "../utilitarios_formatacao/FormatarErro";
 
 type PropriedadesFormularioEntrega = {
@@ -14,6 +15,7 @@ const camposIniciais = { produto: "", dataEntrega: "" };
 // UC02 · Manter cliente (RF02): cliente já cadastrado recebe nova entrega, que gera os próprios marcos
 export function FormularioEntrega({ clienteId, aoCadastrar }: PropriedadesFormularioEntrega) {
   const [camposFormulario, definirCamposFormulario] = useState(camposIniciais);
+  const [tiposMarcoIgnorados, definirTiposMarcoIgnorados] = useState<number[]>([]);
   const [mensagemErro, definirMensagemErro] = useState<string | null>(null);
   const [mensagemSucesso, definirMensagemSucesso] = useState<string | null>(null);
   const [estaEnviando, definirEstaEnviando] = useState(false);
@@ -29,9 +31,10 @@ export function FormularioEntrega({ clienteId, aoCadastrar }: PropriedadesFormul
     definirEstaEnviando(true);
 
     try {
-      await cadastrarEntrega({ clienteId, ...camposFormulario });
+      await cadastrarEntrega({ clienteId, ...camposFormulario, tiposMarcoIgnorados });
       definirMensagemSucesso(`entrega de ${camposFormulario.produto.trim()} registrada.`);
       definirCamposFormulario(camposIniciais);
+      definirTiposMarcoIgnorados([]);
       aoCadastrar();
     } catch (erroRequisicao) {
       definirMensagemErro(formatarMensagemErro(erroRequisicao, "não foi possível registrar a entrega. tente novamente."));
@@ -56,6 +59,10 @@ export function FormularioEntrega({ clienteId, aoCadastrar }: PropriedadesFormul
               aoAlterar={definirCampo("dataEntrega")}
               obrigatorio
           />
+        </div>
+
+        <div className="mt-4">
+          <SelecaoMarcosEntrega tiposMarcoIgnorados={tiposMarcoIgnorados} aoAlterar={definirTiposMarcoIgnorados} />
         </div>
 
         <div className="formulario-acoes">

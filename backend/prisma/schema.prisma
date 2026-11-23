@@ -110,6 +110,9 @@ model Entrega {
   dataEntrega DateTime
   // produto comprado em texto livre, digitado pelo atendente (PRD seção 8: sem catálogo de produtos)
   produto     String
+  // marcos que a atendente desmarcou no cadastro da compra (ex: óculos de sol só com o de 7 dias).
+  // Guarda os ignorados, não os escolhidos: marco criado depois pelo admin vale para esta compra também
+  tiposMarcoIgnorados Int[]         @default([])
   criadoEm    DateTime              @default(now())
   cliente     Cliente               @relation(fields: [clienteId], references: [id])
   marcos      MarcoAcompanhamento[]
