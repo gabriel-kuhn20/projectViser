@@ -8,18 +8,19 @@ import { formatarMensagemErro } from "../utilitarios_formatacao/FormatarErro";
 
 type PropriedadesFormularioEntrega = {
   clienteId: number;
-  aoCadastrar: () => void;
+  aoCadastrar: (mensagemSucesso: string) => void;
+  // ausente quando o cliente não tem entrega nenhuma: aí o formulário é a única ação da tela
+  aoCancelar?: () => void;
 };
 
 const camposIniciais = { produto: "", dataEntrega: "" };
 
 // UC02 · Manter cliente (RF02): cliente já cadastrado recebe nova entrega, que gera os próprios marcos
-export function FormularioEntrega({ clienteId, aoCadastrar }: PropriedadesFormularioEntrega) {
+export function FormularioEntrega({ clienteId, aoCadastrar, aoCancelar }: PropriedadesFormularioEntrega) {
   const [camposFormulario, definirCamposFormulario] = useState(camposIniciais);
   const tiposMarcoAtivos = usarTiposMarcoAtivos();
   const [tiposMarcoMarcados, definirTiposMarcoMarcados] = useState<number[]>([]);
   const [mensagemErro, definirMensagemErro] = useState<string | null>(null);
-  const [mensagemSucesso, definirMensagemSucesso] = useState<string | null>(null);
   const [estaEnviando, definirEstaEnviando] = useState(false);
 
   function definirCampo(campo: keyof typeof camposIniciais) {
@@ -29,7 +30,6 @@ export function FormularioEntrega({ clienteId, aoCadastrar }: PropriedadesFormul
   async function enviarFormulario(eventoEnvio: React.FormEvent) {
     eventoEnvio.preventDefault();
     definirMensagemErro(null);
-    definirMensagemSucesso(null);
     // em branco de propósito: a atendente precisa escolher; sem nenhum, a compra não teria acompanhamento
     if (tiposMarcoAtivos.length > 0 && tiposMarcoMarcados.length === 0) {
       definirMensagemErro("marque pelo menos um lembrete para esta compra.");
@@ -40,10 +40,10 @@ export function FormularioEntrega({ clienteId, aoCadastrar }: PropriedadesFormul
     try {
       const tiposMarcoIgnorados = calcularTiposMarcoIgnorados(tiposMarcoAtivos, tiposMarcoMarcados);
       await cadastrarEntrega({ clienteId, ...camposFormulario, tiposMarcoIgnorados });
-      definirMensagemSucesso(`entrega de ${camposFormulario.produto.trim()} registrada.`);
       definirCamposFormulario(camposIniciais);
       definirTiposMarcoMarcados([]);
-      aoCadastrar();
+      // o formulário fecha ao salvar, então a mensagem de sucesso fica a cargo da página
+      aoCadastrar(`entrega de ${camposFormulario.produto.trim()} registrada.`);
     } catch (erroRequisicao) {
       definirMensagemErro(formatarMensagemErro(erroRequisicao, "não foi possível registrar a entrega. tente novamente."));
     } finally {
@@ -52,11 +52,11 @@ export function FormularioEntrega({ clienteId, aoCadastrar }: PropriedadesFormul
   }
 
   return (
-      <form onSubmit={enviarFormulario} className="mt-5 flex flex-col">
+      // mb-6 e borda: separa o formulário da lista que vem logo abaixo
+      <form onSubmit={enviarFormulario} className="mb-6 flex flex-col border-b border-black/10 pb-6">
         <h4 className="secao-titulo mb-3 text-[16px]">Nova entrega</h4>
 
         {mensagemErro && <p role="alert" className="mensagem-erro">{mensagemErro}</p>}
-        {mensagemSucesso && <p role="status" className="mensagem-sucesso">{mensagemSucesso}</p>}
 
         <div className="formulario-campo-linha">
           <CampoTexto rotulo="Produto comprado" valor={camposFormulario.produto} aoAlterar={definirCampo("produto")} obrigatorio />
@@ -80,6 +80,11 @@ export function FormularioEntrega({ clienteId, aoCadastrar }: PropriedadesFormul
 
         <div className="formulario-acoes">
           <BotaoPrimario texto={estaEnviando ? "Registrando..." : "Registrar entrega"} desabilitado={estaEnviando} />
+          {aoCancelar && (
+              <button type="button" className="botao-link" onClick={aoCancelar} disabled={estaEnviando}>
+                Cancelar
+              </button>
+          )}
         </div>
       </form>
   );

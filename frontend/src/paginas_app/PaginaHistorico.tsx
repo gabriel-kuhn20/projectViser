@@ -30,6 +30,8 @@ export function PaginaHistorico() {
     const [mensagemErro, definirMensagemErro] = useState<string | null>(null);
     const [mensagemSucesso, definirMensagemSucesso] = useState<string | null>(estadoNavegacao?.mensagemSucesso ?? null);
     const [estaEditando, definirEstaEditando] = useState(false);
+    const [estaRegistrandoEntrega, definirEstaRegistrandoEntrega] = useState(false);
+    const semEntregas = (clienteSelecionado?.entregas ?? []).length === 0;
     const [tiposMarcoAtivos, definirTiposMarcoAtivos] = useState<TipoMarcoApi[]>([]);
     const [estaRegistrandoContato, definirEstaRegistrandoContato] = useState(false);
 
@@ -104,6 +106,11 @@ export function PaginaHistorico() {
     }
 
     // edição ou reabertura: recarrega para o status do lembrete e o "(editado)" virem do servidor
+    async function aoCadastrarEntrega(mensagemEntrega: string) {
+        definirEstaRegistrandoEntrega(false);
+        await aoAlterarHistorico(mensagemEntrega);
+    }
+
     async function aoAlterarHistorico(mensagemAlteracao: string) {
         definirMensagemSucesso(mensagemAlteracao);
         await carregarHistorico();
@@ -170,9 +177,31 @@ export function PaginaHistorico() {
                     </section>
 
                     <section className="cartao min-w-0">
-                        <h3 className="secao-titulo mb-4">Entregas</h3>
+                        {/* nova entrega no topo, recolhida: está sempre à mão sem ocupar a tela de quem só consulta */}
+                        <div className="mb-4 flex items-center justify-between gap-3">
+                            <h3 className="secao-titulo">Entregas</h3>
+                            {!estaRegistrandoEntrega && !semEntregas && (
+                                <button
+                                    type="button"
+                                    className="botao-link"
+                                    onClick={() => {
+                                        definirMensagemSucesso(null);
+                                        definirEstaRegistrandoEntrega(true);
+                                    }}
+                                >
+                                    Nova entrega
+                                </button>
+                            )}
+                        </div>
+                        {/* cliente sem entrega nenhuma: o formulário já vem aberto, é a única coisa a fazer */}
+                        {(estaRegistrandoEntrega || semEntregas) && (
+                            <FormularioEntrega
+                                clienteId={clienteSelecionado.id}
+                                aoCadastrar={aoCadastrarEntrega}
+                                aoCancelar={semEntregas ? undefined : () => definirEstaRegistrandoEntrega(false)}
+                            />
+                        )}
                         <ListaEntregas entregasCliente={clienteSelecionado.entregas ?? []} aoAlterar={aoAlterarHistorico} />
-                        <FormularioEntrega clienteId={clienteSelecionado.id} aoCadastrar={carregarHistorico} />
                     </section>
                 </div>
             )}
