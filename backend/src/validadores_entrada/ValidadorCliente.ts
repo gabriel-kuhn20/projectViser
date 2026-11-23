@@ -10,7 +10,6 @@ export const validadorCadastroCliente = z
       nome: z.string().trim().min(1, "não pode ficar em branco").optional(),
       contato: z.string().trim().min(1, "não pode ficar em branco"),
       endereco: z.string().trim().min(1, "não pode ficar em branco").optional(),
-      responsavelId: z.number().int().positive().optional(),
       // mesma regra da rota de entregas — sem ela o cadastro aceitava a data futura que /entregas recusa
       dataEntrega: validadorDataEntrega,
       // RF02: a primeira entrega nasce junto com o cliente, já com o produto
@@ -25,8 +24,6 @@ export const validadorEdicaoCliente = z.object({
   nome: z.string().trim().min(1, "não pode ficar em branco").optional(),
   contato: z.string().trim().min(1, "não pode ficar em branco").optional(),
   endereco: z.string().trim().min(1, "não pode ficar em branco").optional(),
-  // null tira o responsável (ex: atendente que saiu da ótica)
-  responsavelId: z.number().int().positive().nullable().optional(),
 });
 
 // GET /clientes?busca=&tagId=&pagina= — a lista vem paginada do servidor para a tela não

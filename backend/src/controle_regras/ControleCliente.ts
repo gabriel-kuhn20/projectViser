@@ -12,32 +12,14 @@ import { validadorTagsCliente } from "../validadores_entrada/ValidadorTag";
 import { validadorParametroId } from "../validadores_entrada/ValidadorParametros";
 
 // dados que voltam junto com o cliente nas respostas da API
-// — senha do responsável propositalmente de fora, nunca deve sair pela API
 const dadosIncluidosResposta = {
   pessoa: true,
-  responsavel: { select: { id: true, email: true, pessoa: { select: { nome: true } } } },
   tags: { include: { tag: true } },
 } as const;
 
-// FK inexistente no create viraria P2003 → 409 "registros vinculados", que engana — por isso busca antes
-async function verificarResponsavelExistente(responsavelId: number) {
-  const responsavelEncontrado = await clientePrisma.usuario.findUnique({ where: { id: responsavelId } });
-  if (!responsavelEncontrado) {
-    throw new ErroHttp(404, "atendente responsável não encontrado");
-  }
-}
-
-// o update mexe na pessoa por relação aninhada, então o responsável também vai por relação:
-// o Prisma não aceita misturar `responsavelId` direto com `pessoa: { update }` no mesmo update
-function montarAlteracaoResponsavel(responsavelId: number | null | undefined) {
-  if (responsavelId === undefined) return undefined;
-  if (responsavelId === null) return { disconnect: true };
-  return { connect: { id: responsavelId } };
-}
-
 // UC02 · Cadastrar cliente (RF02)
 async function cadastrarCliente(req: Request, res: Response) {
-  const { pessoaId, nome, responsavelId, dataEntrega, produto, ...dadosCliente } =
+  const { pessoaId, nome, dataEntrega, produto, ...dadosCliente } =
       validadorCadastroCliente.parse(req.body);
 
   if (pessoaId) {
@@ -55,15 +37,10 @@ async function cadastrarCliente(req: Request, res: Response) {
     }
   }
 
-  if (responsavelId) {
-    await verificarResponsavelExistente(responsavelId);
-  }
-
   const novoCliente = await clientePrisma.cliente.create({
     data: {
       ...dadosCliente,
       pessoa: pessoaId ? { connect: { id: pessoaId } } : { create: { nome: nome as string } },
-      responsavel: responsavelId ? { connect: { id: responsavelId } } : undefined,
       entregas: { create: { dataEntrega, produto } },
     },
     include: dadosIncluidosResposta,
@@ -161,22 +138,17 @@ async function buscarClientePorId(req: Request, res: Response) {
 // UC03 · Editar cliente (RF09)
 async function editarCliente(req: Request, res: Response) {
   const { id: clienteId } = validadorParametroId.parse({ id: req.params.clienteId });
-  const { nome, responsavelId, ...dadosCliente } = validadorEdicaoCliente.parse(req.body);
+  const { nome, ...dadosCliente } = validadorEdicaoCliente.parse(req.body);
 
   const clienteExistente = await clientePrisma.cliente.findUnique({ where: { id: clienteId } });
   if (!clienteExistente) {
     throw new ErroHttp(404, "cliente não encontrado");
   }
-  if (responsavelId) {
-    await verificarResponsavelExistente(responsavelId);
-  }
-
   const clienteAtualizado = await clientePrisma.cliente.update({
     where: { id: clienteId },
     data: {
       ...dadosCliente,
       pessoa: nome ? { update: { nome } } : undefined,
-      responsavel: montarAlteracaoResponsavel(responsavelId),
     },
     include: dadosIncluidosResposta,
   });
