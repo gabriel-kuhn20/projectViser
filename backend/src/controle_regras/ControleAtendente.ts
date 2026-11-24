@@ -39,9 +39,20 @@ async function impedirRemocaoUltimoAdmin(usuarioAlvo: { papelAcesso: PapelAcesso
   }
 }
 
+// Impedir e-mail repetido sem diferenciar maiúsculas
+// o @unique do banco compara o texto exato: sozinho deixaria "ADMIN@..." conviver com "admin@..." gravado
+// antes da conversão para minúsculas. Na edição a própria conta fica de fora, para manter o e-mail dela
+async function impedirEmailRepetido(email: string, usuarioEditadoId?: number) {
+  const contaComMesmoEmail = await clientePrisma.usuario.findFirst({
+    where: { email: { equals: email, mode: "insensitive" }, id: { not: usuarioEditadoId } },
+  });
+  if (contaComMesmoEmail) throw new ErroHttp(409, "já existe uma conta com esse e-mail");
+}
+
 // UC10 · Cadastrar conta de atendente (RF09)
 async function cadastrarAtendente(req: Request, res: Response) {
   const dadosValidados = validadorCadastroAtendente.parse(req.body);
+  await impedirEmailRepetido(dadosValidados.email);
   const senhaComHash = await bcrypt.hash(dadosValidados.senha, 10);
 
   const novoUsuario = await clientePrisma.usuario.create({
@@ -86,8 +97,9 @@ async function editarAtendente(req: Request, res: Response) {
   const usuarioExistente = await buscarAtendenteExistente(usuarioId);
   const estaPerdendoAdmin = usuarioExistente.papelAcesso === "admin" && papelAcesso !== "admin";
   if (estaPerdendoAdmin) await impedirRemocaoUltimoAdmin(usuarioExistente);
+  await impedirEmailRepetido(email, usuarioId);
 
-  // e-mail repetido cai no P2002 do Prisma e o middleware de erros responde 409
+  // dois pedidos com o mesmo e-mail ao mesmo tempo ainda caem no P2002 do Prisma, que vira 409
   const usuarioAtualizado = await clientePrisma.usuario.update({
     where: { id: usuarioId },
     data: { email, papelAcesso, pessoa: { update: { nome } } },

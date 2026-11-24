@@ -9,6 +9,7 @@ import {
   contarLinksRecuperacao,
   contarLinksRecuperacaoDe,
   contarTokensEncerrados,
+  criarContaAntiga,
   criarLinkRecuperacao,
   criarTokenEncerradoVencido,
   executarLimpezaDeTokens,
@@ -311,6 +312,38 @@ When("renomeio a tag {string} para {string}", async function (this: Mundo, nomeA
   await guardarResposta(
     this,
     await api(`/tags/${tagEncontrada.id}`, { metodo: "PUT", corpo: { nome: novoNome }, token: this.token })
+  );
+});
+
+// ---------- UC10 · Cadastrar conta de atendente (RF09): e-mail sem diferenciar maiúsculas ----------
+
+Given(
+  "que existe uma conta antiga com o e-mail {string} e a senha {string}",
+  async function (email: string, senha: string) {
+    await criarContaAntiga(email, senha);
+  }
+);
+
+When("cadastro uma conta com o e-mail {string}", async function (this: Mundo, email: string) {
+  await guardarResposta(
+    this,
+    await api("/atendentes", {
+      metodo: "POST",
+      corpo: { nome: "Conta nova", email, senha: "senha-da-conta-nova-123" },
+      token: this.token,
+    })
+  );
+});
+
+When("altero o e-mail da conta {string} para {string}", async function (this: Mundo, papel: string, email: string) {
+  const usuarioId = await buscarIdDaConta(papel, this.token!);
+  await guardarResposta(
+    this,
+    await api(`/atendentes/${usuarioId}`, {
+      metodo: "PUT",
+      corpo: { nome: papel, email, papelAcesso: CONTAS[papel as keyof typeof CONTAS].papel },
+      token: this.token,
+    })
   );
 });
 
