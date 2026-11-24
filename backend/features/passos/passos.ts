@@ -211,6 +211,11 @@ When("cadastro a cliente {string} com entrega há {int} dias", async function (t
 When("cadastro a cliente {string} com entrega daqui a {int} dias", async function (this: Mundo, nome: string, dias: number) {
   await cadastrarCliente(this, nome, diasAPartirDeHoje(dias));
 });
+// data escrita como a tela manda, para testar dias que o calendário não tem
+When("cadastro a cliente {string} com entrega em {string}", async function (this: Mundo, nome: string, dataEntrega: string) {
+  await cadastrarCliente(this, nome, dataEntrega);
+});
+
 When("a rotina de marcos roda {int} vezes ao mesmo tempo", async function (this: Mundo, vezes: number) {
   await rodarRotinaMarcos(vezes);
 });
