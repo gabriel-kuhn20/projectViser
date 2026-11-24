@@ -292,6 +292,23 @@ When(
   }
 );
 
+// ---------- Tags ----------
+
+Given("que a tag {string} está cadastrada", async function (this: Mundo, nome: string) {
+  const resposta = await api("/tags", { metodo: "POST", corpo: { nome }, token: this.token });
+  assert.equal(resposta.status, 201, `cadastro da tag ${nome} falhou`);
+});
+
+When("renomeio a tag {string} para {string}", async function (this: Mundo, nomeAtual: string, novoNome: string) {
+  const tags = await (await api("/tags", { token: this.token })).json();
+  const tagEncontrada = tags.find((tag: { nome: string }) => tag.nome === nomeAtual);
+  assert.ok(tagEncontrada, `a tag ${nomeAtual} não foi cadastrada no cenário`);
+  await guardarResposta(
+    this,
+    await api(`/tags/${tagEncontrada.id}`, { metodo: "PUT", corpo: { nome: novoNome }, token: this.token })
+  );
+});
+
 // ---------- UC12 · Recuperar senha (RF20) ----------
 
 async function usarLinkRecuperacao(mundo: Mundo, novaSenha: string, confirmacaoSenha: string) {

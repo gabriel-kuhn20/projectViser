@@ -8,7 +8,9 @@ import { validadorParametroId } from "../validadores_entrada/ValidadorParametros
 async function cadastrarTag(req: Request, res: Response) {
   const { nome } = validadorCadastroTag.parse(req.body);
 
-  const tagExistente = await clientePrisma.tag.findFirst({ where: { nome } });
+  // insensitive: "prime" e "Prime" são a mesma tag para quem filtra a lista — comparar o texto
+  // exato deixava cadastrar as duas
+  const tagExistente = await clientePrisma.tag.findFirst({ where: { nome: { equals: nome, mode: "insensitive" } } });
   if (tagExistente) {
     throw new ErroHttp(409, "já existe uma tag com esse nome");
   }
@@ -35,7 +37,8 @@ async function editarTag(req: Request, res: Response) {
   }
 
   const tagComMesmoNome = await clientePrisma.tag.findFirst({
-    where: { nome, id: { not: tagId } },
+    // mesma comparação do cadastro; a própria tag fica de fora para dar para corrigir só a caixa ("prime" → "Prime")
+    where: { nome: { equals: nome, mode: "insensitive" }, id: { not: tagId } },
   });
   if (tagComMesmoNome) {
     throw new ErroHttp(409, "já existe uma tag com esse nome");
