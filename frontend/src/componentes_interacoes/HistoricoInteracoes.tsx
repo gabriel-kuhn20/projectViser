@@ -101,9 +101,21 @@ export function HistoricoInteracoes({
   }
 
   // um botão por lembrete pendente, no contato mais recente, como o de reabrir
+  function verificarEhUltimoContatoPendente(interacaoCliente: InteracaoApi) {
+    return interacaoCliente.lembrete.status === "pendente" && idsUltimoContato.has(interacaoCliente.id);
+  }
+
+  // mesma regra da API (verificarAtendimentoDeOutro): lembrete assumido só recebe contato de quem assumiu ou de um admin
+  function buscarAtendimentoDeOutro(interacaoCliente: InteracaoApi) {
+    const atendimentoAtual = interacaoCliente.lembrete.emAtendimentos;
+    if (ehAdmin || !atendimentoAtual) return null;
+    if (atendimentoAtual.usuario.id === usuarioId) return null;
+    return atendimentoAtual;
+  }
+
   function verificarPodeRegistrarContato(interacaoCliente: InteracaoApi) {
-    const lembretePendente = interacaoCliente.lembrete.status === "pendente";
-    return clienteHistorico !== null && lembretePendente && idsUltimoContato.has(interacaoCliente.id);
+    if (!clienteHistorico || !verificarEhUltimoContatoPendente(interacaoCliente)) return false;
+    return buscarAtendimentoDeOutro(interacaoCliente) === null;
   }
 
   function aoAbrirContato(interacaoCliente: InteracaoApi) {
@@ -167,6 +179,10 @@ export function HistoricoInteracoes({
             const podeEditar = verificarPodeEditar(interacaoCliente);
             const podeReabrir = verificarPodeReabrir(interacaoCliente);
             const podeRegistrarContato = verificarPodeRegistrarContato(interacaoCliente) && lembreteEmContato === null;
+            // aviso no lugar do botão: sem ele a atendente não entende por que não consegue registrar
+            const atendimentoDeOutro = verificarEhUltimoContatoPendente(interacaoCliente)
+                ? buscarAtendimentoDeOutro(interacaoCliente)
+                : null;
 
             return (
                 <li key={interacaoCliente.id} className="cartao relative">
@@ -207,7 +223,7 @@ export function HistoricoInteracoes({
                       </>
                   )}
 
-                  {!estaEditando && (podeEditar || podeReabrir || podeRegistrarContato) && (
+                  {!estaEditando && (podeEditar || podeReabrir || podeRegistrarContato || atendimentoDeOutro) && (
                       <div className="mt-3 flex flex-wrap gap-2">
                         {podeEditar && (
                             <button
@@ -222,6 +238,11 @@ export function HistoricoInteracoes({
                             <button type="button" className="botao-link" onClick={() => aoAbrirContato(interacaoCliente)}>
                               Registrar ou concluir contato
                             </button>
+                        )}
+                        {atendimentoDeOutro && (
+                            <span className="self-center text-[13px] text-black/55">
+                              em atendimento com {atendimentoDeOutro.usuario.pessoa.nome}
+                            </span>
                         )}
                         {podeReabrir && (
                             <button

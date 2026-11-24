@@ -19,6 +19,8 @@ const relacoesPublicasInteracao = {
       id: true,
       status: true,
       marco: { select: { tipoMarco: { select: { nome: true } }, entrega: { select: { produto: true } } } },
+      // o histórico também registra e conclui contato: precisa saber se outra pessoa assumiu o lembrete
+      emAtendimentos: { select: { usuario: { select: { id: true, pessoa: { select: { nome: true } } } } } },
     },
   },
 } satisfies Prisma.InteracaoInclude;
