@@ -14,7 +14,7 @@ type PropriedadesFormularioAtendente = {
 const camposIniciais = { nome: "", email: "", senha: "", confirmacaoSenha: "", papelAcesso: "atendente" as PapelAcesso };
 
 // UC10 · Cadastrar conta de atendente (RF09) e edição da conta (nome, e-mail e papel)
-// no cadastro a conta nasce como atendente; o papel só muda pela edição
+// o papel já é escolhido no cadastro (padrão atendente): criar um admin não exige criar e depois editar
 export function FormularioAtendente({ atendenteEmEdicao, aoSalvar, aoCancelarEdicao }: PropriedadesFormularioAtendente) {
     const [campos, definirCampos] = useState(camposIniciais);
     const [mensagemErro, definirMensagemErro] = useState<string | null>(null);
@@ -69,7 +69,12 @@ export function FormularioAtendente({ atendenteEmEdicao, aoSalvar, aoCancelarEdi
                     papelAcesso: campos.papelAcesso,
                 });
             } else {
-                await cadastrarAtendente({ nome: campos.nome, email: campos.email, senha: campos.senha });
+                await cadastrarAtendente({
+                    nome: campos.nome,
+                    email: campos.email,
+                    senha: campos.senha,
+                    papelAcesso: campos.papelAcesso,
+                });
                 definirMensagemSucesso(`conta de ${campos.nome} criada com sucesso`);
                 definirCampos(camposIniciais);
             }
@@ -91,21 +96,22 @@ export function FormularioAtendente({ atendenteEmEdicao, aoSalvar, aoCancelarEdi
             <CampoTexto rotulo="Nome" valor={campos.nome} aoAlterar={definirCampo("nome")} obrigatorio />
             <CampoTexto rotulo="E-mail" tipo="email" valor={campos.email} aoAlterar={definirCampo("email")} obrigatorio />
 
-            {estaEditando ? (
-                <label className="campo-texto-rotulo">
-                    Papel
-                    <select
-                        value={campos.papelAcesso}
-                        onChange={(evento) =>
-                            definirCampos((atual) => ({ ...atual, papelAcesso: evento.target.value as PapelAcesso }))
-                        }
-                        className="campo-texto-input"
-                    >
-                        <option value="atendente">Atendente</option>
-                        <option value="admin">Administrador</option>
-                    </select>
-                </label>
-            ) : (
+            <label className="campo-texto-rotulo">
+                Papel
+                <select
+                    value={campos.papelAcesso}
+                    onChange={(evento) =>
+                        definirCampos((atual) => ({ ...atual, papelAcesso: evento.target.value as PapelAcesso }))
+                    }
+                    className="campo-texto-input"
+                >
+                    <option value="atendente">Atendente</option>
+                    <option value="admin">Administrador</option>
+                </select>
+            </label>
+
+            {/* a senha só entra no cadastro; na edição ela é trocada pelo link de recuperação */}
+            {!estaEditando && (
                 <>
                     <CampoTexto
                         rotulo="Senha (mínimo 8 caracteres)"

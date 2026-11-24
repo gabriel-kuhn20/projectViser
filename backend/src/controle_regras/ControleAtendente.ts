@@ -59,6 +59,7 @@ async function cadastrarAtendente(req: Request, res: Response) {
     data: {
       email: dadosValidados.email,
       senha: senhaComHash,
+      papelAcesso: dadosValidados.papelAcesso,
       pessoa: { create: { nome: dadosValidados.nome } },
     },
     include: { pessoa: true },

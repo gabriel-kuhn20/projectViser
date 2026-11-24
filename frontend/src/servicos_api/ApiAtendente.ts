@@ -16,6 +16,7 @@ export type DadosCadastroAtendente = {
   nome: string;
   email: string;
   senha: string;
+  papelAcesso: PapelAcesso;
 };
 
 export type DadosEdicaoAtendente = {
