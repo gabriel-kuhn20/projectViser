@@ -16,6 +16,8 @@ export type InteracaoApi = {
     id: number;
     status: StatusLembrete;
     marco: { tipoMarco: { nome: string }; entrega: { produto: string } };
+    // quem assumiu o lembrete (UC09); null quando está livre
+    emAtendimentos: { usuario: { id: number; pessoa: { nome: string } } } | null;
   };
 };
 

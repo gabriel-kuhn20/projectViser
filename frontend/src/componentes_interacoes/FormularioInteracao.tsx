@@ -1,18 +1,28 @@
 import { useState } from "react";
 import { BotaoPrimario } from "../componentes_compartilhados/BotaoPrimario";
 import { CampoTexto } from "../componentes_compartilhados/CampoTexto";
-import { concluirLembrete, type LembreteApi, type TentativaContatoApi } from "../servicos_api/ApiLembrete";
+import { concluirLembrete, type TentativaContatoApi } from "../servicos_api/ApiLembrete";
 import { registrarInteracao, type InteracaoApi } from "../servicos_api/ApiInteracao";
 import { usarAutenticacao } from "../hooks_dados/useAutenticacao";
 import { EdicaoInteracao, MarcaEditado } from "./EdicaoInteracao";
 import { formatarMensagemErro } from "../utilitarios_formatacao/FormatarErro";
 import { formatarTelefone } from "../utilitarios_formatacao/FormatarTelefone";
 
-type PropriedadesFormularioInteracao = {
-  lembreteSelecionado: LembreteApi;
-  aoRegistrar: (lembreteAtualizado: LembreteApi) => void;
-  aoConcluir: (lembreteConcluido: LembreteApi) => void;
+// só os campos que o formulário usa: a tela de Lembretes passa o LembreteApi inteiro
+// e o histórico do cliente monta o mesmo formato com o que já tem carregado
+export type LembreteContato = {
+  id: number;
+  marco: { entrega: { produto: string; cliente: { contato: string; pessoa: { nome: string } } } };
+  interacoes: TentativaContatoApi[];
+};
+
+type PropriedadesFormularioInteracao<TipoLembrete extends LembreteContato> = {
+  lembreteSelecionado: TipoLembrete;
+  aoRegistrar: (lembreteAtualizado: TipoLembrete) => void;
+  aoConcluir: (lembreteConcluido: TipoLembrete) => void;
   aoCancelar: () => void;
+  // no histórico as tentativas já aparecem nos cartões logo abaixo; repetir aqui duplicaria a edição
+  exibirTentativas?: boolean;
 };
 
 const camposIniciais = { conteudo: "", respostaCliente: "" };
@@ -20,12 +30,13 @@ const camposIniciais = { conteudo: "", respostaCliente: "" };
 // UC07 · Concluir lembrete de contato (RF07, RF17): o cliente nem sempre atende na primeira ligação,
 // então cada tentativa pode ser registrada sem concluir; quem decide encerrar é a atendente.
 // A1: sem nenhuma conversa registrada (agora ou antes), não conclui
-export function FormularioInteracao({
+export function FormularioInteracao<TipoLembrete extends LembreteContato>({
                                       lembreteSelecionado,
                                       aoRegistrar,
                                       aoConcluir,
                                       aoCancelar,
-                                    }: PropriedadesFormularioInteracao) {
+                                      exibirTentativas = true,
+                                    }: PropriedadesFormularioInteracao<TipoLembrete>) {
   const [camposFormulario, definirCamposFormulario] = useState(camposIniciais);
   const [mensagemErro, definirMensagemErro] = useState<string | null>(null);
   const [estaEnviando, definirEstaEnviando] = useState(false);
@@ -118,7 +129,7 @@ export function FormularioInteracao({
           </p>
         </div>
 
-        {possuiTentativas && (
+        {possuiTentativas && exibirTentativas && (
             <div>
               <p className="campo-texto-rotulo mb-2">Tentativas registradas</p>
               <ol className="flex flex-col divide-y divide-black/10 rounded-xl border border-black/10 text-[14px]">

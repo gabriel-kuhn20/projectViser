@@ -68,14 +68,15 @@ export function EdicaoInteracao({ interacaoEmEdicao, aoSalvar, aoCancelar }: Pro
   );
 }
 
-// o histórico não pode mudar sem aviso: quem lê vê que o texto foi corrigido e quando (no title)
+// o histórico não pode mudar sem aviso: quem lê vê que o texto foi corrigido e quando.
+// a data fica visível, não só no title: a data do cartão é a do primeiro registro, e no celular não há mouse
 export function MarcaEditado({ editadoEm }: { editadoEm: string | null }) {
   if (!editadoEm) return null;
 
   const dataEdicao = new Date(editadoEm).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
   return (
-      <span title={`editado em ${dataEdicao}`} className="text-black/45">
-        (editado)
+      <span className="text-black/45">
+        (editado em <time dateTime={editadoEm}>{dataEdicao}</time>)
       </span>
   );
 }

@@ -233,6 +233,7 @@ export function PaginaHistorico() {
                 />
             )}
             <HistoricoInteracoes
+                clienteHistorico={clienteSelecionado}
                 interacoesCliente={interacoesCliente}
                 estaCarregando={estaCarregando}
                 aoAlterar={aoAlterarHistorico}
