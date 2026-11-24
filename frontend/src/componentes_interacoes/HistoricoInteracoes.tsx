@@ -105,17 +105,16 @@ export function HistoricoInteracoes({
     return interacaoCliente.lembrete.status === "pendente" && idsUltimoContato.has(interacaoCliente.id);
   }
 
-  // mesma regra da API (verificarAtendimentoDeOutro): lembrete assumido só recebe contato de quem assumiu ou de um admin
   function buscarAtendimentoDeOutro(interacaoCliente: InteracaoApi) {
     const atendimentoAtual = interacaoCliente.lembrete.emAtendimentos;
-    if (ehAdmin || !atendimentoAtual) return null;
-    if (atendimentoAtual.usuario.id === usuarioId) return null;
+    if (!atendimentoAtual || atendimentoAtual.usuario.id === usuarioId) return null;
     return atendimentoAtual;
   }
 
+  // mesma regra da API (verificarAtendimentoDeOutro): lembrete assumido só recebe contato de quem assumiu ou de um admin
   function verificarPodeRegistrarContato(interacaoCliente: InteracaoApi) {
     if (!clienteHistorico || !verificarEhUltimoContatoPendente(interacaoCliente)) return false;
-    return buscarAtendimentoDeOutro(interacaoCliente) === null;
+    return ehAdmin || buscarAtendimentoDeOutro(interacaoCliente) === null;
   }
 
   function aoAbrirContato(interacaoCliente: InteracaoApi) {
@@ -179,7 +178,8 @@ export function HistoricoInteracoes({
             const podeEditar = verificarPodeEditar(interacaoCliente);
             const podeReabrir = verificarPodeReabrir(interacaoCliente);
             const podeRegistrarContato = verificarPodeRegistrarContato(interacaoCliente) && lembreteEmContato === null;
-            // aviso no lugar do botão: sem ele a atendente não entende por que não consegue registrar
+            // a atendente vê o aviso no lugar do botão, para entender por que não consegue registrar;
+            // o admin vê junto do botão, para não concluir sem saber que alguém está ligando para o cliente
             const atendimentoDeOutro = verificarEhUltimoContatoPendente(interacaoCliente)
                 ? buscarAtendimentoDeOutro(interacaoCliente)
                 : null;
