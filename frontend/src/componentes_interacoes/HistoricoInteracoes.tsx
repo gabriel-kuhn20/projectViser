@@ -98,8 +98,9 @@ export function HistoricoInteracoes({ interacoesCliente, estaCarregando, aoAlter
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <span className="font-semibold text-black">{interacaoCliente.usuario.pessoa.nome}</span>
                     <span className="flex flex-wrap items-center gap-2 text-[13px] text-black/55">
-                      {/* produto junto do marco: cliente com mais de uma compra precisa saber de qual foi a conversa */}
-                      <span className="etiqueta">
+                      {/* produto junto do marco: cliente com mais de uma compra precisa saber de qual foi a conversa.
+                          O produto é texto livre e pode ser longo: a etiqueta quebra linha em vez de alargar a página no celular (RNF05) */}
+                      <span className="etiqueta whitespace-normal text-left [overflow-wrap:anywhere]">
                         {interacaoCliente.lembrete.marco.entrega.produto} · {interacaoCliente.lembrete.marco.tipoMarco.nome}
                       </span>
                       <time dateTime={interacaoCliente.criadoEm}>{formatarDataHora(interacaoCliente.criadoEm)}</time>
@@ -117,11 +118,12 @@ export function HistoricoInteracoes({ interacoesCliente, estaCarregando, aoAlter
 
                   {!estaEditando && (
                       <>
-                        <p className="mt-3 whitespace-pre-line text-[14px] leading-relaxed text-black/85">
+                        {/* overflow-wrap: um link colado não tem espaço para quebrar e alargaria a página no celular (RNF05) */}
+                        <p className="mt-3 whitespace-pre-line text-[14px] leading-relaxed text-black/85 [overflow-wrap:anywhere]">
                           {interacaoCliente.conteudo}
                         </p>
                         {interacaoCliente.respostaCliente && (
-                            <p className="mt-3 whitespace-pre-line rounded-[10px] bg-app-fundo px-4 py-3 text-[14px] text-black/80">
+                            <p className="mt-3 whitespace-pre-line rounded-[10px] bg-app-fundo px-4 py-3 text-[14px] text-black/80 [overflow-wrap:anywhere]">
                               <span className="font-semibold">Resposta da cliente:</span> {interacaoCliente.respostaCliente}
                             </p>
                         )}

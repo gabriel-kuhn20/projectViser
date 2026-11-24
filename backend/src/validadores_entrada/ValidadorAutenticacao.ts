@@ -1,7 +1,8 @@
 import { z } from "zod";
+import { validadorEmailConta } from "./ValidadorAtendente";
 
 export const validadorLogin = z.object({
-  email: z.string().email(),
+  email: validadorEmailConta,
   senha: z.string().min(1),
 });
 
@@ -15,7 +16,7 @@ export const validadorTrocaSenha = z.object({
 
 // UC12 · Recuperar senha (RF20)
 export const validadorSolicitacaoRecuperacao = z.object({
-  email: z.string().email(),
+  email: validadorEmailConta,
 });
 
 // o mínimo de 8 é o mesmo do cadastro de conta — a recuperação não pode ser a porta

@@ -22,13 +22,22 @@ const RESPOSTA_SOLICITACAO_RECUPERACAO = {
 // ação da pessoa, e separar as mensagens só ajudaria quem está testando tokens
 const MENSAGEM_LINK_INVALIDO = "link inválido ou expirado — solicite a redefinição de novo";
 
+// Buscar conta pelo e-mail sem diferenciar maiúsculas
+// o validador já converte o e-mail digitado para minúsculas, mas contas gravadas antes dessa
+// regra podem ter maiúscula — o insensitive deixa essas pessoas entrarem sem corrigir o banco antes.
+// Se sobrou um par que só difere na caixa, a conta mais antiga é a que vale
+async function buscarUsuarioPorEmail(email: string) {
+  return clientePrisma.usuario.findFirst({
+    where: { email: { equals: email, mode: "insensitive" } },
+    orderBy: { id: "asc" },
+  });
+}
+
 // UC01 · Entrar no sistema (RF01)
 async function efetuarLogin(req: Request, res: Response) {
   const dadosValidados = validadorLogin.parse(req.body);
 
-  const usuario = await clientePrisma.usuario.findUnique({
-    where: { email: dadosValidados.email },
-  });
+  const usuario = await buscarUsuarioPorEmail(dadosValidados.email);
 
   const senhaValida =
       usuario && (await bcrypt.compare(dadosValidados.senha, usuario.senha));
@@ -62,10 +71,7 @@ async function encerrarSessao(req: Request, res: Response) {
 async function solicitarRecuperacaoSenha(req: Request, res: Response) {
   const dadosValidados = validadorSolicitacaoRecuperacao.parse(req.body);
 
-  const usuario = await clientePrisma.usuario.findUnique({
-    where: { email: dadosValidados.email },
-    select: { id: true, ativo: true },
-  });
+  const usuario = await buscarUsuarioPorEmail(dadosValidados.email);
 
   // conta inexistente e conta desativada param aqui, com a resposta de sempre e nenhum
   // e-mail: mandar o link para quem foi desativado devolveria o acesso que o
