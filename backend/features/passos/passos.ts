@@ -268,6 +268,30 @@ Then(
     assert.equal(vezes, 1, `${nome} aparece ${vezes} vezes nos lembretes de ${marco}`);
   }
 );
+// ---------- UC09 · Marcar lembrete como em atendimento (RF08) ----------
+
+// outra conta assume por fora: o token de quem está logado no cenário continua o mesmo
+Given(
+  "que a conta {string} assumiu o lembrete de {string} da cliente {string}",
+  async function (this: Mundo, papel: string, marco: string, nome: string) {
+    const tokenOutraConta = await entrarComo(papel);
+    const lembreteId = await buscarIdDoLembrete(this, marco, nome);
+    const resposta = await api(`/lembretes/${lembreteId}/em-atendimento`, { metodo: "PATCH", token: tokenOutraConta });
+    assert.equal(resposta.status, 201, `${papel} não conseguiu assumir o lembrete`);
+  }
+);
+
+When(
+  "registro o contato {string} no lembrete de {string} da cliente {string}",
+  async function (this: Mundo, conteudo: string, marco: string, nome: string) {
+    const lembreteId = await buscarIdDoLembrete(this, marco, nome);
+    await guardarResposta(
+      this,
+      await api("/interacoes", { metodo: "POST", corpo: { lembreteId, conteudo }, token: this.token })
+    );
+  }
+);
+
 // ---------- UC12 · Recuperar senha (RF20) ----------
 
 async function usarLinkRecuperacao(mundo: Mundo, novaSenha: string, confirmacaoSenha: string) {

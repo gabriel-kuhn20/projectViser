@@ -21,6 +21,21 @@ export async function buscarLembretePendente(lembreteId: number) {
   return lembreteEncontrado;
 }
 
+// UC09 · Marcar lembrete como em atendimento (RF08)
+// lembrete assumido só recebe contato e conclusão de quem assumiu ou de um admin — senão outra
+// atendente registra e conclui por cima e duas pessoas falam com o mesmo cliente (o que o UC09
+// existe para evitar). Lembrete que ninguém assumiu continua livre para qualquer atendente
+export async function verificarAtendimentoDeOutro(req: Request, lembreteId: number) {
+  const { usuarioId, papelAcesso } = req.usuarioLogado!;
+  if (papelAcesso === "admin") return;
+
+  const atendimentoAtual = await clientePrisma.emAtendimento.findUnique({ where: { lembreteId } });
+  const estaComOutraPessoa = atendimentoAtual !== null && atendimentoAtual.usuarioId !== usuarioId;
+  if (estaComOutraPessoa) {
+    throw new ErroHttp(409, "lembrete está em atendimento com outra pessoa");
+  }
+}
+
 // UC05 · Ver lista de lembretes por marco (RF04)
 async function listarPorMarco(req: Request, res: Response) {
   // os marcos agora são cadastrados pelo administrador, então a aba é identificada pelo id
@@ -86,6 +101,7 @@ async function concluirLembrete(req: Request, res: Response) {
   const { conteudo, respostaCliente } = validadorConclusaoLembrete.parse(req.body ?? {});
 
   await buscarLembretePendente(lembreteId);
+  await verificarAtendimentoDeOutro(req, lembreteId);
 
   const totalInteracoes = await clientePrisma.interacao.count({ where: { lembreteId } });
   const semInteracaoRegistrada = totalInteracoes === 0 && !conteudo;

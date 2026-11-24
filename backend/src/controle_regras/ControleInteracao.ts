@@ -8,7 +8,7 @@ import {
   validadorRespostaInteracao,
 } from "../validadores_entrada/ValidadorInteracao";
 import { validadorParametroId } from "../validadores_entrada/ValidadorParametros";
-import { buscarLembretePendente } from "./ControleLembrete";
+import { buscarLembretePendente, verificarAtendimentoDeOutro } from "./ControleLembrete";
 
 // mesmo recorte no histórico e no detalhe — e-mail e senha do usuário ficam propositalmente de fora
 const relacoesPublicasInteracao = {
@@ -84,6 +84,7 @@ async function registrarInteracao(req: Request, res: Response) {
   await verificarUsuarioExistente(usuarioId);
   // interação em lembrete concluído ficaria fora do contato que já foi encerrado
   await buscarLembretePendente(dadosValidados.lembreteId);
+  await verificarAtendimentoDeOutro(req, dadosValidados.lembreteId);
 
   const novaInteracao = await clientePrisma.interacao.create({
     data: { ...dadosValidados, usuarioId },

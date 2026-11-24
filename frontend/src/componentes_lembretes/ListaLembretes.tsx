@@ -80,6 +80,8 @@ export function ListaLembretes({
           // mesma regra do backend: só quem assumiu ou um admin libera o atendimento
           const assumidoPeloUsuario = lembretePendente.emAtendimentos?.usuario.id === usuarioId;
           const podeLiberar = papelAcesso === "admin" || assumidoPeloUsuario;
+          // mesma regra do backend: lembrete com outra pessoa só recebe contato de quem assumiu ou de um admin
+          const podeRegistrarContato = !atendenteAssumiu || podeLiberar;
           const diasAguardando = calcularDiasAguardando(lembretePendente.marco.dataAlvo);
           const outrasEntregas = clienteLembrete.entregas.filter(
               (entrega) => entrega.id !== lembretePendente.marco.entrega.id,
@@ -157,14 +159,16 @@ export function ListaLembretes({
                     Ver cliente
                   </Link>
                   {/* RF17: abre o formulário, onde a atendente registra a tentativa e escolhe se já conclui */}
-                  <button
-                      type="button"
-                      className="botao-link border-black bg-black text-white hover:bg-site-botao"
-                      onClick={() => aoConcluir(lembretePendente)}
-                      disabled={acaoEmAndamento}
-                  >
-                    Registrar contato
-                  </button>
+                  {podeRegistrarContato && (
+                      <button
+                          type="button"
+                          className="botao-link border-black bg-black text-white hover:bg-site-botao"
+                          onClick={() => aoConcluir(lembretePendente)}
+                          disabled={acaoEmAndamento}
+                      >
+                        Registrar contato
+                      </button>
+                  )}
                 </div>
               </li>
           );
