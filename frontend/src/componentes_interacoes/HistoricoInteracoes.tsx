@@ -118,11 +118,12 @@ export function HistoricoInteracoes({ interacoesCliente, estaCarregando, aoAlter
 
                   {!estaEditando && (
                       <>
-                        <p className="mt-3 whitespace-pre-line text-[14px] leading-relaxed text-black/85">
+                        {/* overflow-wrap: um link colado não tem espaço para quebrar e alargaria a página no celular (RNF05) */}
+                        <p className="mt-3 whitespace-pre-line text-[14px] leading-relaxed text-black/85 [overflow-wrap:anywhere]">
                           {interacaoCliente.conteudo}
                         </p>
                         {interacaoCliente.respostaCliente && (
-                            <p className="mt-3 whitespace-pre-line rounded-[10px] bg-app-fundo px-4 py-3 text-[14px] text-black/80">
+                            <p className="mt-3 whitespace-pre-line rounded-[10px] bg-app-fundo px-4 py-3 text-[14px] text-black/80 [overflow-wrap:anywhere]">
                               <span className="font-semibold">Resposta da cliente:</span> {interacaoCliente.respostaCliente}
                             </p>
                         )}

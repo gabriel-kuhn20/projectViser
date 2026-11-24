@@ -151,9 +151,12 @@ export function FormularioInteracao({
                       )}
                       {tentativa.id !== tentativaEmEdicaoId && (
                           <>
-                            <p className="mt-1">{tentativa.conteudo}</p>
+                            {/* mesmas quebras do histórico: as linhas digitadas aparecem e um link colado não alarga a tela */}
+                            <p className="mt-1 whitespace-pre-line [overflow-wrap:anywhere]">{tentativa.conteudo}</p>
                             {tentativa.respostaCliente && (
-                                <p className="mt-1 text-black/60">Cliente: {tentativa.respostaCliente}</p>
+                                <p className="mt-1 whitespace-pre-line text-black/60 [overflow-wrap:anywhere]">
+                                  Cliente: {tentativa.respostaCliente}
+                                </p>
                             )}
                           </>
                       )}
