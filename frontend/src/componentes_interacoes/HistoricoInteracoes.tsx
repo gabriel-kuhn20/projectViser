@@ -98,8 +98,9 @@ export function HistoricoInteracoes({ interacoesCliente, estaCarregando, aoAlter
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <span className="font-semibold text-black">{interacaoCliente.usuario.pessoa.nome}</span>
                     <span className="flex flex-wrap items-center gap-2 text-[13px] text-black/55">
-                      {/* produto junto do marco: cliente com mais de uma compra precisa saber de qual foi a conversa */}
-                      <span className="etiqueta">
+                      {/* produto junto do marco: cliente com mais de uma compra precisa saber de qual foi a conversa.
+                          O produto é texto livre e pode ser longo: a etiqueta quebra linha em vez de alargar a página no celular (RNF05) */}
+                      <span className="etiqueta whitespace-normal text-left [overflow-wrap:anywhere]">
                         {interacaoCliente.lembrete.marco.entrega.produto} · {interacaoCliente.lembrete.marco.tipoMarco.nome}
                       </span>
                       <time dateTime={interacaoCliente.criadoEm}>{formatarDataHora(interacaoCliente.criadoEm)}</time>
