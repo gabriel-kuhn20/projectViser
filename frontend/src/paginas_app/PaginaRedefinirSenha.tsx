@@ -8,7 +8,7 @@ import { formatarMensagemErro } from "../utilitarios_formatacao/FormatarErro";
 
 const TAMANHO_MINIMO_SENHA = 8;
 
-// UC12 · Redefinir a senha pelo link recebido (RF20)
+// UC12 · Recuperar senha (RF20): redefinir a senha pelo link recebido
 export function PaginaRedefinirSenha() {
     const [parametrosUrl] = useSearchParams();
     const [novaSenha, definirNovaSenha] = useState("");

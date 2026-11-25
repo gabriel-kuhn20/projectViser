@@ -13,7 +13,7 @@ type PropriedadesFormularioAtendente = {
 
 const camposIniciais = { nome: "", email: "", senha: "", confirmacaoSenha: "", papelAcesso: "atendente" as PapelAcesso };
 
-// UC10 · Cadastrar conta de atendente (RF09) e edição da conta (nome, e-mail e papel)
+// UC10 · Manter conta de usuário (RF09): cadastro e edição da conta (nome, e-mail e papel)
 // o papel já é escolhido no cadastro (padrão atendente): criar um admin não exige criar e depois editar
 export function FormularioAtendente({ atendenteEmEdicao, aoSalvar, aoCancelarEdicao }: PropriedadesFormularioAtendente) {
     const [campos, definirCampos] = useState(camposIniciais);

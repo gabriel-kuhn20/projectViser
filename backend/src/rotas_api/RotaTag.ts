@@ -8,6 +8,7 @@ export const rotaTag = Router();
 
 rotaTag.use(middlewareAutenticacao);
 
+// RF12 (UC11): qualquer usuário logado lista as tags; criar, renomear e excluir é só do administrador (RF11, RNF06)
 rotaTag.get("/", controleTag.listarTags);
 rotaTag.get("/:tagId", controleTag.buscarTagPorId);
 rotaTag.post("/", exigirPapel("admin"), controleTag.cadastrarTag);

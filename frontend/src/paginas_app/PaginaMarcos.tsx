@@ -5,7 +5,7 @@ import { editarTipoMarco, excluirTipoMarco, listarTiposMarco, type TipoMarcoApi 
 import { formatarMensagemErro } from "../utilitarios_formatacao/FormatarErro";
 import { TituloPagina } from "../componentes_layout/TituloPagina";
 
-// UC04 · Calcular marcos de acompanhamento (RF03): os marcos deixam de ser fixos (7 dias, 2 meses
+// UC15 · Manter marco de acompanhamento (RF23): os marcos deixam de ser fixos (7 dias, 2 meses
 // e 1 ano) e passam a ser definidos pelo administrador — só ele acessa esta tela (RNF06)
 export function PaginaMarcos() {
     const [marcos, definirMarcos] = useState<TipoMarcoApi[]>([]);

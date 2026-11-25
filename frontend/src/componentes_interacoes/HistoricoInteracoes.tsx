@@ -63,7 +63,7 @@ function montarLembreteContato(
   };
 }
 
-// UC06 · Consultar histórico do cliente (RF06): também é onde se corrige um registro (RF05)
+// UC06 · Consultar histórico do cliente (RF06): também é onde se corrige um registro (UC07 A2)
 // e onde o admin reabre um lembrete concluído por engano (UC07 A3)
 // UC07 · Concluir lembrete de contato (RF07, RF17): lembrete pendente (inclusive reaberto) recebe tentativa nova
 // ou é concluído daqui, sem a atendente precisar voltar para Lembretes e procurar o cliente

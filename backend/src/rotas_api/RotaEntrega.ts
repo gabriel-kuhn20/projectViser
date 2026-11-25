@@ -6,11 +6,11 @@ export const rotaEntrega = Router();
 
 rotaEntrega.use(middlewareAutenticacao);
 
-// Cadastrar entrega para um cliente que já existe
+// RF02 (UC02): cadastrar entrega para um cliente que já existe
 rotaEntrega.post("/", controleEntrega.cadastrarEntrega);
-// Listar entregas de um cliente
+// RF02 (UC02): listar entregas de um cliente
 rotaEntrega.get("/cliente/:clienteId", controleEntrega.listarEntregasCliente);
-// Buscar, editar e excluir entrega por id
+// RF02 (UC02): buscar, editar e excluir entrega por id
 rotaEntrega.get("/:entregaId", controleEntrega.buscarEntregaPorId);
 rotaEntrega.put("/:entregaId", controleEntrega.editarEntrega);
 // RNF06: a atendente só exclui compra sem contato registrado (erro de cadastro); com histórico,
