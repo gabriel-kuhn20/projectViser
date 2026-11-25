@@ -20,6 +20,7 @@ const marcosHistoria = [
     { ano: "2025", texto: "Expansão para duas unidades e rebranding da marca." },
 ];
 
+// UC16 · Consultar site institucional (RF24)
 export function PaginaQuemSomos() {
     return (
         <LayoutSite titulo="Quem somos" cabecalho="claro">

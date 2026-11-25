@@ -67,7 +67,7 @@ export function TabelaAtendentes({
                             <button type="button" className="botao-link" onClick={() => aoEditar(atendente)}>
                                 Editar
                             </button>
-                            {/* UC14 · Enviar à pessoa o link para criar uma senha nova (RF22) */}
+                            {/* UC14 · Enviar link de nova senha (RF22) */}
                             {/* escondido em conta desativada: o servidor recusa, porque o link devolveria o acesso tirado */}
                             {atendente.ativo && (
                                 <button

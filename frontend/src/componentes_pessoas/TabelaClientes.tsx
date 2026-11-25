@@ -16,7 +16,7 @@ function formatarData(data: string) {
   return new Date(data).toLocaleDateString("pt-BR");
 }
 
-// UC02/UC03 · lista de clientes cadastrados
+// UC02 · Manter cliente (RF02): lista de clientes cadastrados
 export function TabelaClientes({
   clientes,
   carregando,

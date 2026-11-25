@@ -30,7 +30,7 @@ export async function solicitarRecuperacaoSenha(email: string) {
   return resposta.data;
 }
 
-// UC12 · Redefinir a senha pelo link recebido (RF20)
+// UC12 · Recuperar senha (RF20): redefinir a senha pelo link recebido
 export async function redefinirSenha(token: string, novaSenha: string, confirmacaoSenha: string) {
   const resposta = await clienteHttp.post("/autenticacao/redefinir-senha", {
     token,

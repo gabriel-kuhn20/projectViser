@@ -10,6 +10,7 @@ const etapasConsultoria: { titulo: string; imagem: ChaveImagem }[] = [
     { titulo: "3. Escolha com Propósito", imagem: "escolha" },
 ];
 
+// UC16 · Consultar site institucional (RF24)
 export function PaginaVisagismo() {
     return (
         <LayoutSite titulo="Visagismo" cabecalho="sobreposto">

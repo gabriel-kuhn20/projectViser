@@ -7,7 +7,7 @@ import {
   verificarMarcoValeParaEntrega,
 } from "../utilitarios_datas/CalculoMarcos";
 
-// UC04 · Calcular marcos de acompanhamento (RF03)
+// UC03 · Calcular marcos de acompanhamento (RF03) e UC04 · Enviar lembrete (RF04)
 // Decisão de implementação (seção 9 do PRD): roda como rotina agendada,
 // não como efeito colateral de alguém abrir a tela.
 export function iniciarAgendadorMarcos() {

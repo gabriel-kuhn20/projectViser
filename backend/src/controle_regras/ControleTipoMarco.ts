@@ -15,7 +15,7 @@ async function buscarTipoMarcoExistente(tipoMarcoId: number) {
   return tipoMarcoEncontrado;
 }
 
-// Listar marcos (todos os usuários: as abas de lembretes e o painel saem daqui)
+// UC15 · Manter marco de acompanhamento (RF23): listar marcos (todos os usuários: as abas de lembretes e o painel saem daqui)
 async function listarTiposMarco(req: Request, res: Response) {
   const tiposMarco = await clientePrisma.tipoMarco.findMany({
     orderBy: { diasAposEntrega: "asc" },
@@ -24,7 +24,7 @@ async function listarTiposMarco(req: Request, res: Response) {
   return res.json(tiposMarco);
 }
 
-// RF03 (UC04): o administrador define em quantos dias após a entrega cada contato acontece
+// UC15 · Manter marco de acompanhamento (RF23): o administrador define em quantos dias após a entrega cada contato acontece
 // dias repetidos caem no P2002 (diasAposEntrega é único) e o middleware responde 409
 async function cadastrarTipoMarco(req: Request, res: Response) {
   const dadosMarco = validadorCadastroTipoMarco.parse(req.body);
@@ -35,7 +35,7 @@ async function cadastrarTipoMarco(req: Request, res: Response) {
   return res.status(201).json(novoTipoMarco);
 }
 
-// Editar marco: nome e ativo sempre; os dias só enquanto nenhum lembrete foi gerado —
+// UC15 · Manter marco de acompanhamento (RF23): editar marco — nome e ativo sempre; os dias só enquanto nenhum lembrete foi gerado —
 // mudar depois deixaria as datas dos lembretes e do histórico diferentes da regra nova
 async function editarTipoMarco(req: Request, res: Response) {
   const { id: tipoMarcoId } = validadorParametroId.parse({ id: req.params.tipoMarcoId });
@@ -58,7 +58,7 @@ async function editarTipoMarco(req: Request, res: Response) {
   return res.json(tipoMarcoAtualizado);
 }
 
-// Excluir marco: só os que nunca geraram lembrete; os outros guardam histórico e são desativados
+// UC15 · Manter marco de acompanhamento (RF23): excluir marco — só os que nunca geraram lembrete; os outros guardam histórico e são desativados
 async function excluirTipoMarco(req: Request, res: Response) {
   const { id: tipoMarcoId } = validadorParametroId.parse({ id: req.params.tipoMarcoId });
 

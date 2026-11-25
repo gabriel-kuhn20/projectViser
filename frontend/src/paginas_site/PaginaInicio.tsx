@@ -40,6 +40,7 @@ const diferenciais = [
     },
 ];
 
+// UC16 · Consultar site institucional (RF24)
 export function PaginaInicio() {
     const [videoAberto, definirVideoAberto] = useState(false);
 

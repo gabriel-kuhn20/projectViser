@@ -39,15 +39,27 @@ async function impedirRemocaoUltimoAdmin(usuarioAlvo: { papelAcesso: PapelAcesso
   }
 }
 
-// UC10 · Cadastrar conta de atendente (RF09)
+// Impedir e-mail repetido sem diferenciar maiúsculas
+// o @unique do banco compara o texto exato: sozinho deixaria "ADMIN@..." conviver com "admin@..." gravado
+// antes da conversão para minúsculas. Na edição a própria conta fica de fora, para manter o e-mail dela
+async function impedirEmailRepetido(email: string, usuarioEditadoId?: number) {
+  const contaComMesmoEmail = await clientePrisma.usuario.findFirst({
+    where: { email: { equals: email, mode: "insensitive" }, id: { not: usuarioEditadoId } },
+  });
+  if (contaComMesmoEmail) throw new ErroHttp(409, "já existe uma conta com esse e-mail");
+}
+
+// UC10 · Manter conta de usuário (RF09): cadastrar conta
 async function cadastrarAtendente(req: Request, res: Response) {
   const dadosValidados = validadorCadastroAtendente.parse(req.body);
+  await impedirEmailRepetido(dadosValidados.email);
   const senhaComHash = await bcrypt.hash(dadosValidados.senha, 10);
 
   const novoUsuario = await clientePrisma.usuario.create({
     data: {
       email: dadosValidados.email,
       senha: senhaComHash,
+      papelAcesso: dadosValidados.papelAcesso,
       pessoa: { create: { nome: dadosValidados.nome } },
     },
     include: { pessoa: true },
@@ -56,7 +68,7 @@ async function cadastrarAtendente(req: Request, res: Response) {
   return res.status(201).json({ id: novoUsuario.id, nome: novoUsuario.pessoa.nome });
 }
 
-// Listar contas de usuário
+// UC10 · Manter conta de usuário (RF09): listar contas
 async function listarAtendentes(req: Request, res: Response) {
   const usuarios = await clientePrisma.usuario.findMany({
     select: camposPublicosAtendente,
@@ -65,7 +77,7 @@ async function listarAtendentes(req: Request, res: Response) {
   return res.json(usuarios);
 }
 
-// Buscar conta de usuário por id
+// UC10 · Manter conta de usuário (RF09): buscar conta por id
 async function buscarAtendentePorId(req: Request, res: Response) {
   const { id: usuarioId } = validadorParametroId.parse({ id: req.params.usuarioId });
 
@@ -78,7 +90,7 @@ async function buscarAtendentePorId(req: Request, res: Response) {
   return res.json(usuario);
 }
 
-// Editar conta de usuário (nome, e-mail e papel — a senha fica fora desta rota)
+// UC10 · Manter conta de usuário (RF09): editar conta (nome, e-mail e papel — a senha fica fora desta rota)
 async function editarAtendente(req: Request, res: Response) {
   const { id: usuarioId } = validadorParametroId.parse({ id: req.params.usuarioId });
   const { nome, email, papelAcesso } = validadorEdicaoAtendente.parse(req.body);
@@ -86,8 +98,9 @@ async function editarAtendente(req: Request, res: Response) {
   const usuarioExistente = await buscarAtendenteExistente(usuarioId);
   const estaPerdendoAdmin = usuarioExistente.papelAcesso === "admin" && papelAcesso !== "admin";
   if (estaPerdendoAdmin) await impedirRemocaoUltimoAdmin(usuarioExistente);
+  await impedirEmailRepetido(email, usuarioId);
 
-  // e-mail repetido cai no P2002 do Prisma e o middleware de erros responde 409
+  // dois pedidos com o mesmo e-mail ao mesmo tempo ainda caem no P2002 do Prisma, que vira 409
   const usuarioAtualizado = await clientePrisma.usuario.update({
     where: { id: usuarioId },
     data: { email, papelAcesso, pessoa: { update: { nome } } },
@@ -97,7 +110,7 @@ async function editarAtendente(req: Request, res: Response) {
   return res.json(usuarioAtualizado);
 }
 
-// Excluir conta de usuário
+// UC10 · Manter conta de usuário (RF09): excluir conta
 // bloqueada se houver interações — o histórico do cliente (UC06) perderia quem fez cada contato;
 // clientes que a conta GERENCIA ficam sem responsável e a pessoa só é apagada se não for também cliente
 async function excluirAtendente(req: Request, res: Response) {
@@ -130,7 +143,7 @@ async function excluirAtendente(req: Request, res: Response) {
   return res.json({ mensagem: "usuário excluído" });
 }
 
-// Desativar ou reativar conta de usuário (só administrador, RF11)
+// UC10 · Manter conta de usuário (RF09, RF11): desativar ou reativar conta (só administrador)
 // alternativa à exclusão para quem já tem interações: a conta perde o acesso, o histórico fica
 async function alterarSituacaoAtendente(req: Request, res: Response) {
   const { id: usuarioId } = validadorParametroId.parse({ id: req.params.usuarioId });
@@ -156,7 +169,7 @@ async function alterarSituacaoAtendente(req: Request, res: Response) {
   return res.json(usuarioAtualizado);
 }
 
-// UC14 · Enviar à pessoa o link para criar uma senha nova (RF22)
+// UC14 · Enviar link de nova senha (RF22)
 async function enviarLinkRecuperacaoAtendente(req: Request, res: Response) {
   const { id: usuarioId } = validadorParametroId.parse({ id: req.params.usuarioId });
 

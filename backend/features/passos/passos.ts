@@ -9,6 +9,7 @@ import {
   contarLinksRecuperacao,
   contarLinksRecuperacaoDe,
   contarTokensEncerrados,
+  criarContaAntiga,
   criarLinkRecuperacao,
   criarTokenEncerradoVencido,
   executarLimpezaDeTokens,
@@ -211,6 +212,11 @@ When("cadastro a cliente {string} com entrega há {int} dias", async function (t
 When("cadastro a cliente {string} com entrega daqui a {int} dias", async function (this: Mundo, nome: string, dias: number) {
   await cadastrarCliente(this, nome, diasAPartirDeHoje(dias));
 });
+// data escrita como a tela manda, para testar dias que o calendário não tem
+When("cadastro a cliente {string} com entrega em {string}", async function (this: Mundo, nome: string, dataEntrega: string) {
+  await cadastrarCliente(this, nome, dataEntrega);
+});
+
 When("a rotina de marcos roda {int} vezes ao mesmo tempo", async function (this: Mundo, vezes: number) {
   await rodarRotinaMarcos(vezes);
 });
@@ -268,6 +274,79 @@ Then(
     assert.equal(vezes, 1, `${nome} aparece ${vezes} vezes nos lembretes de ${marco}`);
   }
 );
+// ---------- UC08 · Marcar lembrete como em atendimento (RF08) ----------
+
+// outra conta assume por fora: o token de quem está logado no cenário continua o mesmo
+Given(
+  "que a conta {string} assumiu o lembrete de {string} da cliente {string}",
+  async function (this: Mundo, papel: string, marco: string, nome: string) {
+    const tokenOutraConta = await entrarComo(papel);
+    const lembreteId = await buscarIdDoLembrete(this, marco, nome);
+    const resposta = await api(`/lembretes/${lembreteId}/em-atendimento`, { metodo: "PATCH", token: tokenOutraConta });
+    assert.equal(resposta.status, 201, `${papel} não conseguiu assumir o lembrete`);
+  }
+);
+
+When(
+  "registro o contato {string} no lembrete de {string} da cliente {string}",
+  async function (this: Mundo, conteudo: string, marco: string, nome: string) {
+    const lembreteId = await buscarIdDoLembrete(this, marco, nome);
+    await guardarResposta(
+      this,
+      await api("/interacoes", { metodo: "POST", corpo: { lembreteId, conteudo }, token: this.token })
+    );
+  }
+);
+
+// ---------- Tags ----------
+
+Given("que a tag {string} está cadastrada", async function (this: Mundo, nome: string) {
+  const resposta = await api("/tags", { metodo: "POST", corpo: { nome }, token: this.token });
+  assert.equal(resposta.status, 201, `cadastro da tag ${nome} falhou`);
+});
+
+When("renomeio a tag {string} para {string}", async function (this: Mundo, nomeAtual: string, novoNome: string) {
+  const tags = await (await api("/tags", { token: this.token })).json();
+  const tagEncontrada = tags.find((tag: { nome: string }) => tag.nome === nomeAtual);
+  assert.ok(tagEncontrada, `a tag ${nomeAtual} não foi cadastrada no cenário`);
+  await guardarResposta(
+    this,
+    await api(`/tags/${tagEncontrada.id}`, { metodo: "PUT", corpo: { nome: novoNome }, token: this.token })
+  );
+});
+
+// ---------- UC10 · Manter conta de usuário (RF09): e-mail sem diferenciar maiúsculas ----------
+
+Given(
+  "que existe uma conta antiga com o e-mail {string} e a senha {string}",
+  async function (email: string, senha: string) {
+    await criarContaAntiga(email, senha);
+  }
+);
+
+When("cadastro uma conta com o e-mail {string}", async function (this: Mundo, email: string) {
+  await guardarResposta(
+    this,
+    await api("/atendentes", {
+      metodo: "POST",
+      corpo: { nome: "Conta nova", email, senha: "senha-da-conta-nova-123" },
+      token: this.token,
+    })
+  );
+});
+
+When("altero o e-mail da conta {string} para {string}", async function (this: Mundo, papel: string, email: string) {
+  const usuarioId = await buscarIdDaConta(papel, this.token!);
+  await guardarResposta(
+    this,
+    await api(`/atendentes/${usuarioId}`, {
+      metodo: "PUT",
+      corpo: { nome: papel, email, papelAcesso: CONTAS[papel as keyof typeof CONTAS].papel },
+      token: this.token,
+    })
+  );
+});
+
 // ---------- UC12 · Recuperar senha (RF20) ----------
 
 async function usarLinkRecuperacao(mundo: Mundo, novaSenha: string, confirmacaoSenha: string) {
@@ -321,7 +400,7 @@ When("excluo a conta de {string}", async function (this: Mundo, email: string) {
   await guardarResposta(this, await api(`/atendentes/${usuarioId}`, { metodo: "DELETE", token: this.token }));
 });
 
-// ---------- UC13 · Trocar a própria senha (RF21) / UC14 · Redefinir senha de atendente (RF22) ----------
+// ---------- UC13 · Trocar a própria senha (RF21) / UC14 · Enviar link de nova senha (RF22) ----------
 
 When(
   "troco minha senha de {string} para {string}",

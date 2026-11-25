@@ -16,6 +16,8 @@ export type InteracaoApi = {
     id: number;
     status: StatusLembrete;
     marco: { tipoMarco: { nome: string }; entrega: { produto: string } };
+    // quem assumiu o lembrete (UC08); null quando está livre
+    emAtendimentos: { usuario: { id: number; pessoa: { nome: string } } } | null;
   };
 };
 
@@ -39,7 +41,7 @@ export async function registrarInteracao(dadosInteracao: DadosRegistroInteracao)
   await clienteHttp.post("/interacoes", dadosInteracao);
 }
 
-// RF05: só o autor ou um admin, e só com o lembrete pendente (a API devolve 403/409 nos outros casos)
+// UC07 A2 (RF07): só o autor ou um admin, e só com o lembrete pendente (a API devolve 403/409 nos outros casos)
 export async function editarInteracao(interacaoId: number, dadosEdicao: DadosEdicaoInteracao): Promise<InteracaoApi> {
   const respostaEdicao = await clienteHttp.patch(`/interacoes/${interacaoId}`, dadosEdicao);
   return respostaEdicao.data;

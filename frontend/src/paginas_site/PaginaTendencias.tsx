@@ -4,6 +4,7 @@ import { linkAgendamento, tendencias } from "../componentes_site/dadosSite";
 import { IconeMaisCirculo } from "../componentes_site/IconesSite";
 import { ChaveImagem } from "../componentes_site/imagensSite";
 
+// UC16 · Consultar site institucional (RF24)
 export function PaginaTendencias() {
     return (
         <LayoutSite titulo="Tendências" cabecalho="sobreposto">

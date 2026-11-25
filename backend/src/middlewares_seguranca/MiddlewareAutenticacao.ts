@@ -31,7 +31,7 @@ export async function middlewareAutenticacao(req: Request, res: Response, next: 
     return res.status(401).json({ mensagem: "token inválido ou expirado" });
   }
 
-  // UC01 · Entrar no sistema (RF01): o token de quem clicou em "Sair" não abre mais nada
+  // UC01 · Entrar no sistema (RF01, RNF10): o token de quem clicou em "Sair" não abre mais nada
   const tokenRevogado = await clientePrisma.tokenRevogado.findUnique({ where: { jti: payloadToken.jti } });
   if (tokenRevogado) {
     return res.status(401).json({ mensagem: "sessão encerrada — entre novamente" });
