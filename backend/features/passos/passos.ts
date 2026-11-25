@@ -30,6 +30,8 @@ type Mundo = World & {
   tokenOutroAparelho?: string;
   // o token que a troca de senha devolve para quem acabou de trocar
   tokenNovo?: string;
+  // as duas respostas quando duas atendentes marcam o mesmo lembrete no mesmo instante
+  respostasSimultaneas?: { status: number; corpo: any }[];
 };
 
 type OpcoesApi = { metodo?: string; corpo?: unknown; token?: string };
@@ -106,6 +108,11 @@ async function concluirLembreteDaCliente(mundo: Mundo, nomeMarco: string, nomeCl
   );
 }
 
+async function marcarEmAtendimento(mundo: Mundo, token: string, nomeMarco: string, nomeCliente: string) {
+  const lembreteId = await buscarIdDoLembrete(mundo, nomeMarco, nomeCliente);
+  return api(`/lembretes/${lembreteId}/em-atendimento`, { metodo: "PATCH", token });
+}
+
 async function entrarComo(papel: string) {
   const conta = CONTAS[papel as keyof typeof CONTAS];
   assert.ok(conta, `não existe conta de teste para "${papel}"`);
@@ -169,6 +176,14 @@ Given(
     await registrarEntregaSemRotina(nome, dias);
   }
 );
+Given(
+  "que marquei o lembrete de {string} da cliente {string} como em atendimento",
+  async function (this: Mundo, marco: string, nome: string) {
+    const resposta = await marcarEmAtendimento(this, this.token!, marco, nome);
+    assert.equal(resposta.status, 201, `marcar o lembrete de ${nome} falhou`);
+  }
+);
+
 // ---------- Quando ----------
 
 When(
@@ -224,6 +239,37 @@ When("a rotina de marcos roda {int} vezes ao mesmo tempo", async function (this:
 When("a rotina de marcos roda de novo", async function (this: Mundo) {
   await rodarRotinaMarcos(1);
 });
+When(
+  "{string} tenta marcar o lembrete de {string} da cliente {string} como em atendimento",
+  async function (this: Mundo, papel: string, marco: string, nome: string) {
+    const token = await entrarComo(papel);
+    await guardarResposta(this, await marcarEmAtendimento(this, token, marco, nome));
+  }
+);
+
+When("desmarco o lembrete de {string} da cliente {string}", async function (this: Mundo, marco: string, nome: string) {
+  const lembreteId = await buscarIdDoLembrete(this, marco, nome);
+  await guardarResposta(
+    this,
+    await api(`/lembretes/${lembreteId}/em-atendimento`, { metodo: "DELETE", token: this.token })
+  );
+});
+
+// as duas requisições saem juntas, como dois cliques no mesmo segundo em computadores diferentes
+When(
+  "{string} e {string} marcam o lembrete de {string} da cliente {string} ao mesmo tempo",
+  async function (this: Mundo, papelA: string, papelB: string, marco: string, nome: string) {
+    const tokens = await Promise.all([entrarComo(papelA), entrarComo(papelB)]);
+    const lembreteId = await buscarIdDoLembrete(this, marco, nome);
+    const respostas = await Promise.all(
+      tokens.map((token) => api(`/lembretes/${lembreteId}/em-atendimento`, { metodo: "PATCH", token }))
+    );
+    this.respostasSimultaneas = await Promise.all(
+      respostas.map(async (resposta) => ({ status: resposta.status, corpo: await resposta.json() }))
+    );
+  }
+);
+
 When("tento excluir a cliente {string}", async function (this: Mundo, nome: string) {
   const clienteId = this.clientes?.[nome];
   assert.ok(clienteId, `a cliente ${nome} não foi cadastrada no cenário`);
@@ -274,6 +320,16 @@ Then(
     assert.equal(vezes, 1, `${nome} aparece ${vezes} vezes nos lembretes de ${marco}`);
   }
 );
+Then("só uma delas deve ficar com o contato", function (this: Mundo) {
+  const situacoes = this.respostasSimultaneas!.map((resposta) => resposta.status).sort();
+  assert.deepEqual(situacoes, [201, 409]);
+});
+
+Then("a outra deve saber quem está atendendo", function (this: Mundo) {
+  const recusa = this.respostasSimultaneas!.find((resposta) => resposta.status === 409);
+  assert.match(recusa!.corpo.mensagem, /sendo tratado por (Ana|Bianca)/);
+});
+
 // ---------- UC08 · Marcar lembrete como em atendimento (RF08) ----------
 
 // outra conta assume por fora: o token de quem está logado no cenário continua o mesmo

@@ -36,10 +36,12 @@ process.env.RESEND_API_KEY = "";
 // as migrations e o bcrypt passam dos 5 segundos padrão do Cucumber
 setDefaultTimeout(60_000);
 
-// uma conta de cada papel, criada antes de cada cenário (o "seed" dos testes)
+// uma conta de cada papel, criada antes de cada cenário (o "seed" dos testes);
+// a segunda atendente existe para os cenários em que duas pessoas disputam o mesmo contato
 export const CONTAS = {
-  administrador: { email: "admin@oticaviser.com.br", senha: "senha-do-admin-123", papel: "admin" },
-  atendente: { email: "atendente@oticaviser.com.br", senha: "senha-da-atendente-123", papel: "atendente" },
+  administrador: { nome: "Bruna", email: "admin@oticaviser.com.br", senha: "senha-do-admin-123", papel: "admin" },
+  atendente: { nome: "Ana", email: "atendente@oticaviser.com.br", senha: "senha-da-atendente-123", papel: "atendente" },
+  "outra atendente": { nome: "Bianca", email: "atendente2@oticaviser.com.br", senha: "senha-da-outra-atendente-123", papel: "atendente" },
 } as const;
 
 let servidor: Server;
@@ -87,14 +89,14 @@ Before(async function () {
     ],
   });
 
-  for (const [nome, conta] of Object.entries(CONTAS)) {
+  for (const conta of Object.values(CONTAS)) {
     await prisma.usuario.create({
       data: {
         email: conta.email,
         // custo 4 no bcrypt: só para o teste ficar rápido, a produção usa 10
         senha: await bcrypt.hash(conta.senha, 4),
         papelAcesso: conta.papel,
-        pessoa: { create: { nome } },
+        pessoa: { create: { nome: conta.nome } },
       },
     });
   }

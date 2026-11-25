@@ -156,13 +156,39 @@ async function marcarEmAtendimento(req: Request, res: Response) {
   const usuarioId = req.usuarioLogado!.usuarioId;
   await buscarLembretePendente(lembreteId);
 
-  const jaEmAtendimento = await clientePrisma.emAtendimento.findUnique({ where: { lembreteId } });
+  const jaEmAtendimento = await buscarAtendimentoAtual(lembreteId);
   if (jaEmAtendimento) {
-    return res.status(409).json({ mensagem: "lembrete já está sendo tratado por outro atendente" });
+    throw new ErroHttp(409, montarMensagemJaEmAtendimento(jaEmAtendimento.usuario.pessoa.nome));
   }
 
-  const registro = await clientePrisma.emAtendimento.create({ data: { lembreteId, usuarioId } });
-  return res.status(201).json(registro);
+  try {
+    const registro = await clientePrisma.emAtendimento.create({ data: { lembreteId, usuarioId } });
+    return res.status(201).json(registro);
+  } catch (erroCriacao) {
+    // duas atendentes clicando no mesmo instante passam juntas pela checagem acima;
+    // o @unique de lembreteId barra a segunda, que precisa saber quem ficou com o contato
+    const atendimentoVencedor = verificarDuplicidade(erroCriacao) ? await buscarAtendimentoAtual(lembreteId) : null;
+    if (atendimentoVencedor) {
+      throw new ErroHttp(409, montarMensagemJaEmAtendimento(atendimentoVencedor.usuario.pessoa.nome));
+    }
+    throw erroCriacao;
+  }
+}
+
+// A1: a recusa diz quem está no contato, para a atendente saber com quem conversar
+function buscarAtendimentoAtual(lembreteId: number) {
+  return clientePrisma.emAtendimento.findUnique({
+    where: { lembreteId },
+    include: { usuario: { select: { pessoa: { select: { nome: true } } } } },
+  });
+}
+
+function montarMensagemJaEmAtendimento(nomeAtendente: string) {
+  return `lembrete já está sendo tratado por ${nomeAtendente}`;
+}
+
+function verificarDuplicidade(erro: unknown) {
+  return erro instanceof Prisma.PrismaClientKnownRequestError && erro.code === "P2002";
 }
 
 // UC08 · A2: desistir do contato libera o lembrete manualmente
