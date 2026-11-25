@@ -13,3 +13,9 @@ Funcionalidade: Cadastrar cliente
     Quando cadastro a cliente "Beatriz Rodrigues" com entrega daqui a 3 dias
     Então o status da resposta deve ser 400
     E a resposta deve dizer "a data de entrega não pode ser futura"
+
+  Cenário: Data de entrega que não existe no calendário
+    Dado que entrei como "atendente"
+    Quando cadastro a cliente "Beatriz Rodrigues" com entrega em "2026-02-31"
+    Então o status da resposta deve ser 400
+    E a resposta deve dizer "a data de entrega não existe no calendário"

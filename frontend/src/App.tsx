@@ -23,7 +23,7 @@ export function App() {
         <ContextoAutenticacao>
             <BrowserRouter>
                 <Routes>
-                    {/* site institucional (público) */}
+                    {/* UC16 · Consultar site institucional (RF24): público, sem login */}
                     <Route path="/" element={<PaginaInicio />} />
                     <Route path="/quem-somos" element={<PaginaQuemSomos />} />
                     <Route path="/visagismo" element={<PaginaVisagismo />} />

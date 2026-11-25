@@ -206,7 +206,7 @@ export function PaginaHistorico() {
                 </div>
             )}
 
-            {/* UC07: contato antes do marco vencer — fica junto do histórico, onde a atendente procura */}
+            {/* UC07 A4: contato antes do marco vencer — fica junto do histórico, onde a atendente procura */}
             <div className="mb-4 flex items-center justify-between gap-3">
                 <h3 className="secao-titulo">Histórico de contatos</h3>
                 {possuiContatoAntecipavel && !estaRegistrandoContato && (
@@ -233,6 +233,7 @@ export function PaginaHistorico() {
                 />
             )}
             <HistoricoInteracoes
+                clienteHistorico={clienteSelecionado}
                 interacoesCliente={interacoesCliente}
                 estaCarregando={estaCarregando}
                 aoAlterar={aoAlterarHistorico}

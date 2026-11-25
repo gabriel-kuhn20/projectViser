@@ -1,9 +1,9 @@
 const UM_DIA_EM_MS = 24 * 60 * 60 * 1000;
 
-// o que o cálculo precisa de cada marco cadastrado (UC04): o id e quantos dias após a entrega ele vence
+// o que o cálculo precisa de cada marco cadastrado (UC03): o id e quantos dias após a entrega ele vence
 export type RegraMarco = { id: number; diasAposEntrega: number };
 
-// A2 (UC04): sem data de entrega não há como calcular os marcos; a chamada
+// A2 (UC03): sem data de entrega não há como calcular os marcos; a chamada
 // nem deveria acontecer nesse caso, quem chama filtra isso antes.
 // devolve os marcos já vencidos, do mais curto para o mais longo
 export function calcularMarcosAtingidos<TipoRegra extends RegraMarco>(
@@ -27,7 +27,7 @@ export function calcularDataAlvoMarco(dataEntrega: Date, diasAposEntrega: number
 
 // marco criado pelo administrador depois da entrega não vale para o passado: sem isso, criar um
 // marco de 30 dias jogaria de uma vez na lista todo cliente com entrega de mais de 30 dias.
-// Entrega cadastrada depois do marco existir (mesmo com data antiga) recebe todos, como no UC04
+// Entrega cadastrada depois do marco existir (mesmo com data antiga) recebe todos, como no UC03 A4
 export function verificarMarcoValeParaEntrega(
     dataAlvo: Date,
     entregaCadastradaEm: Date,

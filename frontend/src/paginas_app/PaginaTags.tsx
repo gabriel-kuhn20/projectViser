@@ -54,7 +54,7 @@ export function PaginaTags() {
 
     return (
         <div>
-            <TituloPagina titulo="Tags" subtitulo="Etiquetas para classificar as clientes." />
+            <TituloPagina titulo="Tags" subtitulo="Etiquetas para classificar os clientes." />
             {mensagemErro && <p role="alert" className="mensagem-erro">{mensagemErro}</p>}
             {mensagemSucesso && <p role="status" className="mensagem-sucesso">{mensagemSucesso}</p>}
             <div className="grid items-start gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">

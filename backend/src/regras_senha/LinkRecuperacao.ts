@@ -16,7 +16,7 @@ export function gerarHashToken(tokenPuro: string) {
   return crypto.createHash("sha256").update(tokenPuro).digest("hex");
 }
 
-// UC12 · Recuperar senha (RF20)
+// UC12 · Recuperar senha (RF20, RNF11)
 export async function criarEEnviarLinkRecuperacao(usuarioId: number, email: string) {
   // 32 bytes de aleatoriedade criptográfica — o equivalente do SecureRandom do Java
   const tokenPuro = crypto.randomBytes(32).toString("hex");

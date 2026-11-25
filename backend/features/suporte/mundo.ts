@@ -121,6 +121,14 @@ export async function criarLinkRecuperacao(email: string, minutosParaVencer: num
   return tokenPuro;
 }
 
+// conta gravada antes de o e-mail ser convertido para minúsculas: entra direto no banco,
+// porque pela API o e-mail já chegaria convertido
+export async function criarContaAntiga(email: string, senha: string) {
+  await prisma.usuario.create({
+    data: { email, senha: await bcrypt.hash(senha, 4), pessoa: { create: { nome: "Conta antiga" } } },
+  });
+}
+
 export async function obterIdUsuarioPorEmail(email: string) {
   const usuario = await prisma.usuario.findUniqueOrThrow({ where: { email } });
   return usuario.id;

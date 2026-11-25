@@ -79,7 +79,7 @@ export type DadosAntecipacaoLembrete = {
   concluir: boolean;
 };
 
-// UC07: contato feito antes do marco vencer (cliente ligou ou passou na loja)
+// UC07 A4: contato feito antes do marco vencer (cliente ligou ou passou na loja)
 export async function anteciparLembrete(dadosAntecipacao: DadosAntecipacaoLembrete): Promise<void> {
   await clienteHttp.post("/lembretes/antecipar", dadosAntecipacao);
 }

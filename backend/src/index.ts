@@ -14,7 +14,7 @@ app.listen(porta, () => {
   console.log(`servidor rodando na porta ${porta}`);
 });
 
-// UC04: rotina agendada, não efeito colateral de tela aberta (PRD, seção 9)
+// UC03 e UC04: rotina agendada, não efeito colateral de tela aberta (PRD, seção 9)
 iniciarAgendadorMarcos();
 
 // tokens de recuperação e de sessão vencidos saem do banco todo dia
