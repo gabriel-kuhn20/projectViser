@@ -1,0 +1,62 @@
+# CI: roda em todo pull request e em todo push na main.
+# PR com teste vermelho ou build quebrado fica marcado e não deve entrar.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    # o mesmo PostgreSQL do docker-compose.yml; os testes criam e apagam o schema teste_bdd nele
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: pos_venda_otica
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    # na CI não existe .env: as variáveis que os testes precisam vêm daqui
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/pos_venda_otica
+      URL_FRONTEND: http://localhost:5173
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Instalar dependências
+        run: npm ci
+      - name: Gerar o Prisma Client
+        working-directory: backend
+        run: npx prisma generate
+      - name: Compilar o backend
+        working-directory: backend
+        run: npm run build
+      - name: Testes BDD
+        working-directory: backend
+        run: npm run test:bdd
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Instalar dependências
+        run: npm ci
+      - name: Build do frontend
+        working-directory: frontend
+        run: npm run build
