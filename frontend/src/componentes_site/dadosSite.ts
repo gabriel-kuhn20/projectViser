@@ -6,8 +6,7 @@ export const contatoViser = {
     email: "viseroculos@gmail.com",
     // WhatsApp usa o mesmo número do telefone
     whatsapp: "https://wa.me/5551999645154",
-    // TODO: confirmar o perfil oficial da Viser no Instagram
-    instagram: "https://www.instagram.com/",
+    instagram: "https://www.instagram.com/oticaviser/",
 };
 
 export const linkAgendamento = contatoViser.whatsapp;
