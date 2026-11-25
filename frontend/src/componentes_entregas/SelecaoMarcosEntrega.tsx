@@ -30,7 +30,7 @@ export function SelecaoMarcosEntrega({ tiposMarcoAtivos, tiposMarcoMarcados, aoA
   return (
       // div com role="group": o <legend> precisa ser filho direto do fieldset e aqui divide a linha com os atalhos
       <div role="group" aria-label="Lembretes desta compra" className="flex flex-col gap-3">
-        <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
           <span className="campo-texto-rotulo">Lembretes desta compra</span>
           <div className="flex gap-3 text-[12px] font-semibold">
             <button
