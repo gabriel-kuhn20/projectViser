@@ -274,7 +274,7 @@ Then(
     assert.equal(vezes, 1, `${nome} aparece ${vezes} vezes nos lembretes de ${marco}`);
   }
 );
-// ---------- UC09 · Marcar lembrete como em atendimento (RF08) ----------
+// ---------- UC08 · Marcar lembrete como em atendimento (RF08) ----------
 
 // outra conta assume por fora: o token de quem está logado no cenário continua o mesmo
 Given(
@@ -315,7 +315,7 @@ When("renomeio a tag {string} para {string}", async function (this: Mundo, nomeA
   );
 });
 
-// ---------- UC10 · Cadastrar conta de atendente (RF09): e-mail sem diferenciar maiúsculas ----------
+// ---------- UC10 · Manter conta de usuário (RF09): e-mail sem diferenciar maiúsculas ----------
 
 Given(
   "que existe uma conta antiga com o e-mail {string} e a senha {string}",
@@ -400,7 +400,7 @@ When("excluo a conta de {string}", async function (this: Mundo, email: string) {
   await guardarResposta(this, await api(`/atendentes/${usuarioId}`, { metodo: "DELETE", token: this.token }));
 });
 
-// ---------- UC13 · Trocar a própria senha (RF21) / UC14 · Redefinir senha de atendente (RF22) ----------
+// ---------- UC13 · Trocar a própria senha (RF21) / UC14 · Enviar link de nova senha (RF22) ----------
 
 When(
   "troco minha senha de {string} para {string}",

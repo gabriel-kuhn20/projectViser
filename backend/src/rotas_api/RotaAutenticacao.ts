@@ -5,7 +5,7 @@ import { middlewareLimiteLogin } from "../middlewares_seguranca/MiddlewareLimite
 
 export const rotaAutenticacao = Router();
 
-// RF01: o sistema permite que o atendente acesse com email e senha
+// RF01 (UC01): atendente ou administrador entra com e-mail e senha; RNF09: limite de tentativas por IP
 rotaAutenticacao.post("/login", middlewareLimiteLogin, controleAutenticacao.efetuarLogin);
 
 // exige estar logado: é o token do cabeçalho que será encerrado

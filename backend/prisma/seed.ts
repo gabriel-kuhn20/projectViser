@@ -29,7 +29,7 @@ async function main() {
   await seedAtendentePadrao();
 }
 
-// UC10/RF10 tem uma dependência circular: POST /api/atendentes exige token,
+// UC10/RF09 tem uma dependência circular: POST /api/atendentes exige token,
 // mas sem nenhum usuário cadastrado ninguém consegue logar pra gerar esse
 // token. Essa seed cria a primeira conta pra destravar isso, sem precisar
 // abrir a rota de cadastro sem autenticação.

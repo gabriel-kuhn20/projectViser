@@ -8,13 +8,13 @@ rotaInteracao.use(middlewareAutenticacao);
 
 // RF06 (UC06): histórico completo de interações de um cliente
 rotaInteracao.get("/cliente/:clienteId", controleInteracao.listarHistoricoCliente);
-// RF05 (UC07): registrar uma interação com o cliente
+// RF07 (UC07 A2): registrar uma tentativa de contato com o cliente
 rotaInteracao.post("/", controleInteracao.registrarInteracao);
 // RF06 (UC06)
 rotaInteracao.get("/:interacaoId", controleInteracao.buscarInteracaoPorId);
-// RF05 (UC07)
-// RF05: corrigir o texto de uma tentativa (autor ou admin, lembrete pendente)
+// RF07 (UC07 A2): corrigir o texto de uma tentativa (autor ou admin, lembrete pendente)
 rotaInteracao.patch("/:interacaoId", controleInteracao.editarInteracao);
+// RF07 (UC07 A2): a resposta do cliente pode ser registrada depois, quando ele retornar
 rotaInteracao.patch("/:interacaoId/resposta", controleInteracao.registrarRespostaCliente);
-// Excluir interação
+// RF07 (UC07 A2): excluir uma tentativa
 rotaInteracao.delete("/:interacaoId", controleInteracao.excluirInteracao);

@@ -12,7 +12,7 @@ type PropriedadesFormularioMarco = {
 
 const camposIniciais = { nome: "", diasAposEntrega: "" };
 
-// UC04 · Calcular marcos de acompanhamento (RF03): o administrador define os prazos de contato
+// UC15 · Manter marco de acompanhamento (RF23): o administrador define os prazos de contato
 export function FormularioMarco({ marcoEmEdicao, aoSalvar, aoCancelarEdicao }: PropriedadesFormularioMarco) {
     const [campos, definirCampos] = useState(camposIniciais);
     const [mensagemErro, definirMensagemErro] = useState<string | null>(null);

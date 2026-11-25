@@ -17,7 +17,7 @@ const dadosIncluidosResposta = {
   tags: { include: { tag: true } },
 } as const;
 
-// UC02 · Cadastrar cliente (RF02)
+// UC02 · Manter cliente (RF02): cadastrar cliente
 async function cadastrarCliente(req: Request, res: Response) {
   const { pessoaId, nome, dataEntrega, produto, tiposMarcoIgnorados, ...dadosCliente } =
       validadorCadastroCliente.parse(req.body);
@@ -83,7 +83,7 @@ function montarFiltroTag(tagId: number | undefined): Prisma.Sql {
   return Prisma.sql`EXISTS (SELECT 1 FROM "cliente_tag" ct WHERE ct."clienteId" = c."id" AND ct."tagId" = ${tagId})`;
 }
 
-// Listar clientes com busca e paginação no servidor
+// UC02 · Manter cliente (RF02): listar clientes com busca e paginação no servidor (RNF01)
 // a busca vai em SQL porque o Prisma não ignora acento; os dados completos (pessoa, tags,
 // responsável) vêm depois pelo findMany só dos ids da página
 async function listarClientes(req: Request, res: Response) {
@@ -120,7 +120,7 @@ async function listarClientes(req: Request, res: Response) {
   });
 }
 
-// Buscar cliente por id (com as entregas, da mais recente para a mais antiga); os marcos já gerados
+// UC02 · Manter cliente (RF02, RF18): buscar cliente por id (com as entregas, da mais recente para a mais antiga); os marcos já gerados
 // vão junto para a tela saber qual contato ainda pode ser antecipado e se a compra já tem contato
 // (a atendente só exclui compra sem contato — RNF06)
 async function buscarClientePorId(req: Request, res: Response) {
@@ -147,7 +147,7 @@ async function buscarClientePorId(req: Request, res: Response) {
   return res.json(clienteEncontrado);
 }
 
-// UC03 · Editar cliente (RF09)
+// UC02 · Manter cliente (RF02): editar cliente
 async function editarCliente(req: Request, res: Response) {
   const { id: clienteId } = validadorParametroId.parse({ id: req.params.clienteId });
   const { nome, ...dadosCliente } = validadorEdicaoCliente.parse(req.body);
@@ -168,7 +168,7 @@ async function editarCliente(req: Request, res: Response) {
   return res.json(clienteAtualizado);
 }
 
-// Excluir cliente (cascata manual: entregas → marcos → lembretes → interações/em atendimento,
+// UC02 · Manter cliente (RF02, RF11): excluir cliente (cascata manual: entregas → marcos → lembretes → interações/em atendimento,
 // e vínculos de tag). A pessoa só é apagada junto se não for atendente nem outro cliente
 async function excluirCliente(req: Request, res: Response) {
   const { id: clienteId } = validadorParametroId.parse({ id: req.params.clienteId });

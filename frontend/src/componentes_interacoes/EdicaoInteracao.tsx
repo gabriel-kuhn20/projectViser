@@ -9,7 +9,7 @@ type PropriedadesEdicaoInteracao = {
   aoCancelar: () => void;
 };
 
-// RF05 · correção do texto de uma tentativa já registrada.
+// UC07 A2 (RF07) · correção do texto de uma tentativa já registrada.
 // não é um <form>: também aparece dentro do formulário de contato, e form dentro de form não vale no HTML
 export function EdicaoInteracao({ interacaoEmEdicao, aoSalvar, aoCancelar }: PropriedadesEdicaoInteracao) {
   const [conteudo, definirConteudo] = useState(interacaoEmEdicao.conteudo);

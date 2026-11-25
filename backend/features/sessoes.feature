@@ -1,7 +1,7 @@
 # language: pt
 Funcionalidade: Encerrar a sessão
   Sair do sistema derruba o token no servidor, não só na tela, e trocar a senha
-  derruba as sessões que estavam abertas com a senha antiga (RF01, RF21).
+  derruba as sessões que estavam abertas com a senha antiga (RF01, RF21, RNF10).
   Tokens que já venceram saem do banco, para as tabelas não crescerem para sempre.
 
   Cenário: O token de quem saiu não abre mais nada

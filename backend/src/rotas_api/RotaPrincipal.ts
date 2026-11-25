@@ -13,10 +13,10 @@ export const rotaPrincipal = Router();
 
 rotaPrincipal.use("/autenticacao", rotaAutenticacao); // UC01
 rotaPrincipal.use("/atendentes", rotaAtendente);       // UC10
-rotaPrincipal.use("/clientes", rotaCliente);           // UC02, UC03
-rotaPrincipal.use("/lembretes", rotaLembrete);         // UC05, UC08, UC09
+rotaPrincipal.use("/clientes", rotaCliente);           // UC02, UC11
+rotaPrincipal.use("/lembretes", rotaLembrete);         // UC05, UC07, UC08
 rotaPrincipal.use("/interacoes", rotaInteracao);       // UC06, UC07
-rotaPrincipal.use("/painel", rotaPainel);              // UC11
-rotaPrincipal.use("/tags", rotaTag);
-rotaPrincipal.use("/entregas", rotaEntrega);
-rotaPrincipal.use("/tipos-marco", rotaTipoMarco);  // UC04: marcos definidos pelo administrador
+rotaPrincipal.use("/painel", rotaPainel);              // UC09
+rotaPrincipal.use("/tags", rotaTag);                  // UC11
+rotaPrincipal.use("/entregas", rotaEntrega);          // UC02
+rotaPrincipal.use("/tipos-marco", rotaTipoMarco);  // UC15: marcos definidos pelo administrador

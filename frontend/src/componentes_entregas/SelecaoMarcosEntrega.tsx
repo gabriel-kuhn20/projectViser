@@ -14,7 +14,7 @@ export function calcularTiposMarcoIgnorados(tiposMarcoAtivos: TipoMarcoApi[], ti
       .filter((tipoMarcoId) => !tiposMarcoMarcados.includes(tipoMarcoId));
 }
 
-// UC04 · Calcular marcos de acompanhamento (RF03): a atendente escolhe quais contatos a compra recebe
+// UC02 · Manter cliente (RF02) / UC03 A3: a atendente escolhe quais contatos a compra recebe
 // (ex: óculos de sol só com o de 7 dias). Começa em branco para a escolha ser consciente
 export function SelecaoMarcosEntrega({ tiposMarcoAtivos, tiposMarcoMarcados, aoAlterar }: PropriedadesSelecaoMarcosEntrega) {
   function alternarMarco(tipoMarcoId: number) {

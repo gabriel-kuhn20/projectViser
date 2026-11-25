@@ -21,9 +21,9 @@ export async function buscarLembretePendente(lembreteId: number) {
   return lembreteEncontrado;
 }
 
-// UC09 · Marcar lembrete como em atendimento (RF08)
+// UC08 · Marcar lembrete como em atendimento (RF08)
 // lembrete assumido só recebe contato e conclusão de quem assumiu ou de um admin — senão outra
-// atendente registra e conclui por cima e duas pessoas falam com o mesmo cliente (o que o UC09
+// atendente registra e conclui por cima e duas pessoas falam com o mesmo cliente (o que o UC08
 // existe para evitar). Lembrete que ninguém assumiu continua livre para qualquer atendente
 export async function verificarAtendimentoDeOutro(req: Request, lembreteId: number) {
   const { usuarioId, papelAcesso } = req.usuarioLogado!;
@@ -36,7 +36,7 @@ export async function verificarAtendimentoDeOutro(req: Request, lembreteId: numb
   }
 }
 
-// UC05 · Ver lista de lembretes por marco (RF04)
+// UC05 · Ver lista de lembretes por marco (RF05)
 async function listarPorMarco(req: Request, res: Response) {
   // os marcos agora são cadastrados pelo administrador, então a aba é identificada pelo id
   const { id: tipoMarcoId } = validadorParametroId.parse({ id: req.params.tipoMarcoId });
@@ -146,7 +146,7 @@ async function reabrirLembrete(req: Request, res: Response) {
   return res.json(lembreteReaberto);
 }
 
-// UC09 · Marcar lembrete como em atendimento (RF08)
+// UC08 · Marcar lembrete como em atendimento (RF08)
 // A1: outro atendente já tratando aquele lembrete não pode assumir de novo
 async function marcarEmAtendimento(req: Request, res: Response) {
   const lembreteId = Number(req.params.lembreteId);
@@ -165,7 +165,7 @@ async function marcarEmAtendimento(req: Request, res: Response) {
   return res.status(201).json(registro);
 }
 
-// UC09 · A2: desistir do contato libera o lembrete manualmente
+// UC08 · A2: desistir do contato libera o lembrete manualmente
 async function desmarcarEmAtendimento(req: Request, res: Response) {
   const lembreteId = Number(req.params.lembreteId);
   if (Number.isNaN(lembreteId)) {
@@ -178,7 +178,7 @@ async function desmarcarEmAtendimento(req: Request, res: Response) {
   }
 
   // só quem assumiu ou um admin libera — senão outro atendente tira o cliente da mão de quem
-  // está no contato e os dois acabam ligando para a mesma pessoa (o que o UC09 existe para evitar)
+  // está no contato e os dois acabam ligando para a mesma pessoa (o que o UC08 existe para evitar)
   const { usuarioId, papelAcesso } = req.usuarioLogado!;
   const podeLiberar = papelAcesso === "admin" || atendimentoAtual.usuarioId === usuarioId;
   if (!podeLiberar) {
@@ -189,9 +189,9 @@ async function desmarcarEmAtendimento(req: Request, res: Response) {
   return res.status(204).send();
 }
 
-// UC07 · Concluir lembrete de contato (RF07) — contato antecipado: o cliente ligou ou passou na loja
+// UC07 · Concluir lembrete de contato (RF07) — A4, contato antecipado: o cliente ligou ou passou na loja
 // antes do marco vencer. O marco nasce agora com a data real e já com a conversa; quando a data chegar,
-// o AgendadorMarcos vê que ele existe e não gera outro (UC04 A1)
+// o AgendadorMarcos vê que ele existe e não gera outro (UC03 A1)
 async function anteciparLembrete(req: Request, res: Response) {
   const { entregaId, tipoMarcoId, conteudo, respostaCliente, concluir } = validadorAntecipacaoLembrete.parse(req.body);
 

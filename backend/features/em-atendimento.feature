@@ -1,7 +1,7 @@
 # language: pt
 Funcionalidade: Lembrete em atendimento
   Quem assume um lembrete fica com o contato: outra atendente não registra
-  nem conclui por cima, para a cliente não receber duas ligações (UC09, RF08).
+  nem conclui por cima, para a cliente não receber duas ligações (UC08, RF08).
   O administrador continua podendo agir em qualquer lembrete.
 
   Cenário: Atendente tenta concluir um lembrete assumido por outra pessoa

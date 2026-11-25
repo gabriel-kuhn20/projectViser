@@ -46,7 +46,7 @@ function verificarAtendimentoIniciado(lembrete: {
     return lembrete.status !== "pendente" || lembrete.interacoes.length > 0 || lembrete.emAtendimentos !== null;
 }
 
-// Cadastrar entrega para um cliente que já existe (ex: compra de um óculos novo)
+// UC02 · Manter cliente (RF02): cadastrar entrega para um cliente que já existe (ex: compra de um óculos novo)
 async function cadastrarEntrega(req: Request, res: Response) {
     const { clienteId, dataEntrega, produto, tiposMarcoIgnorados } = validadorCadastroEntrega.parse(req.body);
 
@@ -65,7 +65,7 @@ async function cadastrarEntrega(req: Request, res: Response) {
     return res.status(201).json(novaEntrega);
 }
 
-// Listar entregas de um cliente, da mais recente para a mais antiga
+// UC02 · Manter cliente (RF02, RF18): listar entregas de um cliente, da mais recente para a mais antiga
 async function listarEntregasCliente(req: Request, res: Response) {
     const { id: clienteId } = validadorParametroId.parse({ id: req.params.clienteId });
 
@@ -83,7 +83,7 @@ async function listarEntregasCliente(req: Request, res: Response) {
     return res.json(entregasCliente);
 }
 
-// Buscar entrega por id (com o cliente e o status dos lembretes de cada marco)
+// UC02 · Manter cliente (RF02): buscar entrega por id (com o cliente e o status dos lembretes de cada marco)
 async function buscarEntregaPorId(req: Request, res: Response) {
     const { id: entregaId } = validadorParametroId.parse({ id: req.params.entregaId });
 
@@ -104,7 +104,7 @@ async function buscarEntregaPorId(req: Request, res: Response) {
     return res.json(entregaEncontrada);
 }
 
-// Editar produto, data e os marcos que a compra recebe
+// UC02 · Manter cliente (RF02): editar produto, data e os marcos que a compra recebe
 async function editarEntrega(req: Request, res: Response) {
     const { id: entregaId } = validadorParametroId.parse({ id: req.params.entregaId });
     const { dataEntrega, produto, tiposMarcoIgnorados } = validadorEdicaoEntrega.parse(req.body);
@@ -143,7 +143,7 @@ async function editarEntrega(req: Request, res: Response) {
         (tiposMarcoIgnorados.length !== entregaExistente.tiposMarcoIgnorados.length || tiposRecemIgnorados.length > 0);
 
     const entregaAtualizada = await clientePrisma.$transaction(async (transacaoBanco) => {
-        // RF03 (UC04): sem os marcos antigos, o AgendadorMarcos recalcula tudo
+        // RF03 (UC03 A3): sem os marcos antigos, o AgendadorMarcos recalcula tudo
         // a partir da nova data logo abaixo
         if (dataAlterada) {
             await excluirMarcosEntregas(transacaoBanco, [entregaId]);
@@ -166,7 +166,7 @@ async function editarEntrega(req: Request, res: Response) {
     return res.json(entregaAtualizada);
 }
 
-// Excluir entrega (cascata manual: marcos → lembretes → interações/em atendimento)
+// UC02 · Manter cliente (RF02, RF11): excluir entrega (cascata manual: marcos → lembretes → interações/em atendimento)
 async function excluirEntrega(req: Request, res: Response) {
     const { id: entregaId } = validadorParametroId.parse({ id: req.params.entregaId });
 

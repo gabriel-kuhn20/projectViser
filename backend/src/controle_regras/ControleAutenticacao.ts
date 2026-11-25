@@ -84,7 +84,7 @@ async function solicitarRecuperacaoSenha(req: Request, res: Response) {
   return res.json(RESPOSTA_SOLICITACAO_RECUPERACAO);
 }
 
-// UC12 · Redefinir a senha pelo link recebido (RF20)
+// UC12 · Recuperar senha (RF20): redefinir a senha pelo link recebido
 async function redefinirSenha(req: Request, res: Response) {
   const dadosValidados = validadorRedefinicaoSenha.parse(req.body);
 

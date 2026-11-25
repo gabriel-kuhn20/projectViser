@@ -33,7 +33,7 @@ function calcularDataMarco(dataEntrega: string, diasAposEntrega: number) {
   return new Date(new Date(dataEntrega).getTime() + diasAposEntrega * UM_DIA_EM_MS).toISOString();
 }
 
-// UC07 · Concluir lembrete de contato (RF07) — contato antecipado: o cliente ligou ou passou na loja
+// UC07 · Concluir lembrete de contato (RF07) — A4, contato antecipado: o cliente ligou ou passou na loja
 // antes do marco vencer. Nada é gravado até salvar, então cancelar não deixa lembrete pendurado
 export function FormularioContatoAntecipado({
                                               entregasCliente,

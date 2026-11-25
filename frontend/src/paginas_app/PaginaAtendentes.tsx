@@ -13,7 +13,7 @@ import { TituloPagina } from "../componentes_layout/TituloPagina";
 import { CampoBusca } from "../componentes_compartilhados/CampoBusca";
 import { correspondeBusca } from "../utilitarios_formatacao/BuscarTexto";
 
-// UC10 · Cadastrar conta de atendente (RF09) + listagem, edição de papel, desativação e exclusão (só administrador)
+// UC10 · Manter conta de usuário (RF09, RF11): cadastro, listagem, edição de papel, desativação e exclusão (só administrador)
 export function PaginaAtendentes() {
     const [atendentes, definirAtendentes] = useState<AtendenteApi[]>([]);
     const [carregando, definirCarregando] = useState(true);
@@ -46,7 +46,7 @@ export function PaginaAtendentes() {
         carregarAtendentes();
     }
 
-    // UC14 · Enviar à pessoa o link para criar uma senha nova (RF22)
+    // UC14 · Enviar link de nova senha (RF22)
     async function aoEnviarLinkSenha(atendente: AtendenteApi) {
         const confirmou = window.confirm(
             `Enviar para ${atendente.email} um link para ${atendente.pessoa.nome} criar uma senha nova?`

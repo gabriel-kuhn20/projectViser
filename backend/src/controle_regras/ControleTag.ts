@@ -4,7 +4,7 @@ import { ErroHttp } from "../middlewares_seguranca/ErroHttp";
 import { validadorCadastroTag, validadorEdicaoTag } from "../validadores_entrada/ValidadorTag";
 import { validadorParametroId } from "../validadores_entrada/ValidadorParametros";
 
-// Cadastrar tag
+// UC11 · Manter tag (RF12): cadastrar tag
 async function cadastrarTag(req: Request, res: Response) {
   const { nome } = validadorCadastroTag.parse(req.body);
 
@@ -20,13 +20,13 @@ async function cadastrarTag(req: Request, res: Response) {
   return res.status(201).json(novaTag);
 }
 
-// Listar tags
+// UC11 · Manter tag (RF12): listar tags
 async function listarTags(req: Request, res: Response) {
   const tags = await clientePrisma.tag.findMany({ orderBy: { nome: "asc" } });
   return res.json(tags);
 }
 
-// Editar tag
+// UC11 · Manter tag (RF12): renomear tag
 async function editarTag(req: Request, res: Response) {
   const { id: tagId } = validadorParametroId.parse({ id: req.params.tagId });
   const { nome } = validadorEdicaoTag.parse(req.body);
@@ -52,7 +52,7 @@ async function editarTag(req: Request, res: Response) {
   return res.json(tagAtualizada);
 }
 
-// Excluir tag (remove também os vínculos com clientes)
+// UC11 · Manter tag (RF12): excluir tag (remove também os vínculos com clientes)
 async function excluirTag(req: Request, res: Response) {
   const { id: tagId } = validadorParametroId.parse({ id: req.params.tagId });
 
@@ -75,7 +75,7 @@ async function excluirTag(req: Request, res: Response) {
   });
 }
   
-// Buscar tag por id
+// UC11 · Manter tag (RF12): buscar tag por id
 async function buscarTagPorId(req: Request, res: Response) {
   const { id: tagId } = validadorParametroId.parse({ id: req.params.tagId });
 

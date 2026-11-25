@@ -79,7 +79,7 @@ async function buscarInteracaoPorId(req: Request, res: Response) {
   return res.json(interacao);
 }
 
-// UC07 · Registrar interação (RF05)
+// UC07 · Concluir lembrete de contato (RF07) — A2: registrar uma tentativa sem concluir
 async function registrarInteracao(req: Request, res: Response) {
   const dadosValidados = validadorRegistroInteracao.parse(req.body);
   const usuarioId = req.usuarioLogado!.usuarioId;
@@ -95,7 +95,7 @@ async function registrarInteracao(req: Request, res: Response) {
   return res.status(201).json(novaInteracao);
 }
 
-// UC07 · Registrar interação (RF05): corrigir o texto de uma tentativa
+// UC07 · Concluir lembrete de contato (RF07) — A2: corrigir o texto de uma tentativa
 // só enquanto o lembrete está pendente — depois de concluído o histórico é o registro do atendimento
 // e não muda; editadoEm deixa claro na tela que o texto foi alterado
 async function editarInteracao(req: Request, res: Response) {
@@ -118,7 +118,7 @@ async function editarInteracao(req: Request, res: Response) {
   return res.json(interacaoEditada);
 }
 
-// UC07 · Registrar interação (RF05)
+// UC07 · Concluir lembrete de contato (RF07) — A2: registrar a resposta do cliente depois
 // a resposta do cliente pode chegar depois do contato — por isso não exige lembrete pendente
 async function registrarRespostaCliente(req: Request, res: Response) {
   const { id: interacaoId } = validadorParametroId.parse({ id: req.params.interacaoId });
@@ -135,8 +135,8 @@ async function registrarRespostaCliente(req: Request, res: Response) {
   return res.json(interacaoAtualizada);
 }
 
-// Excluir interação
-// só com lembrete pendente — o UC08 exige ao menos uma interação para concluir, e apagar
+// UC07 · Concluir lembrete de contato (RF07) — A2: excluir uma tentativa
+// só com lembrete pendente — o UC07 (A1) exige ao menos uma interação para concluir, e apagar
 // depois deixaria um lembrete concluído sem o registro que justificou a conclusão
 async function excluirInteracao(req: Request, res: Response) {
   const { id: interacaoId } = validadorParametroId.parse({ id: req.params.interacaoId });
